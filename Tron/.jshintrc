@@ -15,7 +15,6 @@
     "wsh"           : true,   // Windows Scripting Host.
 
     "jquery"        : true,
-    "ender"         : true,
     "prototypejs"   : false,
     "mootools"      : false,
     "dojo"          : false,
@@ -33,7 +32,6 @@
 
 
     // ECMAScript 5.
-    "es5"           : true,   // Allow ECMAScript 5 syntax.
     "strict"        : false,  // Require `use strict` pragma  in every file.
     "globalstrict"  : false,  // Allow global "use strict" (also enables 'strict').
 
@@ -53,8 +51,6 @@
     "latedef"       : true,   // Prohipit variable use before definition.
     "loopfunc"      : false,  // Allow functions to be defined within loops.
     "noarg"         : true,   // Prohibit use of `arguments.caller` and `arguments.callee`.
-    "regexp"        : true,   // Prohibit `.` and `[^...]` in regular expressions.
-    "regexdash"     : false,  // Tolerate unescaped last dash i.e. `[-...]`.
     "scripturl"     : true,   // Tolerate script-targeted URLs.
     "shadow"        : false,  // Allows re-define variables later in code e.g. `var x=1; x=2;`.
     "supernew"      : false,  // Tolerate `new function () { ... };` and `new Object;`.

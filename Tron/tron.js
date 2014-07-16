@@ -5,18 +5,25 @@
 //TODO Verify that check environment for the AI player works
 "use strict";
 
-//Canvas to draw on
-var canvas = document.getElementById('game');
-//Context on canvas
-var ctx = canvas.getContext('2d');
 //Frames per second
-var FPS = 6;
+var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
 var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 10;
+var BIKE_WIDTH = 4;
 var BIKE_HEIGHT = BIKE_WIDTH;
+
+var TRON_SERVER_IP;
+
+//Canvas to draw on
+var canvas = document.getElementById('game');
+//Context on canvas
+var ctx = canvas.getContext('2d');
+// Set canvas size to match the Tron board rows and bike width
+canvas.width = COLS * BIKE_WIDTH;
+canvas.height = ROWS * BIKE_HEIGHT;
+
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
@@ -26,203 +33,241 @@ for (var i = 0; i < ROWS; i++) {
     }
     board.push(board_square);
 }
-//Associative array of directions [-1,0,1] Used as a look-up table for
-//checking the environment of AI players
-var DIRECTIONS = {
-    '-1': 0,
-    '0': 1,
-    '1': 2
-};
-var NUM_DIRECTIONS = Object.keys(DIRECTIONS).length;
-//all possible directions
-var PLAYER_DIRECTIONS = {
-    0: [0, 1],
-    1: [1, 0],
-    2: [0, -1],
-    3: [-1, 0]
-};
+//Directions player can move in [x, y] coordinates
+var PLAYER_DIRECTIONS = [
+    [0, 1], //East
+    [1, 0], //North
+    [0, -1],//West
+    [-1, 0] //South
+];
 //Get Ai Player
 var GET_AI_PLAYER = false;
 
-var Player1 = {
+var HUMAN_PLAYER = {
     //Position on board
     x: 1,
-    y: 0,
+    y: Math.floor(ROWS / 2),
     //Direction on board [x,y]
     direction: [0, 1],
     COLOR: 'red',
     alive: true,
     ID: 0,
+    bike_trail: [],
     ai: false
 };
-var Player2 = {
-    x: 2,
-    y: 0,
+var AI_PLAYER = {
+    x: Math.floor(ROWS / 2),
+    y: Math.floor(ROWS / 2),
     direction: [0, 1],
     COLOR: 'blue',
     alive: true,
     ID: 1,
+    bike_trail: [],
     ai: true,
-    strategy: ""
+    // Strategy for the AI
+    strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
 };
 //Array of players
-var players = [Player1, Player2];
+var players = [HUMAN_PLAYER, AI_PLAYER];
 var NUM_PLAYERS = players.length;
 
 var game_over = false;
 var stats_reported = false;
 
 /**
+ * Return the index of the direction in the PLAYER_DIRECTIONS array
+ *
+ * TODO is there a built in JS function for this?
+ *
+ * @param {Array.<number>} direction Direction to find the index of
+ * @returns {number} The index of the direction in the PLAYER_DIRECTIONS array
+ */
+function get_direction_index(direction) {
+    var idx = 0;
+    var match = false;
+    while (!match && idx < PLAYER_DIRECTIONS.length) {
+        if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
+            match = true
+        } else {
+            idx = idx + 1;
+        }
+    }
+    return idx;
+}
+
+/**
+ * Evaluate a node. Change the state of the player.
+ *
+ *  - Check the node label
+ *  - Traverse depth-first left-to-right
+ *  - Execute the function to change state of the program
+ *
+ * @param {Array.<Array>} node Node to evaluate
+ * @param {Object} player Player that is evaluated
+ * @returns {*}
+ */
+function evaluate(node, player) {
+    // Get the symbol of the node
+    var symbol = node[0];
+
+    if (symbol === "if") {
+        // Conditional statement
+
+        // Check the condition to see which child to evaluate
+        if (evaluate(node[1], player)) {
+            evaluate(node[2], player);
+        } else {
+            evaluate(node[3], player);
+        }
+    } else if (symbol === "is_obstacle_in_relative_direction") {
+        // Sense the distance
+
+        // Parse the direction from the child node
+        var direction = Number(node[1]);
+        // Return if there is an obstacle the direction
+        return is_obstacle_in_relative_direction(direction, player);
+    } else if (symbol === "left") {
+        // Turn left
+        left(player);
+    } else if (symbol === "right") {
+        // Turn right
+        right(player);
+    } else if (symbol === "ahead") {
+        // Do nothing
+    } else {
+        // Unknown symbol
+        throw "Unknown symbol:" + symbol;
+    }
+}
+
+/**
+ * Return a boolean denoting if the distance to an obstacle in the
+ * environment in the relative direction is one cell ahead.
+ *
+ * @param {number} direction
+ * @param {Object} player
+ * @returns {boolean}
+ */
+function is_obstacle_in_relative_direction(direction, player) {
+    // Threshold for how far ahead an obstacle is sensed
+    var threshold = 1.0 / ROWS;
+    // Distance to obstacle
+    var dist = distance(direction, player);
+    return dist < threshold;
+}
+
+/**
+ * Return a float [0, 1] that is the distance in the
+ * environment in the direction relative to the player direction
+ * divided by the board length.
+ *
+ * @param {number} direction relative direction to look in
+ * @param {Object} player player who is looking
+ * @returns {number} distance to an obstacle in the direction
+ */
+function distance(direction, player) {
+    var direction_idx = get_direction_index(player["direction"]);
+    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
+    var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
+    return player["environment"][new_direction] / ROWS;
+}
+
+/**
  * Returns an integer point based on the current point and direction.
+ *
  * @param {number} p point
  * @param {number} d direction
  * @return {number} new point
  */
-function get_new_coordinate(p, d) {
-    var p_p = (p + d) % ROWS;
-    if (p_p < 0) {
-        p_p = ROWS + p_p;
-    }
-    return Math.floor(p_p);
+function get_new_point(p, d) {
+    return (p + d + ROWS) % ROWS;
 }
 
-function getDirectionKey(direction) {
-    for (var key in PLAYER_DIRECTIONS) {
-        if (PLAYER_DIRECTIONS[key][0] === direction[0] && PLAYER_DIRECTIONS[key][1] === direction[1]) {
-            return key;
+/**
+ * Find distance to obstacles(bike trails) in
+ * of the current coordinates. Distance is measured in number of squares.
+ *
+ * @param{Object} player
+ */
+function check_environment(player) {
+    // Clear the environment
+    player["environment"] = {};
+
+    // Check in the directions
+    for (var i = 0; i < PLAYER_DIRECTIONS.length; i++) {
+        // Get the coordinates of the adjacent cell
+        var x_p = get_new_point(player["x"], PLAYER_DIRECTIONS[i][0]);
+        var y_p = get_new_point(player["y"], PLAYER_DIRECTIONS[i][1]);
+        // Distance to obstacles
+        var distance = 0;
+        // Iterate over the cells for and stop for obstacles or when the length of the board is reached
+        while (board[x_p][y_p] == 0 && distance < ROWS) {
+            // Increase the distance
+            distance = distance + 1;
+            // Get the coordinates of the adjacent cell
+            x_p = get_new_point(x_p, parseInt(PLAYER_DIRECTIONS[i][0]));
+            y_p = get_new_point(y_p, parseInt(PLAYER_DIRECTIONS[i][1]));
         }
+        // Set the distance to an obstacle in the direction
+        player["environment"][PLAYER_DIRECTIONS[i]] = distance;
     }
 }
 
 /**
- * Find distance to obstacles in all directions of the current
- * coordinate, the environment.
- * @param{number} x coordinate
- * @param{number} y coordinate
- * @return{Array.<Array<number>>} distance to obstacles
+ * Change direction by turning left 90 degrees
+ *
+ * @param{Object} player Player to change the state of
  */
-function check_environment(x, y) {
-    var environment = [];
-    var directions = Object.keys(DIRECTIONS);
-    for (var i = 0; i < NUM_DIRECTIONS; i++) {
-        var row = [];
-        for (var j = 0; j < NUM_DIRECTIONS; j++) {
-            var x_p = get_new_coordinate(x, parseInt(directions[i]));
-            var y_p = get_new_coordinate(y, parseInt(directions[j]));
-            var square_value = 0;
-            while (board[x_p][y_p] <= 0 && square_value < ROWS) {
-                square_value = square_value + 1;
-                x_p = get_new_coordinate(x_p, parseInt(directions[i]));
-                y_p = get_new_coordinate(y_p, parseInt(directions[j]));
-            }
-            row.push(square_value);
-        }
-        environment.push(row);
-    }
-    //console.log('check_environment:'+environment);
-    return environment;
-}
-
-/*
- * Left
- * @param{Array.<number>} direction
- */
-function left(direction) {
-    var direction_key = getDirectionKey(direction);
-    direction_key = (parseInt(direction_key) + 1);
-    return PLAYER_DIRECTIONS[direction_key % 4];
-}
-
-/*
- * Right. Add 3 (number of directions - 1) instead of subtracting 1 to
- * avoid getting -1, which throws an error 
- * @param{Array.<number>} direction
- */
-function right(direction) {
-    var direction_key = getDirectionKey(direction);
-    direction_key = (parseInt(direction_key) + 3);
-    return PLAYER_DIRECTIONS[direction_key % 4];
+function left(player) {
+    var direction_idx = get_direction_index(player["direction"]);
+    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + 1) % PLAYER_DIRECTIONS.length;
+    player.direction = PLAYER_DIRECTIONS[new_direction_idx];
 }
 
 /**
- * Move an ai player. Function for testing the ai player
+ * Change direction by turning right 90 degrees
+ *
+ * @param{Object} player Player to change the state of
+ */
+function right(player) {
+    var direction_idx = get_direction_index(player["direction"]);
+    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length - 1) % PLAYER_DIRECTIONS.length;
+    player.direction = PLAYER_DIRECTIONS[new_direction_idx];
+}
+
+/**
+ * Move an ai player. Function for moving the ai player
+ *
  * @param {Object} player player
  */
 function move_ai(player) {
-    var key_symbol = "";
-    eval(player.strategy);
-    if (key_symbol === "Left") {
-        player.direction = left(player.direction);
-    } else {
-        if (key_symbol === "Right") {
-            player.direction = right(player.direction);
-        }
-    }
-}
-
-/**
- * Used by the AI. See if the distance in the environment in the direction is
- * lower than a threshold.
- * @param{number} threshold
- * @param{number} direction_x
- * @param{number} direction_y
- * @param{Array.<Array.<number>>} environment
- * @return{boolean} true if distance to object is lower than threshold
- */
-function look_ahead(threshold, direction_x, direction_y, environment) {
-    return environment[DIRECTIONS[direction_x]][DIRECTIONS[direction_y]] < threshold;
-}
-
-/**
- * Used by the AI. See if the distance in the environment to the left of
- * the current direction is lower than a threshold.
- * @param{number} threshold
- * @param{number} x
- * @param{number} y
- * @param{Array.<Array.<number>>} environment
- * @return{boolean} true if distance to object is lower than threshold
- */
-function look_left(threshold, x, y, environment) {
-    var direction_key = getDirectionKey(Player2.direction);
-    var direction = PLAYER_DIRECTIONS[(parseInt(direction_key) + 1) % 4];
-    x = direction[0];
-    y = direction[1];
-    return environment[DIRECTIONS[x]][DIRECTIONS[y]] < threshold;
-}
-
-/**
- * Used by the AI. See if the distance in the environment to the right
- * of the direction is lower than a threshold.
- * @param{number} threshold
- * @param{number} x
- * @param{number} y
- * @param{Array.<Array.<number>>} environment
- * @return{boolean} true if distance to object is lower than threshold
- */
-function look_right(threshold, x, y, environment) {
-    var direction_key = getDirectionKey(Player2.direction);
-    var direction = PLAYER_DIRECTIONS[(parseInt(direction_key) + 3) % 4];
-    x = direction[0];
-    y = direction[1];
-    return environment[DIRECTIONS[x]][DIRECTIONS[y]] < threshold;
+    // Check the environment for obstacles
+    check_environment(player);
+    // Evaluate the player strategy
+    evaluate(player.strategy, player);
 }
 
 /**
  * Move a bike(player).
+ *
  * @param {Object} player player
  */
 function move_bike(player) {
-    player.x = get_new_coordinate(player.x, player.direction[0]);
-    player.y = get_new_coordinate(player.y, player.direction[1]);
-//    console.log('move_bike p_id:'+player.ID+' p_x:'+player.x+' p_y:'+player.y+' x:'+player.direction[0]+' y:'+player.direction[1]);
+    // Get new x-coordinate
+    player.x = get_new_point(player.x, player.direction[0]);
+    // Get new y-coordinate
+    player.y = get_new_point(player.y, player.direction[1]);
 }
 
 /**
- * Draw the player at the current coordinates
+ * Draw the player at the current coordinates on the canvas
+ *
  * @param{Object} player
  */
 function draw(player) {
+    // Set the fill style color
     ctx.fillStyle = player.COLOR;
+    // Fill a rectangle.
     ctx.fillRect(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
         BIKE_WIDTH, BIKE_HEIGHT);
 }
@@ -231,6 +276,7 @@ function draw(player) {
  * Update the player. Move the player if it is alive. Check for
  * collision, i.e. board value is 1. Mark the board with a 1 at the
  * player coordinates.
+ *
  * @param{Object} player
  */
 function update(player) {
@@ -239,11 +285,15 @@ function update(player) {
         move_bike(player);
     }
     //check for collision
-    if (board[player.x][player.y] === 1) {
+    if (board[player.x][player.y] !== 0) {
         player.alive = false;
+    } else {
+        //TODO handle head on collision
+        // Add the direction to the bike trail
+        player["bike_trail"].push(player["direction"]);
+        // Set the board value to the bike trail length
+        board[player.x][player.y] = player["bike_trail"].length;
     }
-    //TODO handle head on collision
-    board[player.x][player.y] = 1;
 }
 
 /*
@@ -251,13 +301,16 @@ function update(player) {
  */
 function end_game() {
     var winner = -1;
+    // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
         if (players[i].alive === true) {
             winner = i;
         }
     }
     //TODO send json object to python
-    var url = "http://128.30.109.173/stu_tron/register_results.py?winner=" + winner + "&id=" + 1;
+    // Write to stat server with GET
+    var url = "http://" + TRON_SERVER_IP + "/stu_tron/register_results.py?winner=" + winner + "&id=" + 1;
+    // Get the reply
     getJSON(url, function (data) {
         console.log('Data: ' + data.winner + ' id:' + data.id);
         stats_reported = true;
@@ -266,23 +319,25 @@ function end_game() {
 }
 
 /**
- * A tick of the game clock, i.e. one round.
+ * A step of the game clock, i.e. one round.
  */
-function tick() {
-    //Check if the players are alive
-    for (var i = 0; i < NUM_PLAYERS; i++) {
-        if (players[i].alive === false) {
-            game_over = true;
-        }
-    }
+function step() {
     //Move the players
     if (!stats_reported) {
         for (var i = 0; i < NUM_PLAYERS; i++) {
             if (players[i].ai) {
                 move_ai(players[i]);
             }
+            // Update the player
             update(players[i]);
+            // Draw the player
             draw(players[i]);
+        }
+    }
+    //Check if the players are alive
+    for (var i = 0; i < NUM_PLAYERS; i++) {
+        if (players[i].alive === false) {
+            game_over = true;
         }
     }
     //Game over?
@@ -296,7 +351,6 @@ function tick() {
 
 var getJSON = function (url, successHandler, errorHandler) {
     var xhr = typeof XMLHttpRequest !== 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    //xhr.overrideMimeType("application/json");
     xhr.open('get', url, true);
     xhr.onreadystatechange = function () {
         var status;
@@ -315,16 +369,16 @@ var getJSON = function (url, successHandler, errorHandler) {
 };
 
 if (GET_AI_PLAYER) {
-    getJSON("http://128.30.109.173/stu_tron/get_ai_opponent.py", function (data) {
+    getJSON("http://" + TRON_SERVER_IP + "/stu_tron/get_ai_opponent.py", function (data) {
         console.log('Data: ' + data.PlayerAI);
-        Player2.strategy = data.PlayerAI;
+        AI_PLAYER.strategy = data.PlayerAI;
     });
 }
 
 //Set the function which is called after each interval
-setInterval(tick, 1000 / FPS);
+setInterval(step, 1000 / FRAMES_PER_SECOND);
 
-//TODO hardcoded to handle only Player1 as the human player
+//TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeydown = function read(event) {
     //The variable e is passed into read or a window event
@@ -333,25 +387,20 @@ document.onkeydown = function read(event) {
     var code = e.keyCode || e.which;
     //Check the event code
     if (code === 37 || code === 39) {
-        //Current direction of Player1
-        var direction = Player1.direction;
+        //Current direction of HUMAN_PLAYER
+        var direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
-        //new direction
-        var new_direction;
         switch (code) {
             //Left arrow	    
             case 37:
                 //switch directions to the next direction in the PLAYER_DIRECTIONS array
-                new_direction = left(direction);
+                left(HUMAN_PLAYER);
                 break;
             //Right arrow
             case 39:
                 //switch directions to the previous direction in the PLAYER_DIRECTIONS array
-                //
-                new_direction = right(direction);
+                right(HUMAN_PLAYER);
                 break;
         }
-        //Set new direction
-        Player1.direction = new_direction;
     }
 };
