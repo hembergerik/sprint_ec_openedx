@@ -275,7 +275,7 @@ function draw(player) {
  *
  * @param{Object} player
  */
-function update(player) {
+function update(player,players) {
     //Move player
     if (player.alive) {
         move_bike(player);
@@ -283,8 +283,12 @@ function update(player) {
     //check for collision
     if (board[player.x][player.y] !== 0) {
         player.alive = false;
+        for(var i = 0; i < players.length; i++){
+            if ((players[i].x==player.x) && (players[i].y==player.y)){
+                players[i].alive = false;
+            }
+        }
     } else {
-        //TODO handle head on collision
         // Add the direction to the bike trail
         player["bike_trail"].push(player["direction"]);
         // Set the board value to the bike trail length
@@ -304,7 +308,11 @@ function end_game() {
             stats_reported = true;
         }
     }
-    $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+    if(winner==-1){
+      $('#winMessage').html('<h2>DRAW</h2>');
+    }else{
+      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+    }
 }
 
 /**
@@ -318,7 +326,7 @@ function step() {
                 move_ai(players[i]);
             }
             // Update the player
-            update(players[i]);
+            update(players[i],players);
             // Draw the player
             draw(players[i]);
         }
