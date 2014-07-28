@@ -1,0 +1,4 @@
+Use left to turn left and right to turn right. Alternatively, the directional buttons shown at the bottom of the screen can be used. 
+
+When a player reaches an already reached square (the trail of another player), that player loses.
+When multiple players collide head-on, they tie. The last player standing wins. 
