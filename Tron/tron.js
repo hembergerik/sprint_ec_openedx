@@ -313,7 +313,6 @@ function draw(player) {
       ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
-
 }
 
 function getImageRotation(player_direction){
@@ -382,16 +381,16 @@ function update(player,players) {
  * Game Over. Registers the winner.
  */
 
- function reload(){
+function reload(){
   //resets the board
-for (var i = 0; i < ROWS; i++) {
-  board_square=[];
-  for (var j = 0; j < COLS; j++) {
+  for (var i = 0; i < ROWS; i++) {
+    board_square=[];
+    for (var j = 0; j < COLS; j++) {
       board_square.push(0);
+    }
+    board[i]=board_square;
   }
-  board[i]=board_square;
-}
-//erases the walls
+  //erases the walls
   ctx.fillStyle = '#666';
   // Fill a rectangle.
   ctx.fillRect(0, 0,
@@ -418,7 +417,6 @@ for (var i = 0; i < ROWS; i++) {
       scores.each(function(){
         $(this).text(0);
   })
-
 }
 
 function end_game() {
@@ -445,7 +443,7 @@ function end_game() {
       modal: true,
       buttons: {
         "Play Again": function() {
-          $( this).dialog('close');
+          $(this).dialog('close');
           reload();
         }
       }
@@ -566,8 +564,6 @@ $(function(){
     $(label).append(pScore);
     $(label).css('color', color);
     $('#playerScores').append(label);
-
   })
-
 })
 
