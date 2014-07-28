@@ -8,10 +8,10 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 25;
+var ROWS = 12;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 32;
+var BIKE_WIDTH = 75;
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -38,10 +38,10 @@ for (var i = 0; i < ROWS; i++) {
 }
 //Directions player can move in [x, y] coordinates
 var PLAYER_DIRECTIONS = [
-    [0, 1], //East
-    [1, 0], //North
-    [0, -1],//West
-    [-1, 0] //South
+    [0, 1], //East 'DOWN'
+    [1, 0], //North 'RIGHT'
+    [0, -1],//West 'UP'
+    [-1, 0] //South 'LEFT'
 ];
 
 var HUMAN_PLAYER = {
@@ -269,11 +269,48 @@ function draw(player) {
     // Set the fill style color
     ctx.fillStyle = player.COLOR;
     // Fill a rectangle.
-    ctx.fillRect(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
+    ctx.fillRect((player.x - player.direction[0]) * BIKE_WIDTH, (player.y - player.direction[1]) * BIKE_HEIGHT,
         BIKE_WIDTH, BIKE_HEIGHT);
-    ctx.drawImage(red_bike_img, player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
-        BIKE_WIDTH, BIKE_HEIGHT)
+    
+    if (player.COLOR === 'red'){
+      console.log('going',player.direction)
+      var Image_offset = getImageOffset(player.direction)
+      ctx.save()
+      ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
+      ctx.rotate(getImageRotation(player.direction))
+      //ctx.drawImage(red_bike_img, 0, 0, BIKE_WIDTH, BIKE_HEIGHT)
+      ctx.drawImage(red_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      ctx.restore()
+    }else{
+      //drawRotatedImage(blue_bike_img, player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
+      //  BIKE_WIDTH, BIKE_HEIGHT, Math.PI/2);
+    }
+    
 }
+
+function getImageRotation(player_direction){
+  //can't compare by the array directly. [1,0] == [1,0] becomes false.
+  if (player_direction[0] == 1)
+    return 0
+  else if(player_direction[1] == 1)
+    return Math.PI/2
+  else if(player_direction[0] == -1)
+    return Math.PI
+  else
+    return -Math.PI/2
+}
+
+function getImageOffset(player_direction){
+  if (player_direction[0] == 1)
+    return [0,0]
+  else if(player_direction[1] == 1)
+    return [0,-1]
+  else if(player_direction[0] == -1)
+    return [-1,-1]
+  else
+    return [-1,0]
+}
+
 
 /**
  * Update the player. Move the player if it is alive. Check for
