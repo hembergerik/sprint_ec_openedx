@@ -402,15 +402,12 @@ var PLAYER_DIRECTIONS = [
         var out = [];
             for (var i = 0; i < tree.length; i++) {
                 if (typeof tree[i] === 'string') {
-                    console.log('2 copy_tree:', tree);
                     out = tree;
                 } else {
                     out[i] = copy_tree(tree[i]);
                 }
             }
-
-        console.log('3 copy_tree:', out);
-        return out;
+        return out.slice(0);
     }
 
     function tree_to_str(tree) {
@@ -418,7 +415,6 @@ var PLAYER_DIRECTIONS = [
     }
 
     function node_to_str(tree, str) {
-        //TODO really weird. Sometimes the string is turned into an array. WHY!!!
         if (typeof tree === 'string') {
             str += tree;
         } else {
@@ -572,7 +568,6 @@ var PLAYER_DIRECTIONS = [
     }
 
     function tournament_selection(tournament_size, population) {
-        console.log('B Tournament selection');
         var new_population = [];
         while (new_population.length < population.length) {
             var competitors = [];
@@ -585,19 +580,18 @@ var PLAYER_DIRECTIONS = [
             competitors.sort(sort_individuals);
             // Push the best competitor to the new population
             var winner = competitors[0]["genome"];
-            console.log('Winner:', new_population.length, 'Tree:',tree_to_str(winner));
             winner = copy_tree(winner);
-            console.log('Copied Winner:', new_population.length, 'Tree:',tree_to_str(winner));
             new_population.push({genome: winner, fitness: DEFAULT_FITNESS});
         }
-        console.log('E Tournament selection');
         return new_population;
     }
 
     function get_number_of_nodes(root, cnt) {
         cnt = cnt + 1;
-        for (var i = 1; i < root.length; i++) {
-            cnt = get_number_of_nodes(root[i], cnt);
+        if (typeof root !== 'string') {
+            for (var i = 1; i < root.length; i++) {
+                cnt = get_number_of_nodes(root[i], cnt);
+            }
         }
         return cnt;
     }
@@ -706,8 +700,12 @@ var PLAYER_DIRECTIONS = [
         var cnt = 0;
         while (cnt <= idx && unvisited_nodes.length > 0) {
             node = unvisited_nodes.pop();
-            for (var i = node.length - 1; i > 0; i--) {
-                unvisited_nodes.push(node[i]);
+            if (typeof node !== 'string') {
+                for (var i = node.length - 1; i > 0; i--) {
+                    unvisited_nodes.push(node[i]);
+                }
+            } else {
+                unvisited_nodes.push(node);
             }
             cnt = cnt + 1;
         }
@@ -716,14 +714,19 @@ var PLAYER_DIRECTIONS = [
     }
 
     function replace_subtree(new_subtree, old_subtree) {
-        old_subtree.splice(0, old_subtree.length);
-        if (new_subtree.length == 1) {
-            old_subtree.push(new_subtree[0]);
-        } else {
-            for (var i = 0; i < new_subtree.length; i++) {
-                old_subtree.push(copy_tree(new_subtree[i]));
+        if (typeof old_subtree !== 'string') {
+            old_subtree.splice(0, old_subtree.length);
+            if (new_subtree === 'string') {
+                old_subtree = new_subtree;
+            } else {
+                for (var i = 0; i < new_subtree.length; i++) {
+                    old_subtree.push(new_subtree[i]);
+                }
             }
+        } else {
+            old_subtree = new_subtree;
         }
+        old_subtree = new_subtree;
     }
 
     function crossover(crossover_probability, population) {
@@ -733,22 +736,32 @@ var PLAYER_DIRECTIONS = [
             var children = [];
             for (var j = 0; j < CHILDREN; j++) {
                 var idx = get_random_int(0, population.length);
+                var genome = copy_tree(population[idx]["genome"]);
                 var child = {
-                    genome: copy_tree(population[idx]["genome"]),
+                    genome: genome,
                     fitness: DEFAULT_FITNESS
                 };
                 children.push(child);
             }
+            console.log('----------------');
             if (get_random() < crossover_probability) {
                 var xo_nodes = [];
                 for (var j = 0; j < children.length; j++) {
                     var end_node_idx = get_number_of_nodes(children[j]["genome"], 0) - 1;
                     var node_idx = get_random_int(0, end_node_idx);
                     xo_nodes.push(get_node_at_index(children[j]["genome"], node_idx));
+                    if (idx == 8) {
+                        console.log('here');
+                    }
+                    console.log('Subtree:', j, ' idx:', node_idx, 'size:', end_node_idx, 'tree:', tree_to_str(xo_nodes[j]));
                 }
+                console.log('Child 0', tree_to_str(children[0]["genome"]));
+                console.log('Child 1', tree_to_str(children[1]["genome"]));
                 var tmp_child_1_node = copy_tree(xo_nodes[1]);
                 replace_subtree(xo_nodes[0], xo_nodes[1]);
                 replace_subtree(tmp_child_1_node, xo_nodes[0]);
+                console.log('New Child 0', tree_to_str(children[0]["genome"]));
+                console.log('New Child 1', tree_to_str(children[1]["genome"]));
             }
             for (var j = 0; j < children.length; j++) {
                 new_population.push(children[j]);
@@ -769,14 +782,19 @@ var PLAYER_DIRECTIONS = [
         while (generation < generations) {
             console.log('Start loop gen:', generation);
             // Selection
+            console.log('B tournament:', generation);
             var new_population = tournament_selection(tournament_size, population);
-            //new_population = crossover(crossover_probability, new_population);
+            console.log('B crossover:', generation);
+            new_population = crossover(crossover_probability, new_population);
+            console.log('B mutation:', generation);
             mutation(mutation_probability, new_population);
 
             // Evaluate the new population
+            console.log('B evaluation:', generation);
             evaluate_fitness(new_population);
 
             // Replace the population with the new population
+            console.log('B replacement:', generation);
             population = new_population;
 
             print_stats(generation, new_population);
@@ -793,5 +811,5 @@ var PLAYER_DIRECTIONS = [
         tournament_size,
         crossover_probability;
 // TODO fix size for mutation and crossover, it bloats too easily for mutation
-    gp(population_size = 40, max_size = 2, generations = 20, mutation_probability = 0.0, tournament_size = 2, crossover_probability = 0.0);
+    gp(population_size = 40, max_size = 2, generations = 2, mutation_probability = 0.0, tournament_size = 2, crossover_probability = 1.0);
 })();
