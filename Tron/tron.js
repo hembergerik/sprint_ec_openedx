@@ -305,7 +305,6 @@ function draw(player) {
       ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
-
 }
 
 function getImageRotation(player_direction){
@@ -535,8 +534,6 @@ $(function(){
     $(label).append(pScore);
     $(label).css('color', color);
     $('#playerScores').append(label);
-
   })
-
 })
 
