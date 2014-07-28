@@ -15,4 +15,8 @@ canvas {
   display: block;
   margin: 10px auto;
   background-color: #666;
-  }
+}
+
+#buttonControls{
+  text-align:center;
+}
