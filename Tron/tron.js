@@ -95,7 +95,9 @@ function get_direction_index(direction) {
     var idx = 0;
     var match = false;
     while (!match && idx < PLAYER_DIRECTIONS.length) {
-        if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
+        xDirBool = PLAYER_DIRECTIONS[idx][0] == direction[0];
+        yDirBool = PLAYER_DIRECTIONS[idx][1] == direction[1];
+        if (xDirBool && yDirBool) {
             match = true;
         } else {
             idx = idx + 1;
