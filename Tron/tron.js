@@ -367,3 +367,16 @@ document.onkeydown = function read(event) {
         }
     }
 };
+$(function(){
+  //can also use buttons to control player
+  $('#leftButton').on('click', function(){
+    var direction = HUMAN_PLAYER.direction;
+    console.log("current direction is: " + direction[0] + " " + direction[1]);
+      left(HUMAN_PLAYER);
+  })
+  $('#rightButton').on('click', function(){
+    var direction = HUMAN_PLAYER.direction;
+    console.log("current direction is: " + direction[0] + " " + direction[1]);
+      right(HUMAN_PLAYER);
+  })
+})
