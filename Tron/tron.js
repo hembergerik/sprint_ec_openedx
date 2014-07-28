@@ -8,10 +8,14 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 12;
+var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 75;
+var smaller=$(window).height();
+if ($(window).width()<smaller){
+  smaller=$(window).width();
+}
+var BIKE_WIDTH = Math.floor(smaller/ROWS);
 
 var BIKE_HEIGHT = BIKE_WIDTH;
 
@@ -76,6 +80,9 @@ var NUM_PLAYERS = players.length;
 var game_over = false;
 var stats_reported = false;
 var timer;
+ctx.font=BIKE_WIDTH+"px Calibri";
+ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
+
 
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
@@ -416,6 +423,7 @@ for (var i = 0; i < ROWS; i++) {
 
 function end_game() {
   clearInterval(timer);
+  //(new Audio('crash.wav')).play();
 
     var winner = -1;
     // Find the winner
@@ -483,6 +491,15 @@ function step() {
 }
 
 
+  function start(){
+    //Set the function which is called after each interval
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+    //erases the text
+    ctx.fillStyle = '#666';
+    ctx.fillRect(0, 0,
+      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  }
+
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeydown = function read(event) {
@@ -513,6 +530,7 @@ document.onkeydown = function read(event) {
 
 $(function(){
   //can also use buttons to control player
+   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
@@ -524,9 +542,11 @@ $(function(){
       right(HUMAN_PLAYER);
   })
 
-  $('#startButton').on('click', function(){
-    //Set the function which is called after each interval
-    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  $('canvas').on('click', function(){
+    if (!started){
+      start();
+      started=true;
+    }
   })
 
   players.forEach(function(player){

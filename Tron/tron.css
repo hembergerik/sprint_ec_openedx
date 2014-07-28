@@ -49,3 +49,13 @@ canvas {
 #winPopup{
   text-align:center;
 }
+
+#directions{
+  text-align:center;
+  font-style:italic;
+  color:white;
+}
+
+.ui-widget-overlay {
+  background: #000;
+}
