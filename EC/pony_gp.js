@@ -287,8 +287,7 @@ function initialize_population(population_size, max_size) {
         population.push({genome: tree, fitness: DEFAULT_FITNESS});
         console.log(i);
         console.log(population[i]["genome"]);
-    }
-    return population;
+    }    return population;
 }
 
 function get_node_at_index(root, idx) {
@@ -380,7 +379,11 @@ function gp(population_size, max_size, generations, mutation_probability, tourna
     while (generation < generations) {
         // Selection
         var new_population = tournament_selection(tournament_size, population);
+
+        //Crossover
         new_population = crossover(crossover_probability, new_population);
+
+        //Mutate
         mutation(mutation_probability, new_population);
 
         // Evaluate the new population

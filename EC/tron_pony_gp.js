@@ -429,7 +429,7 @@ var PLAYER_DIRECTIONS = [
     }
 
     function get_symbols() {
-        var arities = {
+        var arity = {
             ahead: 0,
             left: 0,
             right: 0,
@@ -443,9 +443,9 @@ var PLAYER_DIRECTIONS = [
         var terminals = [];
         var functions = [];
 
-        for (var key in arities) {
-            if (arities.hasOwnProperty(key)) {
-                if (arities[key] == 0) {
+        for (var key in arity) {
+            if (arity.hasOwnProperty(key)) {
+                if (arity[key] == 0) {
                     terminals.push(key);
                 } else {
                     functions.push(key);
@@ -453,7 +453,7 @@ var PLAYER_DIRECTIONS = [
             }
         }
 
-        return {arities: arities, terminals: terminals, functions: functions};
+        return {arity: arity, terminals: terminals, functions: functions};
     }
 
     var symbols = get_symbols();
@@ -622,7 +622,7 @@ var PLAYER_DIRECTIONS = [
         return idx;
     }
 
-    function mutation(mutation_probability, new_population) {
+    function mutation(mutation_probability, new_population, max_size) {
         for (var i = 0; i < new_population.length; i++) {
             // Mutate individuals
             if (get_random() < mutation_probability) {
@@ -667,7 +667,7 @@ var PLAYER_DIRECTIONS = [
         } else {
             symbol = tree;
         }
-        for (var i = 0; i < symbols["arities"][symbol]; i++) {
+        for (var i = 0; i < symbols["arity"][symbol]; i++) {
             var new_symbol = get_random_symbol(depth, max_depth, symbols, full);
             var new_node = append_symbol(tree, new_symbol, symbols);
             var new_depth = depth + 1;
@@ -716,8 +716,8 @@ var PLAYER_DIRECTIONS = [
     function replace_subtree(new_subtree, old_subtree) {
         if (typeof old_subtree !== 'string') {
             old_subtree.splice(0, old_subtree.length);
-            if (new_subtree === 'string') {
-                old_subtree = new_subtree;
+            if (typeof new_subtree === 'string') {
+                old_subtree.push(new_subtree);
             } else {
                 for (var i = 0; i < new_subtree.length; i++) {
                     old_subtree.push(new_subtree[i]);
@@ -726,7 +726,6 @@ var PLAYER_DIRECTIONS = [
         } else {
             old_subtree = new_subtree;
         }
-        old_subtree = new_subtree;
     }
 
     function crossover(crossover_probability, population) {
@@ -743,25 +742,16 @@ var PLAYER_DIRECTIONS = [
                 };
                 children.push(child);
             }
-            console.log('----------------');
             if (get_random() < crossover_probability) {
                 var xo_nodes = [];
                 for (var j = 0; j < children.length; j++) {
                     var end_node_idx = get_number_of_nodes(children[j]["genome"], 0) - 1;
                     var node_idx = get_random_int(0, end_node_idx);
                     xo_nodes.push(get_node_at_index(children[j]["genome"], node_idx));
-                    if (idx == 8) {
-                        console.log('here');
-                    }
-                    console.log('Subtree:', j, ' idx:', node_idx, 'size:', end_node_idx, 'tree:', tree_to_str(xo_nodes[j]));
                 }
-                console.log('Child 0', tree_to_str(children[0]["genome"]));
-                console.log('Child 1', tree_to_str(children[1]["genome"]));
                 var tmp_child_1_node = copy_tree(xo_nodes[1]);
                 replace_subtree(xo_nodes[0], xo_nodes[1]);
                 replace_subtree(tmp_child_1_node, xo_nodes[0]);
-                console.log('New Child 0', tree_to_str(children[0]["genome"]));
-                console.log('New Child 1', tree_to_str(children[1]["genome"]));
             }
             for (var j = 0; j < children.length; j++) {
                 new_population.push(children[j]);
@@ -770,24 +760,25 @@ var PLAYER_DIRECTIONS = [
         return new_population;
     }
 
-    function gp(population_size, max_size, generations, mutation_probability, tournament_size, crossover_probability) {
+    function gp(params) {
         // Create population
-        var population = initialize_population(population_size, max_size);
+        var population = initialize_population(params['population_size'],
+            params['max_size']);
         console.log('B initial eval');
         evaluate_fitness(population);
         console.log('A initial eval');
 
         // Generation loop
         var generation = 0;
-        while (generation < generations) {
+        while (generation < params['generations']) {
             console.log('Start loop gen:', generation);
             // Selection
             console.log('B tournament:', generation);
-            var new_population = tournament_selection(tournament_size, population);
+            var new_population = tournament_selection(params['tournament_size'], population);
             console.log('B crossover:', generation);
-            new_population = crossover(crossover_probability, new_population);
+            new_population = crossover(params['crossover_probability'], new_population);
             console.log('B mutation:', generation);
-            mutation(mutation_probability, new_population);
+            mutation(params['mutation_probability'], new_population, params['max_size']);
 
             // Evaluate the new population
             console.log('B evaluation:', generation);
@@ -804,12 +795,14 @@ var PLAYER_DIRECTIONS = [
         }
     }
 
-    var population_size,
-        max_size,
-        generations,
-        mutation_probability,
-        tournament_size,
-        crossover_probability;
+    var gp_params = {
+        population_size: 400,
+        max_size: 2,
+        generations: 20,
+        mutation_probability: 1.0,
+        tournament_size: 2,
+        crossover_probability: 1.0
+    };
 // TODO fix size for mutation and crossover, it bloats too easily for mutation
-    gp(population_size = 40, max_size = 2, generations = 2, mutation_probability = 0.0, tournament_size = 2, crossover_probability = 1.0);
+    gp(gp_params);
 })();

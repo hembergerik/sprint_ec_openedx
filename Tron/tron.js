@@ -367,6 +367,10 @@ document.onkeydown = function read(event) {
         }
     }
 };
+// Erik Great, it works on my phone
+// - Can the buttons be larger (Should the side of the board be clickable?)
+// - Is it possible to do without jQuery
+// - (Can we minify and create a mobile version for the Tron)
 $(function(){
   //can also use buttons to control player
   $('#leftButton').on('click', function(){
