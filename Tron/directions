@@ -1,0 +1,4 @@
+Use left to turn left and right to turn right. 
+
+When a player reaches an already reached square, that player loses.
+When multiple players collide head-on, they tie. 
