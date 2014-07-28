@@ -28,6 +28,20 @@ red_bike_img.src = '../Tron_bike_red.png'
 var blue_bike_img = new Image();
 blue_bike_img.src =  '../Tron_bike_blue.png'
 
+var red_trail = new Image();
+red_trail.src = '../Glow_Trail_Red_square.png'
+
+var blue_trail = new Image();
+blue_trail.src = '../Glow_Trail_Blue_square.png'
+
+var red_corner = new Image();
+red_corner.src = '../Glow_Trail_Red_corner.png'
+
+var blue_corner = new Image();
+blue_corner.src = '../Glow_trail_blue_corner.png'
+
+
+
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
@@ -280,27 +294,58 @@ function draw(player) {
     
     var prev_direction = player.bike_trail[player.bike_trail.length-2]
     var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction)
-    ctx.beginPath(); 
-    ctx.lineWidth="6";
+    var prev_trailScale = getLightTrailScale(prev_direction)
+    var curr_trailScale = getLightTrailScale(player.direction)
+    var rotation = getImageRotation(player.direction)
+    /*ctx.beginPath(); 
+    ctx.lineWidth="10";
     ctx.strokeStyle=player.COLOR; 
     ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
     ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
     ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
-    ctx.stroke(); 
-  
-    ctx.save()
-    ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
-    ctx.rotate(getImageRotation(player.direction))
-    var Image_offset = getImageOffset(player.direction)
+    ctx.stroke(); */
+    
     if (player.COLOR === 'red'){
-      ctx.drawImage(red_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }else{
-      console.log('prev',prev_direction)
-      console.log('curr', player.direction)
-      ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
+}
 
+
+  //Draws the image on the context at x,y with w,h and rotated to player_direction.
+  
+
+function drawRotatedImage(image, context, player_direction, x, y, w, h){
+  context.save();
+  context.translate(x, y);
+  context.rotate(getImageRotation(player_direction))
+  var Image_offset = getImageOffset(player_direction)
+  context.drawImage(image, (Image_offset[0])*w, (Image_offset[1])*h, w,h)
+  context.restore();
+}
+
+function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
+  if(prev_direction[0] == curr_direction[0] & prev_direction[1] == curr_direction[1])
+    return null;
+  else{
+    var dx = prev_direction[0] - curr_direction[0]
+    var dy = prev_direction[1] - curr_direction[1]
+    if(dx == 1 && dy == -1){
+      drawRotatedImage(image,context, [-1,0], x,y,w,h)
+    }else if(dx == -1 && dy == -1){
+      drawRotatedImage(image,context, [0,1], x,y,w,h)
+    }else if(dx == -1 && dy == 1){
+      drawRotatedImage(image,context, [1,0], x,y,w,h)
+    }else{
+      drawRotatedImage(image,context, [0,-1], x,y,w,h)
+    }
+  }
+  
 }
 
 function getImageRotation(player_direction){
@@ -315,9 +360,17 @@ function getImageRotation(player_direction){
     return Math.PI/2
 }
 
+function getLightTrailScale(player_direction){
+  if(player_direction[0] == 0)
+    return [1/2, 1]
+  else
+    return [1, 1/2]
+}
+
+
 function getLightTrail(posx, posy, player_direction, player_prev_direction){
     var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT]
-    var pos_2 = [(posx + 1/2)*BIKE_WIDTH, ((posy+1/2)*BIKE_HEIGHT)]
+    var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)]
     var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT]
     return [pos_1,pos_2,pos_3]
   }
@@ -325,13 +378,13 @@ function getLightTrail(posx, posy, player_direction, player_prev_direction){
 //Drawing the image, rotated, at x,y is off by +- 1 in both x,y
 //These numbers are to correct the offset. I don't know why they are what they are.
 function getImageOffset(player_direction){
-  if (player_direction[0] == 1)
+  if (player_direction[0] == 1) //(1,0,180)
     return [-1,-1]
-  else if(player_direction[1] == 1)
+  else if(player_direction[1] == 1) //(0,1,270)
     return [-1,0]
-  else if(player_direction[0] == -1)
+  else if(player_direction[0] == -1)  //(-1,0,0)
     return [0,0]
-  else
+  else  //(0,-1,90)
     return [0, -1]
 }
 
