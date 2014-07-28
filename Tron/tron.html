@@ -4,34 +4,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <meta charset="utf-8" />
-    <title>Tron HTML5</title>
-<style>
-  article, aside, details, figcaption, figure, footer, header, menu, nav, section {
-    display: block;
-  }
-  body {
-    background-color: #333;
-  }
-  h1 {
-    font-size: 32px;
-  }
-  h1, p {
-    color: #FFF;
-    text-align: center;
-  }
-  canvas {
-    display: block;
-    margin: 10px auto;
-    background-color: #666;
-  }
-</style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <meta charset="utf-8" />
+  <title>Tron HTML5</title>
+  <link rel="stylesheet" href="tron.css" />
 </head>
 <body>
   <h1>Tron (Use arrow keys control. Click inside canvas to play.) </h1>
   <canvas id="game" width="100" height="100">
   <script type="text/javascript" src="tron.js"></script>
   </canvas>
+  <div id='buttonControls'>
+    <button id='leftButton'> <-- </button>
+    <button id='rightButton'> --> </button>
+  </div>
 </body>
 </html>
