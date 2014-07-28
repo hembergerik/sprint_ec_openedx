@@ -368,6 +368,39 @@ function update(player,players) {
 /*
  * Game Over. Registers the winner.
  */
+
+ function reload(){
+  //resets the board
+for (var i = 0; i < ROWS; i++) {
+  board_square=[];
+  for (var j = 0; j < COLS; j++) {
+      board_square.push(0);
+  }
+  board[i]=board_square;
+}
+//erases the walls
+  ctx.fillStyle = '#666';
+  // Fill a rectangle.
+  ctx.fillRect(0, 0,
+      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  //brings players back to life
+  for (var i = 0; i < NUM_PLAYERS; i++) {
+    players[i].alive = true;
+    players[i]["bike_trail"]=[];
+      console.log('alive');
+  }
+  //resets player positions
+  HUMAN_PLAYER.x= 1;
+  HUMAN_PLAYER.y= Math.floor(ROWS / 2);
+  HUMAN_PLAYER.direction= [0, 1];
+  AI_PLAYER.x= Math.floor(ROWS / 2);
+  AI_PLAYER.y= Math.floor(ROWS / 2);
+  AI_PLAYER.direction= [0, 1];
+
+  //resets game_over and stats_reported
+  game_over=false;
+  stats_reported=false; 
+}
 function end_game() {
     clearInterval(Main_loop)
     var winner = -1;
@@ -383,6 +416,18 @@ function end_game() {
     }else{
       $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
     }
+    $('#winPopup').dialog({
+      resizable: false,
+      height:250,
+      width:500,
+      modal: true,
+      buttons: {
+        "Play Again": function() {
+          $( this).dialog('close');
+          reload();
+        }
+      }
+  })
 }
 
 /**
@@ -390,6 +435,7 @@ function end_game() {
  */
 function step() {
     //Move the players
+    // console.log(stats_reported);
     if (!stats_reported) {
         for (var i = 0; i < NUM_PLAYERS; i++) {
             if (players[i].ai) {
@@ -451,6 +497,8 @@ document.onkeydown = function read(event) {
         }
     }
 };
+
+
 $(function(){
   //can also use buttons to control player
   $('#leftButton').on('click', function(){
@@ -484,5 +532,6 @@ $(function(){
     $('#playerScores').append(label);
 
   })
+
 })
 
