@@ -20,6 +20,31 @@ canvas {
 #buttonControls{
   text-align:center;
 }
+#playerScores{
+  display:inline-block;
+  min-width:200px;
+  background-color:#bbb;
+}
+
+#leftButton{
+  background-image: url('left.png');
+  width:100px;
+  height:50px;
+  border-width:1px;
+  border-style:solid;
+  border-radius: 15px;
+  margin:15px;
+}
+
+#rightButton{
+  background-image: url('right.png');
+  width:100px;
+  height:50px;
+  border-width:1px;
+  border-style:solid;
+  border-radius: 15px;
+  margin:15px;
+}
 
 #winMessage{
   text-align:center;
