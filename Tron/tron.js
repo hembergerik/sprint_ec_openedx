@@ -75,6 +75,7 @@ var NUM_PLAYERS = players.length;
 
 var game_over = false;
 var stats_reported = false;
+var timer;
 
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
@@ -404,9 +405,17 @@ for (var i = 0; i < ROWS; i++) {
   //resets game_over and stats_reported
   game_over=false;
   stats_reported=false; 
+  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  var scores=$('.playerScore');
+      scores.each(function(){
+        $(this).text(0);
+  })
+
 }
+
 function end_game() {
-    clearInterval(Main_loop)
+  clearInterval(timer);
+
     var winner = -1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -472,8 +481,6 @@ function step() {
     }
 }
 
-//Set the function which is called after each interval
-var Main_loop = setInterval(step, 1000 / FRAMES_PER_SECOND);
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
@@ -516,6 +523,10 @@ $(function(){
       right(HUMAN_PLAYER);
   })
 
+  $('#startButton').on('click', function(){
+    //Set the function which is called after each interval
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  })
 
   players.forEach(function(player){
     var name;
