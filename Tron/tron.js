@@ -8,10 +8,10 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 100;
+var ROWS = 25;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 8;
+var BIKE_WIDTH = 32;
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -21,6 +21,11 @@ var ctx = canvas.getContext('2d');
 // Set canvas size to match the Tron board rows and bike width
 canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
+
+var red_bike_img = new Image();
+red_bike_img.src = '../Tron_bike_red.png'
+var blue_bike_img = new Image();
+blue_bike_img.src =  '../Tron_bike_blue.png'
 
 //Game board. 0 is empty
 var board = [];
@@ -266,6 +271,8 @@ function draw(player) {
     // Fill a rectangle.
     ctx.fillRect(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
         BIKE_WIDTH, BIKE_HEIGHT);
+    ctx.drawImage(red_bike_img, player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
+        BIKE_WIDTH, BIKE_HEIGHT)
 }
 
 /**
