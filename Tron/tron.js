@@ -12,6 +12,7 @@ var ROWS = 12;
 var COLS = ROWS;
 //Bike is square
 var BIKE_WIDTH = 75;
+
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -88,7 +89,7 @@ function get_direction_index(direction) {
     var match = false;
     while (!match && idx < PLAYER_DIRECTIONS.length) {
         if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
-            match = true
+            match = true;
         } else {
             idx = idx + 1;
         }
@@ -319,7 +320,7 @@ function getImageOffset(player_direction){
  *
  * @param{Object} player
  */
-function update(player) {
+function update(player,players) {
     //Move player
     if (player.alive) {
         move_bike(player);
@@ -327,8 +328,12 @@ function update(player) {
     //check for collision
     if (board[player.x][player.y] !== 0) {
         player.alive = false;
+        for(var i = 0; i < players.length; i++){
+            if ((players[i].x==player.x) && (players[i].y==player.y)){
+                players[i].alive = false;
+            }
+        }
     } else {
-        //TODO handle head on collision
         // Add the direction to the bike trail
         player["bike_trail"].push(player["direction"]);
         // Set the board value to the bike trail length
@@ -348,6 +353,11 @@ function end_game() {
             stats_reported = true;
         }
     }
+    if(winner==-1){
+      $('#winMessage').html('<h2>DRAW</h2>');
+    }else{
+      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+    }
 }
 
 /**
@@ -361,7 +371,7 @@ function step() {
                 move_ai(players[i]);
             }
             // Update the player
-            update(players[i]);
+            update(players[i],players);
             // Draw the player
             draw(players[i]);
         }
@@ -378,6 +388,12 @@ function step() {
         if (!stats_reported) {
             end_game();
         }
+    }else{
+      var scores=$('.playerScore');
+      scores.each(function(){
+        var current=parseInt($(this).text(),10);
+        $(this).text(current+1);
+      })
     }
 }
 
@@ -397,7 +413,7 @@ document.onkeydown = function read(event) {
         var direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
         switch (code) {
-            //Left arrow	    
+            //Left arrow    
             case 37:
                 //switch directions to the next direction in the PLAYER_DIRECTIONS array
                 left(HUMAN_PLAYER);
@@ -410,7 +426,6 @@ document.onkeydown = function read(event) {
         }
     }
 };
-
 $(function(){
   //can also use buttons to control player
   $('#leftButton').on('click', function(){
@@ -423,4 +438,26 @@ $(function(){
     console.log("current direction is: " + direction[0] + " " + direction[1]);
       right(HUMAN_PLAYER);
   })
+
+
+  players.forEach(function(player){
+    var name;
+    if (player.ai){
+      name='AI';
+    }else{
+      name='Human Player';
+    }
+    var color=player.COLOR;
+    var label=$('<div class="playerLabel">');
+    var pName=$('<span class="playerName">');
+    pName.text(name+': ');
+    var pScore=$('<span class="playerScore">');
+    pScore.text(0);
+    $(label).append(pName);
+    $(label).append(pScore);
+    $(label).css('color', color);
+    $('#playerScores').append(label);
+
+  })
 })
+
