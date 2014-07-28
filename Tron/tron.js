@@ -113,33 +113,38 @@ function evaluate(node, player) {
     // Get the symbol of the node
     var symbol = node[0];
 
-    if (symbol === "if") {
-        // Conditional statement
+    switch(symbol){
+        case "if":
+            // Conditional statement
 
-        // Check the condition to see which child to evaluate
-        if (evaluate(node[1], player)) {
-            evaluate(node[2], player);
-        } else {
-            evaluate(node[3], player);
-        }
-    } else if (symbol === "is_obstacle_in_relative_direction") {
-        // Sense the distance
+            // Check the condition to see which child to evaluate
+            if (evaluate(node[1], player)) {
+                evaluate(node[2], player);
+            } else {
+                evaluate(node[3], player);
+            }
+            break;
+        case "is_obstacle_in_relative_direction":
+            // Sense the distance
 
-        // Parse the direction from the child node
-        var direction = Number(node[1]);
-        // Return if there is an obstacle the direction
-        return is_obstacle_in_relative_direction(direction, player);
-    } else if (symbol === "left") {
-        // Turn left
-        left(player);
-    } else if (symbol === "right") {
-        // Turn right
-        right(player);
-    } else if (symbol === "ahead") {
-        // Do nothing
-    } else {
-        // Unknown symbol
-        throw "Unknown symbol:" + symbol;
+            // Parse the direction from the child node
+            var direction = Number(node[1]);
+            // Return if there is an obstacle the direction
+            return is_obstacle_in_relative_direction(direction, player);
+            break;
+        case "left":
+            // Turn left
+            left(player);
+            break;
+        case "right":
+            // Turn right
+            right(player);
+            break;
+        case "ahead":
+            break;
+        default:
+            // Unknown symbol
+            throw "Unknown symbol:" + symbol;
     }
 }
 
