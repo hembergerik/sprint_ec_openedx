@@ -83,7 +83,7 @@ function get_direction_index(direction) {
     var match = false;
     while (!match && idx < PLAYER_DIRECTIONS.length) {
         if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
-            match = true
+            match = true;
         } else {
             idx = idx + 1;
         }
