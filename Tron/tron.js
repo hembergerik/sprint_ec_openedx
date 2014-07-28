@@ -8,13 +8,11 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 20;
+var ROWS = 100;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 4;
+var BIKE_WIDTH = 8;
 var BIKE_HEIGHT = BIKE_WIDTH;
-
-var TRON_SERVER_IP;
 
 //Canvas to draw on
 var canvas = document.getElementById('game');
@@ -40,8 +38,6 @@ var PLAYER_DIRECTIONS = [
     [0, -1],//West
     [-1, 0] //South
 ];
-//Get Ai Player
-var GET_AI_PLAYER = false;
 
 var HUMAN_PLAYER = {
     //Position on board
@@ -305,17 +301,9 @@ function end_game() {
     for (var i = 0; i < NUM_PLAYERS; i++) {
         if (players[i].alive === true) {
             winner = i;
+            stats_reported = true;
         }
     }
-    //TODO send json object to python
-    // Write to stat server with GET
-    var url = "http://" + TRON_SERVER_IP + "/stu_tron/register_results.py?winner=" + winner + "&id=" + 1;
-    // Get the reply
-    getJSON(url, function (data) {
-        console.log('Data: ' + data.winner + ' id:' + data.id);
-        stats_reported = true;
-    });
-
 }
 
 /**
@@ -347,32 +335,6 @@ function step() {
             end_game();
         }
     }
-}
-
-var getJSON = function (url, successHandler, errorHandler) {
-    var xhr = typeof XMLHttpRequest !== 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    xhr.open('get', url, true);
-    xhr.onreadystatechange = function () {
-        var status;
-        var data;
-        if (xhr.readyState === 4) { // `DONE`
-            status = xhr.status;
-            if (status === 200) {
-                data = JSON.parse(xhr.responseText);
-                successHandler && successHandler(data);
-            } else {
-                errorHandler && errorHandler(status);
-            }
-        }
-    };
-    xhr.send();
-};
-
-if (GET_AI_PLAYER) {
-    getJSON("http://" + TRON_SERVER_IP + "/stu_tron/get_ai_opponent.py", function (data) {
-        console.log('Data: ' + data.PlayerAI);
-        AI_PLAYER.strategy = data.PlayerAI;
-    });
 }
 
 //Set the function which is called after each interval
