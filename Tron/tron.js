@@ -304,8 +304,7 @@ function end_game() {
             stats_reported = true;
         }
     }
-    console.log("HI THERE");
-    $('#game').text('PLAYER'+winner+'WINS!');
+    $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
 }
 
 /**

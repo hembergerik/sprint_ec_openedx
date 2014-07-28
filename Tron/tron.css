@@ -20,3 +20,8 @@ canvas {
 #buttonControls{
   text-align:center;
 }
+
+#winMessage{
+  text-align:center;
+  color: #FFFFFF;
+}
