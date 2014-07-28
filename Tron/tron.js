@@ -12,7 +12,6 @@ var ROWS = 12;
 var COLS = ROWS;
 //Bike is square
 var BIKE_WIDTH = 75;
-
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -116,7 +115,6 @@ function evaluate(node, player) {
     switch(symbol){
         case "if":
             // Conditional statement
-
             // Check the condition to see which child to evaluate
             if (evaluate(node[1], player)) {
                 evaluate(node[2], player);
@@ -126,7 +124,6 @@ function evaluate(node, player) {
             break;
         case "is_obstacle_in_relative_direction":
             // Sense the distance
-
             // Parse the direction from the child node
             var direction = Number(node[1]);
             // Return if there is an obstacle the direction
