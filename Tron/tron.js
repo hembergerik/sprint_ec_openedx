@@ -268,48 +268,66 @@ function move_bike(player) {
  */
 function draw(player) {
     // Set the fill style color
-    ctx.fillStyle = player.COLOR;
-    // Fill a rectangle.
-    ctx.fillRect((player.x - player.direction[0]) * BIKE_WIDTH, (player.y - player.direction[1]) * BIKE_HEIGHT,
-        BIKE_WIDTH, BIKE_HEIGHT);
+    ctx.fillStyle = '#666';
+    // Fill a rectangle to the previous player position
+    // The modding and addind ROWS takes care of edge cases.
+    var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS
+    var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
+    ctx.fillRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
     
+    var prev_direction = player.bike_trail[player.bike_trail.length-2]
+    var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction)
+    ctx.beginPath(); 
+    ctx.lineWidth="6";
+    ctx.strokeStyle=player.COLOR; 
+    ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
+    ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
+    ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
+    ctx.stroke(); // Draw it
+  
+    ctx.save()
+    ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
+    ctx.rotate(getImageRotation(player.direction))
+    var Image_offset = getImageOffset(player.direction)
     if (player.COLOR === 'red'){
-      console.log('going',player.direction)
-      var Image_offset = getImageOffset(player.direction)
-      ctx.save()
-      ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
-      ctx.rotate(getImageRotation(player.direction))
-      //ctx.drawImage(red_bike_img, 0, 0, BIKE_WIDTH, BIKE_HEIGHT)
       ctx.drawImage(red_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-      ctx.restore()
     }else{
-      //drawRotatedImage(blue_bike_img, player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT,
-      //  BIKE_WIDTH, BIKE_HEIGHT, Math.PI/2);
+      ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
-    
+    ctx.restore()
+
 }
 
 function getImageRotation(player_direction){
   //can't compare by the array directly. [1,0] == [1,0] becomes false.
   if (player_direction[0] == 1)
-    return 0
-  else if(player_direction[1] == 1)
-    return Math.PI/2
-  else if(player_direction[0] == -1)
     return Math.PI
-  else
+  else if(player_direction[1] == 1)
     return -Math.PI/2
+  else if(player_direction[0] == -1)
+    return 0
+  else
+    return Math.PI/2
 }
 
+function getLightTrail(posx, posy, player_direction, player_prev_direction){
+    var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT]
+    var pos_2 = [(posx + 1/2)*BIKE_WIDTH, ((posy+1/2)*BIKE_HEIGHT)]
+    var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT]
+    return [pos_1,pos_2,pos_3]
+  }
+                 
+//Drawing the image, rotated, at x,y is off by +- 1 in both x,y
+//These numbers are to correct the offset. I don't know why they are what they are.
 function getImageOffset(player_direction){
   if (player_direction[0] == 1)
-    return [0,0]
-  else if(player_direction[1] == 1)
-    return [0,-1]
-  else if(player_direction[0] == -1)
     return [-1,-1]
-  else
+  else if(player_direction[1] == 1)
     return [-1,0]
+  else if(player_direction[0] == -1)
+    return [0,0]
+  else
+    return [0, -1]
 }
 
 
