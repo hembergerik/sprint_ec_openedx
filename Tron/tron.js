@@ -11,7 +11,7 @@ var FRAMES_PER_SECOND = 6;
 var ROWS = 100;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 8;
+var BIKE_WIDTH = 5;
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -334,6 +334,12 @@ function step() {
         if (!stats_reported) {
             end_game();
         }
+    }else{
+      var scores=$('.playerScore');
+      scores.each(function(){
+        var current=parseInt($(this).text(),10);
+        $(this).text(current+1);
+      })
     }
 }
 
@@ -378,5 +384,25 @@ $(function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
       right(HUMAN_PLAYER);
+  })
+
+  players.forEach(function(player){
+    var name;
+    if (player.ai){
+      name='AI';
+    }else{
+      name='Human Player';
+    }
+    var color=player.COLOR;
+    var label=$('<div class="playerLabel">');
+    var pName=$('<span class="playerName">');
+    pName.text(name+': ');
+    var pScore=$('<span class="playerScore">');
+    pScore.text(0);
+    $(label).append(pName);
+    $(label).append(pScore);
+    $(label).css('color', color);
+    $('#playerScores').append(label);
+
   })
 })
