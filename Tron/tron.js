@@ -304,6 +304,7 @@ function end_game() {
             stats_reported = true;
         }
     }
+    $('#game').text('PLAYER'+winner+"WINS!");
 }
 
 /**
@@ -353,7 +354,7 @@ document.onkeydown = function read(event) {
         var direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
         switch (code) {
-            //Left arrow	    
+            //Left arrow    
             case 37:
                 //switch directions to the next direction in the PLAYER_DIRECTIONS array
                 left(HUMAN_PLAYER);
@@ -366,3 +367,16 @@ document.onkeydown = function read(event) {
         }
     }
 };
+$(function(){
+  //can also use buttons to control player
+  $('#leftButton').on('click', function(){
+    var direction = HUMAN_PLAYER.direction;
+    console.log("current direction is: " + direction[0] + " " + direction[1]);
+      left(HUMAN_PLAYER);
+  })
+  $('#rightButton').on('click', function(){
+    var direction = HUMAN_PLAYER.direction;
+    console.log("current direction is: " + direction[0] + " " + direction[1]);
+      right(HUMAN_PLAYER);
+  })
+})
