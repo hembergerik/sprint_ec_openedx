@@ -270,10 +270,13 @@ function draw(player) {
     // Set the fill style color
     ctx.fillStyle = '#666';
     // Fill a rectangle to the previous player position
+    // This is to cover the bike up.
     // The modding and addind ROWS takes care of edge cases.
     var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS
     var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
     ctx.fillRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
+  
+    //Draw the trail with a context line stroke.
     
     var prev_direction = player.bike_trail[player.bike_trail.length-2]
     var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction)
@@ -283,7 +286,7 @@ function draw(player) {
     ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
     ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
     ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
-    ctx.stroke(); // Draw it
+    ctx.stroke(); 
   
     ctx.save()
     ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
@@ -292,6 +295,8 @@ function draw(player) {
     if (player.COLOR === 'red'){
       ctx.drawImage(red_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }else{
+      console.log('prev',prev_direction)
+      console.log('curr', player.direction)
       ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
@@ -345,6 +350,7 @@ function update(player,players) {
     }
     //check for collision
     if (board[player.x][player.y] !== 0) {
+        player["bike_trail"].push(player["direction"]);
         player.alive = false;
         for(var i = 0; i < players.length; i++){
             if ((players[i].x==player.x) && (players[i].y==player.y)){
@@ -363,6 +369,7 @@ function update(player,players) {
  * Game Over. Registers the winner.
  */
 function end_game() {
+    clearInterval(Main_loop)
     var winner = -1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -416,7 +423,7 @@ function step() {
 }
 
 //Set the function which is called after each interval
-setInterval(step, 1000 / FRAMES_PER_SECOND);
+var Main_loop = setInterval(step, 1000 / FRAMES_PER_SECOND);
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
