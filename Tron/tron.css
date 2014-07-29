@@ -36,24 +36,33 @@ canvas {
   background-color:#bbb;
 }
 
-#leftButton{
-  background-image: url('left.png');
+#leftButton, #rightButton{
+  background-color: rgba(0,0,0,0);
   width:100px;
   height:50px;
+  border-color: #3effff;
   border-width:1px;
   border-style:solid;
   border-radius: 15px;
   margin:15px;
 }
 
+#leftButton:hover, #rightButton:hover{
+  cursor:pointer;
+  background-color: rgba(40,200,200, 0.2);
+}
+
+#leftButton:active, #rightButton:active{
+  border-width: 3px;
+}
+
+#leftButton{
+  background-image: url('left.png');
+
+}
+
 #rightButton{
   background-image: url('right.png');
-  width:100px;
-  height:50px;
-  border-width:1px;
-  border-style:solid;
-  border-radius: 15px;
-  margin:15px;
 }
 
 #winPopup{
