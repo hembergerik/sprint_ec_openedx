@@ -35,13 +35,13 @@ var red_trail = new Image();
 red_trail.src = '../Glow_Trail_Red_square.png'
 
 var blue_trail = new Image();
-blue_trail.src = '../Glow_Trail_Blue_square.png'
+blue_trail.src = '../Glow_Trail_blue_square.png'
 
 var red_corner = new Image();
 red_corner.src = '../Glow_Trail_Red_corner.png'
 
 var blue_corner = new Image();
-blue_corner.src = '../Glow_trail_blue_corner.png'
+blue_corner.src = '../Glow_Trail_blue_corner.png'
 
 
 
