@@ -40,11 +40,14 @@ red_trail.src = '../Glow_Trail_Red_square.png'
 var blue_trail = new Image();
 blue_trail.src = '../Glow_Trail_blue_square.png'
 
+
 var red_corner = new Image();
 red_corner.src = '../Glow_Trail_Red_corner.png'
 
 var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
+
+
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
@@ -641,6 +644,13 @@ document.onkeydown = function read(event) {
                 right(HUMAN_PLAYER);
                 break;
         }
+    }
+    if (code === 78){
+      BGM.src = '../Nyan_Cat.mp3'
+      red_trail.src = '../Nyan_Trail.png'
+      red_bike_img.src = '../Nyan_Cat.png'
+      red_corner.src = '../Nyan_Corner.png'
+      BGM.play();
     }
 };
 
