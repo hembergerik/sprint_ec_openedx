@@ -18,7 +18,12 @@ h1, p {
 canvas {
   display: block;
   margin: 10px auto;
-  background-color: #666;
+  background-color: rgba(149, 149, 149, 0.28);
+  border-style: solid;
+  border-color: #3effff;
+  border-width: 5px;
+  box-shadow: 0 0 20px #9ecaed;
+  
 }
 
 #buttonControls{

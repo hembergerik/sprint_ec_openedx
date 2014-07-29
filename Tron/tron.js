@@ -227,6 +227,8 @@ function distance(direction, player) {
  * @param {number} d direction
  * @return {number} new point
  */
+
+
 function get_new_point(p, d) {
     return (p + d + ROWS) % ROWS;
 }
@@ -309,13 +311,12 @@ function move_bike(player) {
  */
 function draw(player) {
     // Set the fill style color
-    ctx.fillStyle = '#666';
     // Fill a rectangle to the previous player position
     // This is to cover the bike up.
     // The modding and addind ROWS takes care of edge cases.
     var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS
     var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
-    ctx.fillRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
+    ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
   
     //Draw the trail with a context line stroke.
     
@@ -457,10 +458,8 @@ function reload(){
     }
     board[i]=board_square;
   }
-  //erases the walls
-  ctx.fillStyle = '#666';
-  // Fill a rectangle.
-  ctx.fillRect(0, 0,
+  //Clear the canvas.
+  ctx.clearRect(0, 0,
       ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
   //brings players back to life
   for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -561,9 +560,8 @@ function start(){
   BGM.play();
   //Set the function which is called after each interval
   timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-  //erases the text
-  ctx.fillStyle = '#666';
-  ctx.fillRect(0, 0,
+  //erases the text.
+  ctx.clearRect(0, 0,
     ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
 }
 
@@ -597,7 +595,7 @@ function playerSetup(){
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
-document.onkeydown = function read(event) {
+document.onkeyup = function read(event) {
     //The variable e is passed into read or a window event
     var e = event || window.event;
     //The event code
@@ -638,6 +636,8 @@ document.onkeydown = function read(event) {
       red_bike_img.src = '../Nyan_Cat.png'
       red_corner.src = '../Nyan_Corner.png'
       BGM.play();
+      $('body').css('background-image', 'url("../nyan_background.gif")');
+      $('body').css('background-repeat', 'repeat');      
     }
 };
 
