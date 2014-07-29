@@ -8,11 +8,15 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 12;
+var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 75;
+var smaller=$(window).height();
+if ($(window).width()<smaller){
+  smaller=$(window).width();
+}
 
+var BIKE_WIDTH = Math.floor(smaller*0.9/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -23,11 +27,34 @@ var ctx = canvas.getContext('2d');
 canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
 
+
+// Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
 red_bike_img.src = '../Tron_bike_red.png'
 var blue_bike_img = new Image();
 blue_bike_img.src =  '../Tron_bike_blue.png'
 
+var red_trail = new Image();
+red_trail.src = '../Glow_Trail_Red_square.png'
+
+var blue_trail = new Image();
+blue_trail.src = '../Glow_Trail_blue_square.png'
+
+var red_corner = new Image();
+red_corner.src = '../Glow_Trail_Red_corner.png'
+
+var blue_corner = new Image();
+blue_corner.src = '../Glow_Trail_blue_corner.png'
+
+//$('<audio>') behaves better than new Audio(); in the page.
+var BGM = $('<audio>')[0];
+BGM.src = '../Tron_Theme.mp3';
+BGM.loop = true;
+var Crash_effect = $('<audio>')[0];
+Crash_effect.src = '../Tron_Crash.mp3';
+
+var players;
+var NUM_PLAYERS;
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
@@ -46,21 +73,20 @@ var PLAYER_DIRECTIONS = [
 ];
 
 var HUMAN_PLAYER = {
-    //Position on board
-    x: 1,
-    y: Math.floor(ROWS / 2),
-    //Direction on board [x,y]
-    direction: [0, 1],
     COLOR: 'red',
     alive: true,
     ID: 0,
     bike_trail: [],
     ai: false
 };
+var HUMAN_PLAYER_2 = {
+    COLOR: 'blue',
+    alive: true,
+    ID: 1,
+    bike_trail: [],
+    ai: false
+};
 var AI_PLAYER = {
-    x: Math.floor(ROWS / 2),
-    y: Math.floor(ROWS / 2),
-    direction: [0, 1],
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -69,13 +95,26 @@ var AI_PLAYER = {
     // Strategy for the AI
     strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
 };
-//Array of players
-var players = [HUMAN_PLAYER, AI_PLAYER];
-var NUM_PLAYERS = players.length;
+
+var AI_PLAYER_2 = {
+    x: Math.floor(ROWS / 4),
+    y: Math.floor(ROWS / 2),
+    direction: [-1, 0],
+    COLOR: 'red',
+    alive: true,
+    ID: 1,
+    bike_trail: [],
+    ai: true,
+    // Strategy for the AI
+    strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
+};
 
 var game_over = false;
 var stats_reported = false;
 var timer;
+ctx.font=BIKE_WIDTH+"px Calibri";
+ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
+
 
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
@@ -89,7 +128,9 @@ function get_direction_index(direction) {
     var idx = 0;
     var match = false;
     while (!match && idx < PLAYER_DIRECTIONS.length) {
-        if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
+        var xDirBool = PLAYER_DIRECTIONS[idx][0] == direction[0];
+        var yDirBool = PLAYER_DIRECTIONS[idx][1] == direction[1];
+        if (xDirBool && yDirBool) {
             match = true;
         } else {
             idx = idx + 1;
@@ -116,7 +157,6 @@ function evaluate(node, player) {
     switch(symbol){
         case "if":
             // Conditional statement
-
             // Check the condition to see which child to evaluate
             if (evaluate(node[1], player)) {
                 evaluate(node[2], player);
@@ -126,7 +166,6 @@ function evaluate(node, player) {
             break;
         case "is_obstacle_in_relative_direction":
             // Sense the distance
-
             // Parse the direction from the child node
             var direction = Number(node[1]);
             // Return if there is an obstacle the direction
@@ -286,28 +325,62 @@ function draw(player) {
     
     var prev_direction = player.bike_trail[player.bike_trail.length-2]
     var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction)
-    ctx.beginPath(); 
-    ctx.lineWidth="6";
+    var prev_trailScale = getLightTrailScale(prev_direction)
+    var curr_trailScale = getLightTrailScale(player.direction)
+    var rotation = getImageRotation(player.direction)
+    /*ctx.beginPath(); 
+    ctx.lineWidth="10";
     ctx.strokeStyle=player.COLOR; 
     ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
     ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
     ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
-    ctx.stroke(); 
-  
-    ctx.save()
-    ctx.translate(player.x * BIKE_WIDTH, player.y * BIKE_HEIGHT)
-    ctx.rotate(getImageRotation(player.direction))
-    var Image_offset = getImageOffset(player.direction)
+    ctx.stroke(); */
+    
     if (player.COLOR === 'red'){
-      ctx.drawImage(red_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }else{
+        drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }
+      drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }else{
-      console.log('prev',prev_direction)
-      console.log('curr', player.direction)
-      ctx.drawImage(blue_bike_img, (Image_offset[0])*BIKE_HEIGHT, (Image_offset[1])*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }else{
+        drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }
+      drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
-
 }
+
+
+  //Draws the image on the context at x,y with w,h and rotated to player_direction.
+  
+
+function drawRotatedImage(image, context, player_direction, x, y, w, h){
+  context.save();
+  context.translate(x, y);
+  context.rotate(getImageRotation(player_direction))
+  var Image_offset = getImageOffset(player_direction)
+  context.drawImage(image, (Image_offset[0])*w, (Image_offset[1])*h, w,h)
+  context.restore();
+}
+
+function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
+    var dx = prev_direction[0] - curr_direction[0]
+    var dy = prev_direction[1] - curr_direction[1]
+    if(dx == 1 && dy == -1){
+      drawRotatedImage(image,context, [-1,0], x,y,w,h)
+    }else if(dx == -1 && dy == -1){
+      drawRotatedImage(image,context, [0,1], x,y,w,h)
+    }else if(dx == -1 && dy == 1){
+      drawRotatedImage(image,context, [1,0], x,y,w,h)
+    }else{
+      drawRotatedImage(image,context, [0,-1], x,y,w,h)
+    }
+  }
+  
 
 function getImageRotation(player_direction){
   //can't compare by the array directly. [1,0] == [1,0] becomes false.
@@ -321,9 +394,17 @@ function getImageRotation(player_direction){
     return Math.PI/2
 }
 
+function getLightTrailScale(player_direction){
+  if(player_direction[0] == 0)
+    return [1/2, 1]
+  else
+    return [1, 1/2]
+}
+
+
 function getLightTrail(posx, posy, player_direction, player_prev_direction){
     var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT]
-    var pos_2 = [(posx + 1/2)*BIKE_WIDTH, ((posy+1/2)*BIKE_HEIGHT)]
+    var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)]
     var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT]
     return [pos_1,pos_2,pos_3]
   }
@@ -331,13 +412,13 @@ function getLightTrail(posx, posy, player_direction, player_prev_direction){
 //Drawing the image, rotated, at x,y is off by +- 1 in both x,y
 //These numbers are to correct the offset. I don't know why they are what they are.
 function getImageOffset(player_direction){
-  if (player_direction[0] == 1)
+  if (player_direction[0] == 1) //(1,0,180)
     return [-1,-1]
-  else if(player_direction[1] == 1)
+  else if(player_direction[1] == 1) //(0,1,270)
     return [-1,0]
-  else if(player_direction[0] == -1)
+  else if(player_direction[0] == -1)  //(-1,0,0)
     return [0,0]
-  else
+  else  //(0,-1,90)
     return [0, -1]
 }
 
@@ -375,16 +456,17 @@ function update(player,players) {
  * Game Over. Registers the winner.
  */
 
- function reload(){
+function reload(){
+  BGM.play();
   //resets the board
-for (var i = 0; i < ROWS; i++) {
-  board_square=[];
-  for (var j = 0; j < COLS; j++) {
+  for (var i = 0; i < ROWS; i++) {
+    board_square=[];
+    for (var j = 0; j < COLS; j++) {
       board_square.push(0);
+    }
+    board[i]=board_square;
   }
-  board[i]=board_square;
-}
-//erases the walls
+  //erases the walls
   ctx.fillStyle = '#666';
   // Fill a rectangle.
   ctx.fillRect(0, 0,
@@ -396,12 +478,14 @@ for (var i = 0; i < ROWS; i++) {
       console.log('alive');
   }
   //resets player positions
-  HUMAN_PLAYER.x= 1;
+/*  HUMAN_PLAYER.x= 1;
   HUMAN_PLAYER.y= Math.floor(ROWS / 2);
-  HUMAN_PLAYER.direction= [0, 1];
-  AI_PLAYER.x= Math.floor(ROWS / 2);
-  AI_PLAYER.y= Math.floor(ROWS / 2);
-  AI_PLAYER.direction= [0, 1];
+  HUMAN_PLAYER.direction= [0, 1];*/
+  players.forEach(function(p){
+    p.x=Math.floor(Math.random()*COLS);
+    p.y=Math.floor(Math.random()*ROWS);
+    p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
+  })
 
   //resets game_over and stats_reported
   game_over=false;
@@ -411,12 +495,12 @@ for (var i = 0; i < ROWS; i++) {
       scores.each(function(){
         $(this).text(0);
   })
-
 }
 
 function end_game() {
+  BGM.pause();
   clearInterval(timer);
-
+  Crash_effect.play();
     var winner = -1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -437,11 +521,11 @@ function end_game() {
       modal: true,
       buttons: {
         "Play Again": function() {
-          $( this).dialog('close');
+          $(this).dialog('close');
           reload();
         }
       }
-  })
+    })
 }
 
 /**
@@ -483,6 +567,44 @@ function step() {
 }
 
 
+  function start(){
+    BGM.play();
+    //Set the function which is called after each interval
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+    //erases the text
+    ctx.fillStyle = '#666';
+    ctx.fillRect(0, 0,
+      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  }
+
+function playerSetup(){
+  NUM_PLAYERS = players.length;
+  players.forEach(function(p){
+    p.x=Math.floor(Math.random()*COLS);
+    p.y=Math.floor(Math.random()*ROWS);
+    p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
+        var name;
+    if (p.ai){
+      name='AI';
+    }else{
+      name='Human Player';
+    }
+    var color=p.COLOR;
+    var label=$('<div class="playerLabel">');
+    var pName=$('<span class="playerName">');
+    pName.text(name+': ');
+    var pScore=$('<span class="playerScore">');
+    pScore.text(0);
+    $(label).append(pName);
+    $(label).append(pScore);
+    $(label).css('color', color);
+    $('#playerScores').append(label);
+  })
+}
+
+
+
+
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeydown = function read(event) {
@@ -491,6 +613,18 @@ document.onkeydown = function read(event) {
     //The event code
     var code = e.keyCode || e.which;
     //Check the event code
+    if (code === 65 || code === 68) {
+        var direction = HUMAN_PLAYER_2.direction;
+        switch (code) {
+            //Left arrow
+            case 65:
+                left(HUMAN_PLAYER_2);
+                break;
+            case 68:
+                right(HUMAN_PLAYER_2);
+                break;
+        }
+    }
     if (code === 37 || code === 39) {
         //Current direction of HUMAN_PLAYER
         var direction = HUMAN_PLAYER.direction;
@@ -514,7 +648,37 @@ document.onkeydown = function read(event) {
 // - Is it possible to do without jQuery
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
+  //Array of players
+
+$('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
+$('#gameChoice').dialog({
+  resizable: false,
+  height:250,
+  width:600,
+  modal: true,
+  buttons: {
+    "Human vs AI": function(){
+      $(this).dialog('close');
+      players = [HUMAN_PLAYER, AI_PLAYER];
+      playerSetup();
+    },
+    "Human vs Human": function(){
+      $(this).dialog('close');
+      console.log('two');
+      players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
+      playerSetup();
+    },
+    "AI vs AI": function(){
+      $(this).dialog('close');
+      console.log('two');
+      players = [AI_PLAYER, AI_PLAYER_2];
+      playerSetup();
+    }
+  }
+})
+
   //can also use buttons to control player
+   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
@@ -526,30 +690,11 @@ $(function(){
       right(HUMAN_PLAYER);
   })
 
-  $('#startButton').on('click', function(){
-    //Set the function which is called after each interval
-    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-  })
-
-  players.forEach(function(player){
-    var name;
-    if (player.ai){
-      name='AI';
-    }else{
-      name='Human Player';
+  $('canvas').on('click', function(){
+    if (!started){
+      start();
+      started=true;
     }
-    var color=player.COLOR;
-    var label=$('<div class="playerLabel">');
-    var pName=$('<span class="playerName">');
-    pName.text(name+': ');
-    var pScore=$('<span class="playerScore">');
-    pScore.text(0);
-    $(label).append(pName);
-    $(label).append(pScore);
-    $(label).css('color', color);
-    $('#playerScores').append(label);
-
   })
-
 })
 

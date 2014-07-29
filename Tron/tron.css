@@ -1,16 +1,20 @@
 article, aside, details, figcaption, figure, footer, header, menu, nav, section {
   display: block;
 }
+
 body {
   background-color: #333;
 }
+
 h1 {
   font-size: 32px;
 }
+
 h1, p {
   color: #FFF;
   text-align: center;
 }
+
 canvas {
   display: block;
   margin: 10px auto;
@@ -20,6 +24,7 @@ canvas {
 #buttonControls{
   text-align:center;
 }
+
 #playerScores{
   display:inline-block;
   min-width:200px;
@@ -48,4 +53,19 @@ canvas {
 
 #winPopup{
   text-align:center;
+}
+
+#gameChoice{
+  text-align:center;
+}
+
+#directions{
+  font-family:sans-serif;
+  text-align:center;
+  font-style:italic;
+  color:#ddd;
+}
+
+.ui-widget-overlay {
+  background: #000;
 }
