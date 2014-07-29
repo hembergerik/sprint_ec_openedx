@@ -306,11 +306,18 @@ function draw(player) {
     ctx.stroke(); */
     
     if (player.COLOR === 'red'){
-      drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-      drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }else{
+        drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }
       drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }else{
-      drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }else{
+        drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      }
       drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
     }
     ctx.restore()
@@ -330,9 +337,6 @@ function drawRotatedImage(image, context, player_direction, x, y, w, h){
 }
 
 function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
-  if(prev_direction[0] == curr_direction[0] & prev_direction[1] == curr_direction[1])
-    return null;
-  else{
     var dx = prev_direction[0] - curr_direction[0]
     var dy = prev_direction[1] - curr_direction[1]
     if(dx == 1 && dy == -1){
@@ -346,7 +350,6 @@ function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
     }
   }
   
-}
 
 function getImageRotation(player_direction){
   //can't compare by the array directly. [1,0] == [1,0] becomes false.
