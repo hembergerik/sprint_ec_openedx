@@ -63,12 +63,9 @@ var PLAYER_DIRECTIONS = [
     [-1, 0] //South 'LEFT'
 ];
 
+var initialPositions={};
+
 var HUMAN_PLAYER = {
-    //Position on board
-    x: 1,
-    y: Math.floor(ROWS / 2),
-    //Direction on board [x,y]
-    direction: [0, 1],
     COLOR: 'red',
     alive: true,
     ID: 0,
@@ -76,9 +73,6 @@ var HUMAN_PLAYER = {
     ai: false
 };
 var AI_PLAYER = {
-    x: Math.floor(ROWS / 2),
-    y: Math.floor(ROWS / 2),
-    direction: [0, 1],
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -87,9 +81,29 @@ var AI_PLAYER = {
     // Strategy for the AI
     strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
 };
+
+var AI_PLAYER_2 = {
+    x: Math.floor(ROWS / 4),
+    y: Math.floor(ROWS / 2),
+    direction: [-1, 0],
+    COLOR: 'red',
+    alive: true,
+    ID: 1,
+    bike_trail: [],
+    ai: true,
+    // Strategy for the AI
+    strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
+};
 //Array of players
-var players = [HUMAN_PLAYER, AI_PLAYER];
+var players = [AI_PLAYER_2, AI_PLAYER];
 var NUM_PLAYERS = players.length;
+
+players.forEach(function(p){
+  initialPositions[p]=[Math.floor(Math.random()*COLS),Math.floor(Math.random()*ROWS),PLAYER_DIRECTIONS[Math.floor(Math.random()*4)]];
+  p.x=initialPositions[p][0]
+  p.y=initialPositions[p][1]
+  p.direction=initialPositions[p][2];
+})
 
 var game_over = false;
 var stats_reported = false;
@@ -459,12 +473,14 @@ function reload(){
       console.log('alive');
   }
   //resets player positions
-  HUMAN_PLAYER.x= 1;
+/*  HUMAN_PLAYER.x= 1;
   HUMAN_PLAYER.y= Math.floor(ROWS / 2);
-  HUMAN_PLAYER.direction= [0, 1];
-  AI_PLAYER.x= Math.floor(ROWS / 2);
-  AI_PLAYER.y= Math.floor(ROWS / 2);
-  AI_PLAYER.direction= [0, 1];
+  HUMAN_PLAYER.direction= [0, 1];*/
+  players.forEach(function(p){
+    p.x=initialPositions[p][0]
+    p.y=initialPositions[p][1]
+    p.direction=initialPositions[p][2];
+  })
 
   //resets game_over and stats_reported
   game_over=false;
