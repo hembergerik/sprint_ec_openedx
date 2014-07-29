@@ -500,14 +500,14 @@ function end_game() {
         }
     }
     if(winner==-1){
-      $('#winMessage').html('<h2>DRAW</h2>');
+      $('#winMessage').html('<h2><color="#00FFFF">DRAW</color></h2>');
     }else{
-      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+      $('#winMessage').html('<h2><color="#00FFFF">PLAYER '+winner+' WINS!</color></h2>');
     }
     $('#winPopup').dialog({
       resizable: false,
       height:120,
-      width:360,
+      width:480,
       modal: true,
       buttons: {
         "Play Again": function() {
@@ -645,13 +645,12 @@ document.onkeyup = function read(event) {
 $(function(){
   //Array of players
 
-$('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
+$('#gameChoiceMessage').html('<h2><font color=00FFFF>WHICH MODE?</font></h2>');
 $('#gameChoice').dialog({
   resizable: false,
   height:120,
-  width:360,
+  width:540,
   modal: true,
-  'background-color': 'yellow',
   buttons: {
     "Human vs AI": function(){
       $(this).dialog('close');
