@@ -18,7 +18,12 @@ h1, p {
 canvas {
   display: block;
   margin: 10px auto;
-  background-color: #666;
+  background-color: rgba(149, 149, 149, 0.28);
+  border-style: solid;
+  border-color: #3effff;
+  border-width: 5px;
+  box-shadow: 0 0 20px #9ecaed;
+  
 }
 
 #buttonControls{
@@ -31,32 +36,46 @@ canvas {
   background-color:#bbb;
 }
 
-#leftButton{
-  background-image: url('left.png');
+#leftButton, #rightButton{
+  background-color: rgba(0,0,0,0);
   width:100px;
   height:50px;
+  border-color: #3effff;
   border-width:1px;
   border-style:solid;
   border-radius: 15px;
   margin:15px;
+}
+
+#leftButton:hover, #rightButton:hover{
+  cursor:pointer;
+  background-color: rgba(40,200,200, 0.2);
+}
+
+#leftButton:active, #rightButton:active{
+  border-width: 3px;
+}
+
+#leftButton{
+  background-image: url('left.png');
 }
 
 #rightButton{
   background-image: url('right.png');
-  width:100px;
-  height:50px;
-  border-width:1px;
-  border-style:solid;
-  border-radius: 15px;
-  margin:15px;
+}
+
+.dialogText{
+  text-color:'#0FF';
 }
 
 #winPopup{
   text-align:center;
+  /*background-image:url('dialogBackground.png');*/
 }
 
 #gameChoice{
   text-align:center;
+  /*background-image:url('dialogBackground.png');*/
 }
 
 #directions{

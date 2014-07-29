@@ -40,11 +40,13 @@ red_trail.src = '../Glow_Trail_Red_square.png'
 var blue_trail = new Image();
 blue_trail.src = '../Glow_Trail_blue_square.png'
 
+
 var red_corner = new Image();
 red_corner.src = '../Glow_Trail_Red_corner.png'
 
 var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
+
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
@@ -73,6 +75,7 @@ var PLAYER_DIRECTIONS = [
 ];
 
 var HUMAN_PLAYER = {
+    name: 'HUMAN PLAYER 1',
     COLOR: 'red',
     alive: true,
     ID: 0,
@@ -80,6 +83,7 @@ var HUMAN_PLAYER = {
     ai: false
 };
 var HUMAN_PLAYER_2 = {
+    name: 'HUMAN PLAYER 2',
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -87,6 +91,7 @@ var HUMAN_PLAYER_2 = {
     ai: false
 };
 var AI_PLAYER = {
+    name: 'AI PLAYER 1',
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -97,6 +102,7 @@ var AI_PLAYER = {
 };
 
 var AI_PLAYER_2 = {
+    name: 'AI PLAYER 2',
     x: Math.floor(ROWS / 4),
     y: Math.floor(ROWS / 2),
     direction: [-1, 0],
@@ -113,8 +119,8 @@ var game_over = false;
 var stats_reported = false;
 var timer;
 ctx.font=BIKE_WIDTH+"px Calibri";
+ctx.fillStyle='#3effff';
 ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
-
 
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
@@ -226,6 +232,8 @@ function distance(direction, player) {
  * @param {number} d direction
  * @return {number} new point
  */
+
+
 function get_new_point(p, d) {
     return (p + d + ROWS) % ROWS;
 }
@@ -262,7 +270,6 @@ function check_environment(player) {
 
 /**
  * Change direction by turning left 90 degrees
- *
  * @param{Object} player Player to change the state of
  */
 function left(player) {
@@ -273,7 +280,6 @@ function left(player) {
 
 /**
  * Change direction by turning right 90 degrees
- *
  * @param{Object} player Player to change the state of
  */
 function right(player) {
@@ -284,7 +290,6 @@ function right(player) {
 
 /**
  * Move an ai player. Function for moving the ai player
- *
  * @param {Object} player player
  */
 function move_ai(player) {
@@ -296,7 +301,6 @@ function move_ai(player) {
 
 /**
  * Move a bike(player).
- *
  * @param {Object} player player
  */
 function move_bike(player) {
@@ -308,18 +312,16 @@ function move_bike(player) {
 
 /**
  * Draw the player at the current coordinates on the canvas
- *
  * @param{Object} player
  */
 function draw(player) {
     // Set the fill style color
-    ctx.fillStyle = '#666';
     // Fill a rectangle to the previous player position
     // This is to cover the bike up.
     // The modding and addind ROWS takes care of edge cases.
     var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS
     var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
-    ctx.fillRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
+    ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
   
     //Draw the trail with a context line stroke.
     
@@ -354,9 +356,7 @@ function draw(player) {
     ctx.restore()
 }
 
-
   //Draws the image on the context at x,y with w,h and rotated to player_direction.
-  
 
 function drawRotatedImage(image, context, player_direction, x, y, w, h){
   context.save();
@@ -422,12 +422,10 @@ function getImageOffset(player_direction){
     return [0, -1]
 }
 
-
 /**
  * Update the player. Move the player if it is alive. Check for
  * collision, i.e. board value is 1. Mark the board with a 1 at the
  * player coordinates.
- *
  * @param{Object} player
  */
 function update(player,players) {
@@ -455,7 +453,6 @@ function update(player,players) {
 /*
  * Game Over. Registers the winner.
  */
-
 function reload(){
   BGM.play();
   //resets the board
@@ -466,10 +463,8 @@ function reload(){
     }
     board[i]=board_square;
   }
-  //erases the walls
-  ctx.fillStyle = '#666';
-  // Fill a rectangle.
-  ctx.fillRect(0, 0,
+  //Clear the canvas.
+  ctx.clearRect(0, 0,
       ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
   //brings players back to life
   for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -491,10 +486,10 @@ function reload(){
   game_over=false;
   stats_reported=false; 
   timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-  var scores=$('.playerScore');
+/*  var scores=$('.playerScore');
       scores.each(function(){
         $(this).text(0);
-  })
+  })*/
 }
 
 function end_game() {
@@ -502,22 +497,28 @@ function end_game() {
   clearInterval(timer);
   Crash_effect.play();
     var winner = -1;
+    var scoreUpdate=-1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
         if (players[i].alive === true) {
-            winner = i;
+            winner = players[i].name;
             stats_reported = true;
+            scoreUpdate=i;
         }
     }
     if(winner==-1){
       $('#winMessage').html('<h2>DRAW</h2>');
     }else{
-      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+      $('#winMessage').html('<h2>'+winner+' WINS!</h2>');
     }
+    var scores=$('.playerScore');
+    if (scoreUpdate != -1){
+    var current=parseInt($(scores[scoreUpdate]).text(),10);
+    $(scores[scoreUpdate]).text(current+1);}
     $('#winPopup').dialog({
       resizable: false,
-      height:250,
-      width:500,
+      height:270,
+      width:540,
       modal: true,
       buttons: {
         "Play Again": function() {
@@ -557,25 +558,23 @@ function step() {
         if (!stats_reported) {
             end_game();
         }
-    }else{
+    }/*else{
       var scores=$('.playerScore');
       scores.each(function(){
         var current=parseInt($(this).text(),10);
         $(this).text(current+1);
       })
-    }
+    }*/
 }
 
-
-  function start(){
-    BGM.play();
-    //Set the function which is called after each interval
-    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-    //erases the text
-    ctx.fillStyle = '#666';
-    ctx.fillRect(0, 0,
-      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
-  }
+function start(){
+  BGM.play();
+  //Set the function which is called after each interval
+  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  //erases the text.
+  ctx.clearRect(0, 0,
+    ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+}
 
 function playerSetup(){
   NUM_PLAYERS = players.length;
@@ -583,12 +582,7 @@ function playerSetup(){
     p.x=Math.floor(Math.random()*COLS);
     p.y=Math.floor(Math.random()*ROWS);
     p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
-        var name;
-    if (p.ai){
-      name='AI';
-    }else{
-      name='Human Player';
-    }
+        var name = p.name;
     var color=p.COLOR;
     var label=$('<div class="playerLabel">');
     var pName=$('<span class="playerName">');
@@ -607,7 +601,7 @@ function playerSetup(){
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
-document.onkeydown = function read(event) {
+document.onkeyup = function read(event) {
     //The variable e is passed into read or a window event
     var e = event || window.event;
     //The event code
@@ -642,6 +636,15 @@ document.onkeydown = function read(event) {
                 break;
         }
     }
+    if (code === 78){
+      BGM.src = '../Nyan_Cat.mp3'
+      red_trail.src = '../Nyan_Trail.png'
+      red_bike_img.src = '../Nyan_Cat.png'
+      red_corner.src = '../Nyan_Corner.png'
+      BGM.play();
+      $('body').css('background-image', 'url("../nyan_background.gif")');
+      $('body').css('background-repeat', 'repeat');      
+    }
 };
 // Erik Great, it works on my phone
 // - Can the buttons be larger (Should the side of the board be clickable?)
@@ -653,8 +656,8 @@ $(function(){
 $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
-  height:250,
-  width:600,
+  height:240,
+  width:540,
   modal: true,
   buttons: {
     "Human vs AI": function(){
@@ -678,7 +681,7 @@ $('#gameChoice').dialog({
 })
 
   //can also use buttons to control player
-   var started=false;
+  var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
