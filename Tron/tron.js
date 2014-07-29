@@ -42,7 +42,7 @@ var red_corner = new Image();
 red_corner.src = '../Glow_Trail_Red_corner.png'
 
 var blue_corner = new Image();
-blue_corner.src = '../Glow_Trail_blue_corner.png'
+blue_corner.src = '../Glow_trail_blue_corner.png'
 
 
 
