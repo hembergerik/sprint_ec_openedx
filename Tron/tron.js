@@ -118,7 +118,6 @@ var timer;
 ctx.font=BIKE_WIDTH+"px Calibri";
 ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
 
-
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
  *
@@ -265,7 +264,6 @@ function check_environment(player) {
 
 /**
  * Change direction by turning left 90 degrees
- *
  * @param{Object} player Player to change the state of
  */
 function left(player) {
@@ -276,7 +274,6 @@ function left(player) {
 
 /**
  * Change direction by turning right 90 degrees
- *
  * @param{Object} player Player to change the state of
  */
 function right(player) {
@@ -287,7 +284,6 @@ function right(player) {
 
 /**
  * Move an ai player. Function for moving the ai player
- *
  * @param {Object} player player
  */
 function move_ai(player) {
@@ -299,7 +295,6 @@ function move_ai(player) {
 
 /**
  * Move a bike(player).
- *
  * @param {Object} player player
  */
 function move_bike(player) {
@@ -311,7 +306,6 @@ function move_bike(player) {
 
 /**
  * Draw the player at the current coordinates on the canvas
- *
  * @param{Object} player
  */
 function draw(player) {
@@ -357,9 +351,7 @@ function draw(player) {
     ctx.restore()
 }
 
-
   //Draws the image on the context at x,y with w,h and rotated to player_direction.
-  
 
 function drawRotatedImage(image, context, player_direction, x, y, w, h){
   context.save();
@@ -425,12 +417,10 @@ function getImageOffset(player_direction){
     return [0, -1]
 }
 
-
 /**
  * Update the player. Move the player if it is alive. Check for
  * collision, i.e. board value is 1. Mark the board with a 1 at the
  * player coordinates.
- *
  * @param{Object} player
  */
 function update(player,players) {
@@ -458,7 +448,6 @@ function update(player,players) {
 /*
  * Game Over. Registers the winner.
  */
-
 function reload(){
   BGM.play();
   //resets the board
@@ -569,16 +558,15 @@ function step() {
     }
 }
 
-
-  function start(){
-    BGM.play();
-    //Set the function which is called after each interval
-    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-    //erases the text
-    ctx.fillStyle = '#666';
-    ctx.fillRect(0, 0,
-      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
-  }
+function start(){
+  BGM.play();
+  //Set the function which is called after each interval
+  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  //erases the text
+  ctx.fillStyle = '#666';
+  ctx.fillRect(0, 0,
+    ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+}
 
 function playerSetup(){
   NUM_PLAYERS = players.length;
