@@ -8,11 +8,14 @@
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
-var ROWS = 12;
+var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var BIKE_WIDTH = 75;
-
+var smaller=$(window).height();
+if ($(window).width()<smaller){
+  smaller=$(window).width();
+}
+var BIKE_WIDTH = Math.floor(smaller/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -89,6 +92,10 @@ var NUM_PLAYERS = players.length;
 
 var game_over = false;
 var stats_reported = false;
+var timer;
+ctx.font=BIKE_WIDTH+"px Calibri";
+ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
+
 
 /**
  * Return the index of the direction in the PLAYER_DIRECTIONS array
@@ -102,7 +109,9 @@ function get_direction_index(direction) {
     var idx = 0;
     var match = false;
     while (!match && idx < PLAYER_DIRECTIONS.length) {
-        if (PLAYER_DIRECTIONS[idx][0] == direction[0] && PLAYER_DIRECTIONS[idx][1] == direction[1]) {
+        var xDirBool = PLAYER_DIRECTIONS[idx][0] == direction[0];
+        var yDirBool = PLAYER_DIRECTIONS[idx][1] == direction[1];
+        if (xDirBool && yDirBool) {
             match = true;
         } else {
             idx = idx + 1;
@@ -126,33 +135,36 @@ function evaluate(node, player) {
     // Get the symbol of the node
     var symbol = node[0];
 
-    if (symbol === "if") {
-        // Conditional statement
-
-        // Check the condition to see which child to evaluate
-        if (evaluate(node[1], player)) {
-            evaluate(node[2], player);
-        } else {
-            evaluate(node[3], player);
-        }
-    } else if (symbol === "is_obstacle_in_relative_direction") {
-        // Sense the distance
-
-        // Parse the direction from the child node
-        var direction = Number(node[1]);
-        // Return if there is an obstacle the direction
-        return is_obstacle_in_relative_direction(direction, player);
-    } else if (symbol === "left") {
-        // Turn left
-        left(player);
-    } else if (symbol === "right") {
-        // Turn right
-        right(player);
-    } else if (symbol === "ahead") {
-        // Do nothing
-    } else {
-        // Unknown symbol
-        throw "Unknown symbol:" + symbol;
+    switch(symbol){
+        case "if":
+            // Conditional statement
+            // Check the condition to see which child to evaluate
+            if (evaluate(node[1], player)) {
+                evaluate(node[2], player);
+            } else {
+                evaluate(node[3], player);
+            }
+            break;
+        case "is_obstacle_in_relative_direction":
+            // Sense the distance
+            // Parse the direction from the child node
+            var direction = Number(node[1]);
+            // Return if there is an obstacle the direction
+            return is_obstacle_in_relative_direction(direction, player);
+            break;
+        case "left":
+            // Turn left
+            left(player);
+            break;
+        case "right":
+            // Turn right
+            right(player);
+            break;
+        case "ahead":
+            break;
+        default:
+            // Unknown symbol
+            throw "Unknown symbol:" + symbol;
     }
 }
 
@@ -425,16 +437,16 @@ function update(player,players) {
  * Game Over. Registers the winner.
  */
 
- function reload(){
+function reload(){
   //resets the board
-for (var i = 0; i < ROWS; i++) {
-  board_square=[];
-  for (var j = 0; j < COLS; j++) {
+  for (var i = 0; i < ROWS; i++) {
+    board_square=[];
+    for (var j = 0; j < COLS; j++) {
       board_square.push(0);
+    }
+    board[i]=board_square;
   }
-  board[i]=board_square;
-}
-//erases the walls
+  //erases the walls
   ctx.fillStyle = '#666';
   // Fill a rectangle.
   ctx.fillRect(0, 0,
@@ -456,9 +468,17 @@ for (var i = 0; i < ROWS; i++) {
   //resets game_over and stats_reported
   game_over=false;
   stats_reported=false; 
+  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  var scores=$('.playerScore');
+      scores.each(function(){
+        $(this).text(0);
+  })
 }
+
 function end_game() {
-    clearInterval(Main_loop)
+  clearInterval(timer);
+  //(new Audio('crash.wav')).play();
+
     var winner = -1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -479,7 +499,7 @@ function end_game() {
       modal: true,
       buttons: {
         "Play Again": function() {
-          $( this).dialog('close');
+          $(this).dialog('close');
           reload();
         }
       }
@@ -524,8 +544,15 @@ function step() {
     }
 }
 
-//Set the function which is called after each interval
-var Main_loop = setInterval(step, 1000 / FRAMES_PER_SECOND);
+
+  function start(){
+    //Set the function which is called after each interval
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+    //erases the text
+    ctx.fillStyle = '#666';
+    ctx.fillRect(0, 0,
+      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  }
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
@@ -557,6 +584,7 @@ document.onkeydown = function read(event) {
 
 $(function(){
   //can also use buttons to control player
+   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
@@ -568,6 +596,12 @@ $(function(){
       right(HUMAN_PLAYER);
   })
 
+  $('canvas').on('click', function(){
+    if (!started){
+      start();
+      started=true;
+    }
+  })
 
   players.forEach(function(player){
     var name;
@@ -586,8 +620,6 @@ $(function(){
     $(label).append(pScore);
     $(label).css('color', color);
     $('#playerScores').append(label);
-
   })
-
 })
 

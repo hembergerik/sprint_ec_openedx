@@ -11,7 +11,12 @@
   <link rel="stylesheet" href="tron.css" />
 </head>
 <body>
-  <h1>Tron (Use arrow keys control. Click inside canvas to play.) </h1>
+  <h1>Tron </h1>
+  <div id='directions'>Use left to turn left and right to turn right.<br>
+    Alternatively, the directional buttons shown atthe bottom of the screen can be used.<br>
+When a player reaches an already reached square (the trail of another player), that player loses.<br>
+When multiple players collide head-on, they tie.
+The last player standing wins. </div>
   <canvas id="game" width="100" height="100">
     <script type="text/javascript" src="tron.js"></script>
   </canvas>
