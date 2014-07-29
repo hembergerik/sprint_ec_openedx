@@ -44,8 +44,6 @@ red_corner.src = '../Glow_Trail_Red_corner.png'
 var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
 
-
-
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
@@ -608,6 +606,18 @@ document.onkeydown = function read(event) {
     //The event code
     var code = e.keyCode || e.which;
     //Check the event code
+    if (code === 65 || code === 68) {
+        var direction = HUMAN_PLAYER_2.direction;
+        switch (code) {
+            //Left arrow
+            case 65:
+                left(HUMAN_PLAYER_2);
+                break;
+            case 68:
+                right(HUMAN_PLAYER_2);
+                break;
+        }
+    }
     if (code === 37 || code === 39) {
         //Current direction of HUMAN_PLAYER
         var direction = HUMAN_PLAYER.direction;
