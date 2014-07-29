@@ -56,9 +56,10 @@ canvas {
 }
 
 #directions{
+  font-family:sans-serif;
   text-align:center;
   font-style:italic;
-  color:white;
+  color:#ddd;
 }
 
 .ui-widget-overlay {

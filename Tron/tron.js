@@ -15,7 +15,7 @@ var smaller=$(window).height();
 if ($(window).width()<smaller){
   smaller=$(window).width();
 }
-var BIKE_WIDTH = Math.floor(smaller/ROWS);
+var BIKE_WIDTH = Math.floor(smaller*0.9/ROWS);
 
 var BIKE_HEIGHT = BIKE_WIDTH;
 
