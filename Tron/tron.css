@@ -58,19 +58,24 @@ canvas {
 
 #leftButton{
   background-image: url('left.png');
-
 }
 
 #rightButton{
   background-image: url('right.png');
 }
 
+.dialogText{
+  text-color:'#0FF';
+}
+
 #winPopup{
   text-align:center;
+  /*background-image:url('dialogBackground.png');*/
 }
 
 #gameChoice{
   text-align:center;
+  /*background-image:url('dialogBackground.png');*/
 }
 
 #directions{

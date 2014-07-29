@@ -657,7 +657,6 @@ $('#gameChoice').dialog({
   height:240,
   width:540,
   modal: true,
-  'background-color': 'yellow',
   buttons: {
     "Human vs AI": function(){
       $(this).dialog('close');
