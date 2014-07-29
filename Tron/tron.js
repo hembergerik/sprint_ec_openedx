@@ -637,6 +637,8 @@ document.onkeyup = function read(event) {
       red_bike_img.src = '../Nyan_Cat.png'
       red_corner.src = '../Nyan_Corner.png'
       BGM.play();
+      $('body').css('background-image', 'url("../nyan_background.gif")');
+      $('body').css('background-repeat', 'repeat');      
     }
 };
 
