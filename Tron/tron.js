@@ -75,6 +75,7 @@ var PLAYER_DIRECTIONS = [
 ];
 
 var HUMAN_PLAYER = {
+    name: 'HUMAN PLAYER 1',
     COLOR: 'red',
     alive: true,
     ID: 0,
@@ -82,6 +83,7 @@ var HUMAN_PLAYER = {
     ai: false
 };
 var HUMAN_PLAYER_2 = {
+    name: 'HUMAN PLAYER 2',
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -89,6 +91,7 @@ var HUMAN_PLAYER_2 = {
     ai: false
 };
 var AI_PLAYER = {
+    name: 'AI PLAYER 1',
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -99,6 +102,7 @@ var AI_PLAYER = {
 };
 
 var AI_PLAYER_2 = {
+    name: 'AI PLAYER 2',
     x: Math.floor(ROWS / 4),
     y: Math.floor(ROWS / 2),
     direction: [-1, 0],
@@ -115,6 +119,7 @@ var game_over = false;
 var stats_reported = false;
 var timer;
 ctx.font=BIKE_WIDTH+"px Calibri";
+ctx.fillStyle='#3effff';
 ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
 
 /**
@@ -481,10 +486,10 @@ function reload(){
   game_over=false;
   stats_reported=false; 
   timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-  var scores=$('.playerScore');
+/*  var scores=$('.playerScore');
       scores.each(function(){
         $(this).text(0);
-  })
+  })*/
 }
 
 function end_game() {
@@ -492,22 +497,28 @@ function end_game() {
   clearInterval(timer);
   Crash_effect.play();
     var winner = -1;
+    var scoreUpdate=-1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
         if (players[i].alive === true) {
-            winner = i;
+            winner = players[i].name;
             stats_reported = true;
+            scoreUpdate=i;
         }
     }
     if(winner==-1){
       $('#winMessage').html('<h2>DRAW</h2>');
     }else{
-      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
+      $('#winMessage').html('<h2>'+winner+' WINS!</h2>');
     }
+    var scores=$('.playerScore');
+    if (scoreUpdate != -1){
+    var current=parseInt($(scores[scoreUpdate]).text(),10);
+    $(scores[scoreUpdate]).text(current+1);}
     $('#winPopup').dialog({
       resizable: false,
-      height:120,
-      width:480,
+      height:270,
+      width:540,
       modal: true,
       buttons: {
         "Play Again": function() {
@@ -547,13 +558,13 @@ function step() {
         if (!stats_reported) {
             end_game();
         }
-    }else{
+    }/*else{
       var scores=$('.playerScore');
       scores.each(function(){
         var current=parseInt($(this).text(),10);
         $(this).text(current+1);
       })
-    }
+    }*/
 }
 
 function start(){
@@ -571,12 +582,7 @@ function playerSetup(){
     p.x=Math.floor(Math.random()*COLS);
     p.y=Math.floor(Math.random()*ROWS);
     p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
-        var name;
-    if (p.ai){
-      name='AI';
-    }else{
-      name='Human Player';
-    }
+        var name = p.name;
     var color=p.COLOR;
     var label=$('<div class="playerLabel">');
     var pName=$('<span class="playerName">');
@@ -648,7 +654,7 @@ $(function(){
 $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
-  height:120,
+  height:240,
   width:540,
   modal: true,
   buttons: {
