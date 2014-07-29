@@ -1,22 +1,28 @@
-<!-- From --
-  -- --
-  --https://github.com/JDStraughan/html5-lightcycles/blob/master/index.html -->
+<!-- From https://github.com/JDStraughan/html5-lightcycles/blob/master/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <meta charset="utf-8" />
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <title>Tron HTML5</title>
   <link rel="stylesheet" href="tron.css" />
 </head>
 <body>
-  <h1>Tron (Use < and > keys to control) </h1>
+  <h1>Tron (Use arrow keys control. Click inside canvas to play.) </h1>
+  <button id='startButton'>Start!</button>
   <canvas id="game" width="100" height="100">
-  <script type="text/javascript" src="tron.js"></script>
+    <script type="text/javascript" src="tron.js"></script>
   </canvas>
+  <span id='playerScores'></span>
   <div id='buttonControls'>
-    <button id='leftButton'> <-- </button>
-    <button id='rightButton'> --> </button>
+    <button id='leftButton'></button>
+    <button id='rightButton'></button>
+  </div>
+  <div id='winPopup'>
+    <span id='winMessage'></span>
   </div>
 </body>
 </html>
