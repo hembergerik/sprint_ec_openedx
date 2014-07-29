@@ -72,6 +72,16 @@ var HUMAN_PLAYER = {
     bike_trail: [],
     ai: false
 };
+var HUMAN_PLAYER_2 = {
+    x: ROWS - 1,
+    y: Math.floor(ROWS / 2),
+    direction: [0,1],
+    COLOR: 'blue',
+    alive: true,
+    ID: 1,
+    bike_trail: [],
+    ai: false
+};
 var AI_PLAYER = {
     COLOR: 'blue',
     alive: true,
@@ -95,7 +105,26 @@ var AI_PLAYER_2 = {
     strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
 };
 //Array of players
-var players = [AI_PLAYER_2, AI_PLAYER];
+
+$('#gameChoiceMessage').html('<h2>How many human players?</h2>');
+console.log("THIS IS HERE");
+$('#gameChoice').dialog({
+  resizable: false,
+  height:250,
+  width:500,
+  modal: true,
+  buttons: {
+    "1 player": function(){
+      $(this).dialog('close');
+      var players = [HUMAN_PLAYER, AI_PLAYER];
+    },
+    "2 player": function(){
+      $(this).dialog('close');
+      var players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
+    }
+  }
+})
+var players = [HUMAN_PLAYER, AI_PLAYER];
 var NUM_PLAYERS = players.length;
 
 players.forEach(function(p){
@@ -520,7 +549,7 @@ function end_game() {
           reload();
         }
       }
-  })
+    })
 }
 
 /**
