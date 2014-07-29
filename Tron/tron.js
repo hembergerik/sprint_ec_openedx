@@ -45,8 +45,6 @@ var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
 
 
-//new line chang why can't I push
-
 
 //Game board. 0 is empty
 var board = [];
