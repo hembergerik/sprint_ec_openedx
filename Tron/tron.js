@@ -48,7 +48,6 @@ var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
 
 
-
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
 BGM.src = '../Tron_Theme.mp3';
@@ -508,8 +507,8 @@ function end_game() {
     }
     $('#winPopup').dialog({
       resizable: false,
-      height:250,
-      width:500,
+      height:120,
+      width:360,
       modal: true,
       buttons: {
         "Play Again": function() {
@@ -649,9 +648,10 @@ $(function(){
 $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
-  height:250,
-  width:600,
+  height:120,
+  width:360,
   modal: true,
+  'background-color': 'yellow',
   buttons: {
     "Human vs AI": function(){
       $(this).dialog('close');
@@ -674,7 +674,7 @@ $('#gameChoice').dialog({
 })
 
   //can also use buttons to control player
-   var started=false;
+  var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
     console.log("current direction is: " + direction[0] + " " + direction[1]);
