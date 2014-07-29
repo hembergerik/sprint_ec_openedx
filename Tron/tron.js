@@ -500,9 +500,9 @@ function end_game() {
         }
     }
     if(winner==-1){
-      $('#winMessage').html('<h2><color="#00FFFF">DRAW</color></h2>');
+      $('#winMessage').html('<h2>DRAW</h2>');
     }else{
-      $('#winMessage').html('<h2><color="#00FFFF">PLAYER '+winner+' WINS!</color></h2>');
+      $('#winMessage').html('<h2>PLAYER '+winner+' WINS!</h2>');
     }
     $('#winPopup').dialog({
       resizable: false,
@@ -645,7 +645,7 @@ document.onkeyup = function read(event) {
 $(function(){
   //Array of players
 
-$('#gameChoiceMessage').html('<h2><font color=00FFFF>WHICH MODE?</font></h2>');
+$('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
   height:120,
