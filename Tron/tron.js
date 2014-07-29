@@ -27,6 +27,8 @@ var ctx = canvas.getContext('2d');
 canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
 
+
+// Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
 red_bike_img.src = '../Tron_bike_red.png'
 var blue_bike_img = new Image();
@@ -44,6 +46,12 @@ red_corner.src = '../Glow_Trail_Red_corner.png'
 var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
 
+//$('<audio>') behaves better than new Audio(); in the page.
+var BGM = $('<audio>')[0];
+BGM.src = '../Tron_Theme.mp3';
+BGM.loop = true;
+var Crash_effect = $('<audio>')[0];
+Crash_effect.src = '../Tron_Crash.mp3';
 
 var players;
 var NUM_PLAYERS;
@@ -449,6 +457,7 @@ function update(player,players) {
  */
 
 function reload(){
+  BGM.play();
   //resets the board
   for (var i = 0; i < ROWS; i++) {
     board_square=[];
@@ -489,9 +498,9 @@ function reload(){
 }
 
 function end_game() {
+  BGM.pause();
   clearInterval(timer);
-  //(new Audio('crash.wav')).play();
-
+  Crash_effect.play();
     var winner = -1;
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
@@ -559,6 +568,7 @@ function step() {
 
 
   function start(){
+    BGM.play();
     //Set the function which is called after each interval
     timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
     //erases the text
@@ -603,6 +613,18 @@ document.onkeydown = function read(event) {
     //The event code
     var code = e.keyCode || e.which;
     //Check the event code
+    if (code === 65 || code === 68) {
+        var direction = HUMAN_PLAYER_2.direction;
+        switch (code) {
+            //Left arrow
+            case 65:
+                left(HUMAN_PLAYER_2);
+                break;
+            case 68:
+                right(HUMAN_PLAYER_2);
+                break;
+        }
+    }
     if (code === 37 || code === 39) {
         //Current direction of HUMAN_PLAYER
         var direction = HUMAN_PLAYER.direction;
