@@ -45,7 +45,8 @@ var blue_corner = new Image();
 blue_corner.src = '../Glow_Trail_blue_corner.png'
 
 
-
+var players;
+var NUM_PLAYERS;
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
@@ -63,8 +64,6 @@ var PLAYER_DIRECTIONS = [
     [-1, 0] //South 'LEFT'
 ];
 
-var initialPositions={};
-
 var HUMAN_PLAYER = {
     COLOR: 'red',
     alive: true,
@@ -73,9 +72,6 @@ var HUMAN_PLAYER = {
     ai: false
 };
 var HUMAN_PLAYER_2 = {
-    x: ROWS - 1,
-    y: Math.floor(ROWS / 2),
-    direction: [0,1],
     COLOR: 'blue',
     alive: true,
     ID: 1,
@@ -104,35 +100,6 @@ var AI_PLAYER_2 = {
     // Strategy for the AI
     strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
 };
-//Array of players
-
-$('#gameChoiceMessage').html('<h2>How many human players?</h2>');
-console.log("THIS IS HERE");
-$('#gameChoice').dialog({
-  resizable: false,
-  height:250,
-  width:500,
-  modal: true,
-  buttons: {
-    "1 player": function(){
-      $(this).dialog('close');
-      var players = [HUMAN_PLAYER, AI_PLAYER];
-    },
-    "2 player": function(){
-      $(this).dialog('close');
-      var players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
-    }
-  }
-})
-var players = [HUMAN_PLAYER, AI_PLAYER];
-var NUM_PLAYERS = players.length;
-
-players.forEach(function(p){
-  initialPositions[p]=[Math.floor(Math.random()*COLS),Math.floor(Math.random()*ROWS),PLAYER_DIRECTIONS[Math.floor(Math.random()*4)]];
-  p.x=initialPositions[p][0]
-  p.y=initialPositions[p][1]
-  p.direction=initialPositions[p][2];
-})
 
 var game_over = false;
 var stats_reported = false;
@@ -506,9 +473,9 @@ function reload(){
   HUMAN_PLAYER.y= Math.floor(ROWS / 2);
   HUMAN_PLAYER.direction= [0, 1];*/
   players.forEach(function(p){
-    p.x=initialPositions[p][0]
-    p.y=initialPositions[p][1]
-    p.direction=initialPositions[p][2];
+    p.x=Math.floor(Math.random()*COLS);
+    p.y=Math.floor(Math.random()*ROWS);
+    p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
   })
 
   //resets game_over and stats_reported
@@ -600,6 +567,34 @@ function step() {
       ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
   }
 
+function playerSetup(){
+  NUM_PLAYERS = players.length;
+  players.forEach(function(p){
+    p.x=Math.floor(Math.random()*COLS);
+    p.y=Math.floor(Math.random()*ROWS);
+    p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
+        var name;
+    if (p.ai){
+      name='AI';
+    }else{
+      name='Human Player';
+    }
+    var color=p.COLOR;
+    var label=$('<div class="playerLabel">');
+    var pName=$('<span class="playerName">');
+    pName.text(name+': ');
+    var pScore=$('<span class="playerScore">');
+    pScore.text(0);
+    $(label).append(pName);
+    $(label).append(pScore);
+    $(label).css('color', color);
+    $('#playerScores').append(label);
+  })
+}
+
+
+
+
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeydown = function read(event) {
@@ -629,6 +624,35 @@ document.onkeydown = function read(event) {
 
 
 $(function(){
+  //Array of players
+
+$('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
+$('#gameChoice').dialog({
+  resizable: false,
+  height:250,
+  width:600,
+  modal: true,
+  buttons: {
+    "Human vs AI": function(){
+      $(this).dialog('close');
+      players = [HUMAN_PLAYER, AI_PLAYER];
+      playerSetup();
+    },
+    "Human vs Human": function(){
+      $(this).dialog('close');
+      console.log('two');
+      players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
+      playerSetup();
+    },
+    "AI vs AI": function(){
+      $(this).dialog('close');
+      console.log('two');
+      players = [AI_PLAYER, AI_PLAYER_2];
+      playerSetup();
+    }
+  }
+})
+
   //can also use buttons to control player
    var started=false;
   $('#leftButton').on('click', function(){
@@ -647,25 +671,6 @@ $(function(){
       start();
       started=true;
     }
-  })
-
-  players.forEach(function(player){
-    var name;
-    if (player.ai){
-      name='AI';
-    }else{
-      name='Human Player';
-    }
-    var color=player.COLOR;
-    var label=$('<div class="playerLabel">');
-    var pName=$('<span class="playerName">');
-    pName.text(name+': ');
-    var pScore=$('<span class="playerScore">');
-    pScore.text(0);
-    $(label).append(pName);
-    $(label).append(pScore);
-    $(label).css('color', color);
-    $('#playerScores').append(label);
   })
 })
 
