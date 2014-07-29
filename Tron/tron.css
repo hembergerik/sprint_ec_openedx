@@ -55,6 +55,10 @@ canvas {
   text-align:center;
 }
 
+#gameChoice{
+  text-align:center;
+}
+
 #directions{
   font-family:sans-serif;
   text-align:center;
