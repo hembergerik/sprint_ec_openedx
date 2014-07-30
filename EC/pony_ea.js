@@ -53,7 +53,7 @@ function get_ave_and_std(values) {
     var ave = sum(values) / values.length;
     var std = 0;
     for (var i = 0; i < values.length; i++) {
-        std = std + ((values[i] - ave) * (values[i] - ave));
+        std += Math.pow(values[i]-ave , 2);
     }
     std = Math.sqrt(std / values.length);
     return [ave, std];
