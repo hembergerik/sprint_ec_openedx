@@ -120,18 +120,19 @@ function ea(population_size, max_size, generations, mutation_probability,
     BAR_WIDTH=WIDTH/max_size;
     var population = [];
     for(var i = 0; i < population_size; i++) {
-        var svgContainer = d3.select("body").append("svg")
-                                    .attr("width",  WIDTH+20)
-                                     .attr("height", HEIGHT);
+        var svgContainer = d3.select("body")
+                             .append("svg")
+                             .attr("width",  WIDTH+20)
+                             .attr("height", HEIGHT);
         var genome = [];
         for(var j = 0; j < max_size; j++) {
             var binary=(Math.random() < 0.5 ? 0 : 1)
             genome.push(binary);
             var rectangle = svgContainer.append("rect")
-                             .attr("x", BAR_WIDTH*j)
-                             .attr("y", 0)
-                             .attr("width", BAR_WIDTH)
-                             .attr("height", HEIGHT);
+                                        .attr("x", BAR_WIDTH*j)
+                                        .attr("y", 0)
+                                        .attr("width", BAR_WIDTH)
+                                        .attr("height", HEIGHT);
             if(binary==0){
                 rectangle.attr("fill", "cyan");
             }else{
