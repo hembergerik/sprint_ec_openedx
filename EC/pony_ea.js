@@ -142,9 +142,11 @@ function ea(population_size, max_size, generations, mutation_probability,
         population.push({genome: genome, fitness: DEFAULT_FITNESS});
         console.log(i + " Individual:" + population[i]["genome"]);
     }
-    var row = d3.select('#d3chart').selectAll('g').data(population).enter().append('g').attr('transform', function(d,i){return 'translate(0,'+50*i+')'})
+    var rows = d3.select('#d3chart').selectAll('g').data(population).enter().append('g').attr('transform', function(d,i){return 'translate(0,'+50*i+')'})
     
-    var square = row.selectAll('rect').data(function(d){return d.genome}).enter().append('rect').attr('x', function(d,i){return 50*i}).attr('y',0)
+    var row = rows.selectAll('rect').data(function(d){return d.genome})
+    row.enter();
+    var square = row.enter().append('rect').attr('x', function(d,i){return 50*i}).attr('y',0)
     .attr('fill', function(d,i){if(d){ return "#ff0000" }else{
     return "#0000ff"}}).attr('width', BAR_WIDTH).attr('height', 20)
 
@@ -196,14 +198,16 @@ function ea(population_size, max_size, generations, mutation_probability,
 
         // Increase the generation
         generation = generation + 1;
-        
-      row.data(population);
+      rows.data(population);
+      row.data(function(d){return d.genome})
+      square.attr('fill', function(d,i){console.log (d); if(d){ return "#ff0000" }else{
+    return "#0000ff"}})
+
         //Allows for stepping.
         if(num_steps){
           if(time){
           setTimeout(function(){self.step(num_steps-1, time)}, time)
           }else{
-          console.log('setting timeout default')
           setTimeout(function(){self.step(num_steps-1)}, 500)
           }
         }
