@@ -44,11 +44,13 @@ function print_stats(generation, population) {
         fitness_values.push(population[i]["fitness"]);
     }
     var ave_and_std = get_ave_and_std(fitness_values);
-    console.log("Gen:" + generation + " fit_ave:" + ave_and_std[0] + "+-" + ave_and_std[1] +
-    " " + population[0]["fitness"] + " " + population[0]["genome"])
+    console.log("Gen:" + generation + " fit_ave:" + ave_and_std[0] + "+-" +
+        ave_and_std[1] + " " + population[0]["fitness"] + " " +
+        population[0]["genome"]);
 }
 
-function ea(population_size, max_size, generations, mutation_probability, tournament_size) {
+function ea(population_size, max_size, generations, mutation_probability,
+            tournament_size, crossover_probability) {
     // Create population
     var population = [];
     for(var i = 0; i < population_size; i++) {
@@ -77,16 +79,36 @@ function ea(population_size, max_size, generations, mutation_probability, tourna
             // Sort the competitors by fitness
             competitors.sort(sort_individuals);
             // Push the best competitor to the new population
-            new_population.push({genome: competitors[0]["genome"].slice(0), fitness: DEFAULT_FITNESS});
+            new_population.push({genome: competitors[0]["genome"].slice(0),
+                fitness: DEFAULT_FITNESS});
+        }
+
+        for (var i = 0; i < population_size; i = i+2) {
+            // Crossover individuals
+            if (Math.random() < crossover_probability) {
+                // Pick crossover point
+                var children = [];
+                var idx = Math.floor(Math.random() *
+                    new_population[i]["genome"].length);
+                // Swap the bit strings
+                children[0] = new_population[i]["genome"].slice(0, idx).
+                    concat(new_population[i+1]["genome"].slice(idx));
+                children[1] = new_population[i+1]["genome"].slice(0, idx).
+                    concat(new_population[i]["genome"].slice(idx));
+                new_population[i]["genome"] = children[0];
+                new_population[i+1]["genome"] = children[1];
+            }
         }
 
         for (var i = 0; i < population_size; i++) {
             // Mutate individuals
             if (Math.random() < mutation_probability) {
                 // Pick gene
-                var idx = Math.floor(Math.random() * new_population[i]["genome"].length);
+                var idx = Math.floor(Math.random() *
+                    new_population[i]["genome"].length);
                 // Flip the gene
-                new_population[i]["genome"][idx] = (new_population[i]["genome"][idx] + 1 ) % 2;
+                new_population[i]["genome"][idx] =
+                    (new_population[i]["genome"][idx] + 1 ) % 2;
             }
         }
 
@@ -103,4 +125,5 @@ function ea(population_size, max_size, generations, mutation_probability, tourna
     }
 }
 
-ea(population_size=10, max_size=20, generations=40, mutation_probability=0.3, tournament_size=2);
+ea(population_size=40, max_size=20, generations=40, mutation_probability=0.3,
+    tournament_size=2, crossover_probability=1.0);
