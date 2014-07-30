@@ -3,6 +3,9 @@
  */
 
 var DEFAULT_FITNESS = -1000;
+var WIDTH=100;
+var HEIGHT=100;
+var BAR_WIDTH;
 
 /**
  * Return the sum of the values of the array
@@ -112,11 +115,26 @@ function print_stats(generation, population) {
 function ea(population_size, max_size, generations, mutation_probability,
             tournament_size) {
     // Create population
+    BAR_WIDTH=WIDTH/max_size;
     var population = [];
     for(var i = 0; i < population_size; i++) {
+        var svgContainer = d3.select("body").append("svg")
+                                    .attr("width",  WIDTH+20)
+                                     .attr("height", HEIGHT);
         var genome = [];
         for(var j = 0; j < max_size; j++) {
-            genome.push(Math.random() < 0.5 ? 0 : 1);
+            var binary=(Math.random() < 0.5 ? 0 : 1)
+            genome.push(binary);
+            var rectangle = svgContainer.append("rect")
+                             .attr("x", BAR_WIDTH*j)
+                             .attr("y", 0)
+                             .attr("width", BAR_WIDTH)
+                             .attr("height", HEIGHT);
+            if(binary==0){
+                rectangle.attr("fill", "cyan");
+            }else{
+                rectangle.attr("fill", "magenta");
+            }
         }
         population.push({genome: genome, fitness: DEFAULT_FITNESS});
         console.log(i + " Individual:" + population[i]["genome"]);
@@ -168,5 +186,7 @@ function ea(population_size, max_size, generations, mutation_probability,
     }
 }
 
-ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
+$(function(){
+    ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
     tournament_size=2);
+})
