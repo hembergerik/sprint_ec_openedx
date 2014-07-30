@@ -2,7 +2,7 @@
  * Created by erikhemberg on 7/16/14.
  */
 
-var DEFAULT_FITNESS = 1000;
+var DEFAULT_FITNESS = -1000;
 
 /**
  * Return the sum of the values of the array
@@ -52,8 +52,8 @@ function evaluate_fitness(population) {
 function get_ave_and_std(values) {
     var ave = sum(values) / values.length;
     var std = 0;
-    for (var val in values) {
-        std = std + Math.pow((val - ave), 2);
+    for (var i = 0; i < values.length; i++) {
+        std = std + ((values[i] - ave) * (values[i] - ave));
     }
     std = Math.sqrt(std / values.length);
     return [ave, std];
@@ -168,5 +168,5 @@ function ea(population_size, max_size, generations, mutation_probability,
     }
 }
 
-ea(population_size=40, max_size=20, generations=40, mutation_probability=0.3,
+ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
     tournament_size=2);
