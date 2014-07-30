@@ -57,11 +57,11 @@ canvas {
 }
 
 #leftButton{
-  background-image: url('left.png');
+  background-image: url('media/images/left.png');
 }
 
 #rightButton{
-  background-image: url('right.png');
+  background-image: url('media/images/right.png');
 }
 
 .dialogText{
@@ -70,12 +70,12 @@ canvas {
 
 #winPopup{
   text-align:center;
-  /*background-image:url('dialogBackground.png');*/
+  /*background-image:url('media/images/dialogBackground.png');*/
 }
 
 #gameChoice{
   text-align:center;
-  /*background-image:url('dialogBackground.png');*/
+  /*background-image:url('media/images/dialogBackground.png');*/
 }
 
 #directions{

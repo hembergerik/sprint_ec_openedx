@@ -30,30 +30,30 @@ canvas.height = ROWS * BIKE_HEIGHT;
 
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
-red_bike_img.src = '../Tron_bike_red.png'
+red_bike_img.src = 'media/images/Tron_bike_red.png'
 var blue_bike_img = new Image();
-blue_bike_img.src =  '../Tron_bike_blue.png'
+blue_bike_img.src =  'media/images/Tron_bike_blue.png'
 
 var red_trail = new Image();
-red_trail.src = '../Glow_Trail_Red_square.png'
+red_trail.src = 'media/images/Glow_Trail_Red_square.png'
 
 var blue_trail = new Image();
-blue_trail.src = '../Glow_Trail_blue_square.png'
+blue_trail.src = 'media/images/Glow_Trail_blue_square.png'
 
 
 var red_corner = new Image();
-red_corner.src = '../Glow_Trail_Red_corner.png'
+red_corner.src = 'media/images/Glow_Trail_Red_corner.png'
 
 var blue_corner = new Image();
-blue_corner.src = '../Glow_Trail_blue_corner.png'
+blue_corner.src = 'media/images/Glow_Trail_blue_corner.png'
 
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
-BGM.src = '../Tron_Theme.mp3';
+BGM.src = 'media/Tron_Theme.mp3';
 BGM.loop = true;
 var Crash_effect = $('<audio>')[0];
-Crash_effect.src = '../Tron_Crash.mp3';
+Crash_effect.src = 'media/Tron_Crash.mp3';
 
 var players;
 var NUM_PLAYERS;
@@ -597,8 +597,6 @@ function playerSetup(){
 }
 
 
-
-
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeyup = function read(event) {
@@ -637,12 +635,12 @@ document.onkeyup = function read(event) {
         }
     }
     if (code === 78){
-      BGM.src = '../Nyan_Cat.mp3'
-      red_trail.src = '../Nyan_Trail.png'
-      red_bike_img.src = '../Nyan_Cat.png'
-      red_corner.src = '../Nyan_Corner.png'
+      BGM.src = 'media/Nyan_Cat.mp3'
+      red_trail.src = 'media/images/Nyan_Trail.png'
+      red_bike_img.src = 'media/images/Nyan_Cat.png'
+      red_corner.src = 'media/images/Nyan_Corner.png'
       BGM.play();
-      $('body').css('background-image', 'url("../nyan_background.gif")');
+      $('body').css('background-image', 'url("media/images/nyan_background.gif")');
       $('body').css('background-repeat', 'repeat');      
     }
 };
