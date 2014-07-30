@@ -4,13 +4,24 @@
 
 var DEFAULT_FITNESS = 1000;
 
-function sum(array) {
-    return array.reduce(function(previous_value, current_value){
+/**
+ * Return the sum of the values of the array
+ * @param {Array.<number>} list List of numbers to sum
+ * @returns {number} Sum of the array values
+ */
+function sum(list) {
+    return list.reduce(function(previous_value, current_value){
         return previous_value + current_value;
     });
 }
 
-function sort_individuals(individual_0, individual_1) {
+/**
+ * Return [-1,0,1] to indicate if an individual has a lower fitness value
+ * @param {Object} individual_0 One individual to compare
+ * @param {Object} individual_1 Another individual to compare
+ * @returns {number} Whether the fitness is lower
+ */
+function compare_individuals(individual_0, individual_1) {
     if (individual_0["fitness"] < individual_1["fitness"]) {
         return 1;
     }
@@ -20,6 +31,12 @@ function sort_individuals(individual_0, individual_1) {
     return 0;
 }
 
+/**
+ * Assign fitness to each element(Individual) in the population by calling the fitness
+ * function. The fitness function is the sum of the bit string(genome) of the
+ * Individual.
+ * @param {Array.<Object>}population
+ */
 function evaluate_fitness(population) {
     // Evaluate fitness
     for (var i = 0; i < population.length; i++) {
@@ -27,6 +44,11 @@ function evaluate_fitness(population) {
     }
 }
 
+/**
+ * Return the average and standard deviation of a list of values
+ * @param {Array.<number>} values List of values
+ * @returns {Array.<number>} List with Average and Standard Deviation
+ */
 function get_ave_and_std(values) {
     var ave = sum(values) / values.length;
     var std = 0;
@@ -37,8 +59,15 @@ function get_ave_and_std(values) {
     return [ave, std];
 }
 
+/**
+ * Write the statistics of the population to the console. The statistics are
+ * generation number, average fitness and standard deviation of fitness in the
+ * population and the fitness of the top solution and its bit string(genome)
+ * @param {number} generation The generation number
+ * @param {Array.<Object>} population The population of the current generation
+ */
 function print_stats(generation, population) {
-    population.sort(sort_individuals);
+    population.sort(compare_individuals);
     var fitness_values = [];
     for (var i = 0; i < population.length; i++) {
         fitness_values.push(population[i]["fitness"]);
@@ -49,8 +78,39 @@ function print_stats(generation, population) {
         population[0]["genome"]);
 }
 
+/**
+ * The evolutionary algorithm, performs a stochastic parallel
+ iterative search. The algorithm:
+
+ - Generate a population of initial solutions
+ - Iterate a fixed number of times
+
+ - Evaluate the fitness of the new solutions
+ - Select solutions for a new population
+ - Vary the solutions in the new population
+
+ - Mutate a solution
+
+ - Replace the old population with the new population
+
+ The data fields are:
+
+ - Individual, a list:
+
+ - Genome, an integer list for representing a bit string
+ - Fitness, an integer for the fitness value
+
+ - Population, a list of individuals
+
+ * @param {number} population_size Integer for population size
+ * @param {number} max_size The maximum size of an individual
+ * @param {number} generations The number of generations
+ * @param {number} mutation_probability Probability of mutating a solution
+ * @param {number} tournament_size Size of competitors when selecting from the
+ * old population
+ */
 function ea(population_size, max_size, generations, mutation_probability,
-            tournament_size, crossover_probability) {
+            tournament_size) {
     // Create population
     var population = [];
     for(var i = 0; i < population_size; i++) {
@@ -77,27 +137,10 @@ function ea(population_size, max_size, generations, mutation_probability,
                 competitors.push(population[idx]);
             }
             // Sort the competitors by fitness
-            competitors.sort(sort_individuals);
+            competitors.sort(compare_individuals);
             // Push the best competitor to the new population
             new_population.push({genome: competitors[0]["genome"].slice(0),
                 fitness: DEFAULT_FITNESS});
-        }
-
-        for (var i = 0; i < population_size; i = i+2) {
-            // Crossover individuals
-            if (Math.random() < crossover_probability) {
-                // Pick crossover point
-                var children = [];
-                var idx = Math.floor(Math.random() *
-                    new_population[i]["genome"].length);
-                // Swap the bit strings
-                children[0] = new_population[i]["genome"].slice(0, idx).
-                    concat(new_population[i+1]["genome"].slice(idx));
-                children[1] = new_population[i+1]["genome"].slice(0, idx).
-                    concat(new_population[i]["genome"].slice(idx));
-                new_population[i]["genome"] = children[0];
-                new_population[i+1]["genome"] = children[1];
-            }
         }
 
         for (var i = 0; i < population_size; i++) {
@@ -126,4 +169,4 @@ function ea(population_size, max_size, generations, mutation_probability,
 }
 
 ea(population_size=40, max_size=20, generations=40, mutation_probability=0.3,
-    tournament_size=2, crossover_probability=1.0);
+    tournament_size=2);
