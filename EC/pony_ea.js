@@ -7,11 +7,26 @@ var WIDTH=100;
 var HEIGHT=100;
 var BAR_WIDTH;
 
+var ONE_COLOR = '#33efef';
+var ZERO_COLOR = '#ef9999';
+var MUTATE_ONE_COLOR = '#0000ff'
+var MUTATE_ZERO_COLOR = '#ff0000'
+var colors = [ZERO_COLOR, ONE_COLOR,MUTATE_ONE_COLOR, MUTATE_ZERO_COLOR]
+
+var CELL_WIDTH = 30;
+var CELL_HEIGHT = 30;
+var CELL_MARGIN = 2;
 /**
  * Return the sum of the values of the array
  * @param {Array.<number>} list List of numbers to sum
  * @returns {number} Sum of the array values
  */
+
+function round(number,placesBeyondDecimal){
+    var mult = Math.pow(10,placesBeyondDecimal);
+    return Math.round(number*mult)/mult;
+}
+
 function sum(list) {
     return list.reduce(function(previous_value, current_value){
         return previous_value + current_value;
@@ -76,9 +91,11 @@ function print_stats(generation, population) {
         fitness_values.push(population[i]["fitness"]);
     }
     var ave_and_std = get_ave_and_std(fitness_values);
-    console.log("Gen:" + generation + " fit_ave:" + ave_and_std[0] + "+-" +
-        ave_and_std[1] + " " + population[0]["fitness"] + " " +
+    console.log("Gen:" + generation + " fit_avg:" + round(ave_and_std[0],3) + "+-" +
+        round(ave_and_std[1],3) + " " + population[0]["fitness"] + " " +
         population[0]["genome"]);
+        $('#info').html("<b>Generation: </b>" + generation + " <br><b>AVG: </b>" + ave_and_std[0].toFixed(2) + "<br><b>SD: </b>" +
+        ave_and_std[1].toFixed(2) + "<br><b>Highest Fitness: </b>" + population[0]["fitness"])
 }
 
 /**
@@ -107,18 +124,20 @@ function print_stats(generation, population) {
 
  * @param {number} population_size Integer for population size
  * @param {number} max_size The maximum size of an individual
- * @param {number} generations The number of generations
  * @param {number} mutation_probability Probability of mutating a solution
  * @param {number} tournament_size Size of competitors when selecting from the
  * old population
  */
-function ea(population_size, max_size, generations, mutation_probability,
+function ea(population_size, max_size, mutation_probability,
             tournament_size) {
-  
+    
     var self = this;
     // Create population
     BAR_WIDTH=WIDTH/max_size;
     var population = [];
+    
+    
+    
     for(var i = 0; i < population_size; i++) {
         var svgContainer = d3.select("body")
                              .append("svg")
@@ -133,33 +152,44 @@ function ea(population_size, max_size, generations, mutation_probability,
                                         .attr("y", 0)
                                         .attr("width", BAR_WIDTH)
                                         .attr("height", HEIGHT);
-            if(binary==0){
-                rectangle.attr("fill", "cyan");
-            }else{
-                rectangle.attr("fill", "magenta");
-            }
+                rectangle.attr("fill", colors[binary]);
         }
         population.push({genome: genome, fitness: DEFAULT_FITNESS});
         console.log(i + " Individual:" + population[i]["genome"]);
     }
-    var rows = d3.select('#d3chart').selectAll('g').data(population).enter().append('g').attr('transform', function(d,i){return 'translate(0,'+50*i+')'})
     
+    var main_chart = d3.select('#d3chart')
+    main_chart.attr('width', (CELL_WIDTH+CELL_MARGIN)*max_size)
+              .attr('height', (CELL_HEIGHT+CELL_MARGIN)*population_size);
+    var rows = d3.select('#d3chart')
+                 .selectAll('g')
+                 .data(population)
+                 .enter()
+                 .append('g')
+              .attr('transform', function(d,i){return 'translate(0,'+(CELL_WIDTH+CELL_MARGIN)*i+')'})
     var row = rows.selectAll('rect').data(function(d){return d.genome})
     row.enter();
-    var square = row.enter().append('rect').attr('x', function(d,i){return 50*i}).attr('y',0)
-    .attr('fill', function(d,i){if(d){ return "#ff0000" }else{
-    return "#0000ff"}}).attr('width', BAR_WIDTH).attr('height', 20)
+    var square = row.enter().append('rect').attr('x', function(d,i){return (CELL_WIDTH+CELL_MARGIN)*i}).attr('y',0)
+    .attr('fill', function(d,i){return colors[d]}).attr('width', CELL_WIDTH).attr('height', CELL_HEIGHT)
 
 
     evaluate_fitness(population);
 
     // Generation loop
     var generation = 0;
+    
+    function update_graph(population){
+        //All of below are needed to update the d3 graph.
+        rows.data(population);
+        row.data(function(d){return d.genome})
+        square.attr('fill', function(d,i){return colors[d]})
+    }
   
     //overloaded function step 
     //@ optional param num_steps: number of steps to proceed
     //@ optional param time: time to wait for each step, defaults to 500ms.
-    function step(num_steps, time){
+    //@ optional param mutate_time: time to wait for each mutation. if not provided, mutation will not be animated.
+    function step(num_steps, time, mutate_time){
     // Selection
         var new_population = [];
         while (new_population.length < population_size) {
@@ -175,18 +205,44 @@ function ea(population_size, max_size, generations, mutation_probability,
             new_population.push({genome: competitors[0]["genome"].slice(0),
                 fitness: DEFAULT_FITNESS});
         }
+        
 
-        for (var i = 0; i < population_size; i++) {
-            // Mutate individuals
-            if (Math.random() < mutation_probability) {
-                // Pick gene
-                var idx = Math.floor(Math.random() *
-                    new_population[i]["genome"].length);
-                // Flip the gene
-                new_population[i]["genome"][idx] =
-                    (new_population[i]["genome"][idx] + 1 ) % 2;
-            }
+        if(mutate_time){
+            console.log(mutate_time)
+            mutate_individual_r(0, mutate_time);
+        }else{
+          for (var i = 0; i < population_size; i++) {
+            mutate_individual(i)
+          }
         }
+       // Mutate individuals
+        function mutate_individual(i){
+          if (Math.random() < mutation_probability) {
+                  // Pick gene
+                  var idx = Math.floor(Math.random() *
+                      new_population[i]["genome"].length);
+                  // Flip the gene
+                  new_population[i]["genome"][idx] =
+                      (new_population[i]["genome"][idx] + 1 ) % 2;
+              }
+        }
+        //this one is recursive and have a delay
+        //allows for the graph to update.
+        function mutate_individual_r(index, delay){ 
+          if(index == 0){
+            $('g:last-of-type').css('stroke', 'none')
+          }
+          var g_index = index+1;
+          $('g:nth-of-type('+g_index+')').css('stroke', 'yellow');
+          $('g:nth-of-type('+index+')').css('stroke', 'none')
+          console.log(index)
+          mutate_individual(index);
+          update_graph(new_population);
+          if(index < population_size - 1){
+          setTimeout(function(){self.mutate_individual_r(index+1, delay)}, delay)
+          }
+        }
+        this.mutate_individual_r = mutate_individual_r
 
         // Evaluate the new population
         evaluate_fitness(new_population);
@@ -198,17 +254,15 @@ function ea(population_size, max_size, generations, mutation_probability,
 
         // Increase the generation
         generation = generation + 1;
-      rows.data(population);
-      row.data(function(d){return d.genome})
-      square.attr('fill', function(d,i){console.log (d); if(d){ return "#ff0000" }else{
-    return "#0000ff"}})
+        
+        update_graph(population);
 
         //Allows for stepping.
         if(num_steps){
           if(time){
-          setTimeout(function(){self.step(num_steps-1, time)}, time)
+          setTimeout(function(){self.step(num_steps-1, time, mutate_time)}, time)
           }else{
-          setTimeout(function(){self.step(num_steps-1)}, 500)
+          setTimeout(function(){self.step(num_steps-1, null, mutate_time)}, 300)
           }
         }
       
@@ -218,7 +272,7 @@ function ea(population_size, max_size, generations, mutation_probability,
 
 
 $(function(){
-    var main_evolution_obj = new ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
+    var main_evolution_obj = new ea(population_size=15, max_size=20, mutation_probability=0.3,
     tournament_size=2);
-    main_evolution_obj.step(20);
+    main_evolution_obj.step(50,5000,300);
 })
