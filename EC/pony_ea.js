@@ -189,6 +189,8 @@ function ea(population_size, max_size, mutation_probability,
     //@ optional param num_steps: number of steps to proceed
     //@ optional param time: time to wait for each step, defaults to 500ms.
     //@ optional param mutate_time: time to wait for each mutation. if not provided, mutation will not be animated.
+    //uses recursive set interval looping. conflicts with the set interval looping of contained function mutate_individual,
+    //which causes unpredicted behavior
     function step(num_steps, time, mutate_time){
     // Selection
         var new_population = [];
