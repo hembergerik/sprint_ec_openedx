@@ -114,6 +114,8 @@ function print_stats(generation, population) {
  */
 function ea(population_size, max_size, generations, mutation_probability,
             tournament_size) {
+  
+    var self = this;
     // Create population
     BAR_WIDTH=WIDTH/max_size;
     var population = [];
@@ -139,13 +141,23 @@ function ea(population_size, max_size, generations, mutation_probability,
         population.push({genome: genome, fitness: DEFAULT_FITNESS});
         console.log(i + " Individual:" + population[i]["genome"]);
     }
+    var row = d3.select('#d3chart').selectAll('g').data(population).enter().append('g').attr('transform', function(d,i){return 'translate(0,'+50*i+')'})
+    
+    var square = row.selectAll('rect').data(function(d){return d.genome}).enter().append('rect').attr('x', function(d,i){return 50*i}).attr('y',0)
+    .attr('fill', function(d,i){if(d){ return "#ff0000" }else{
+    return "#0000ff"}}).attr('width', BAR_WIDTH).attr('height', 20)
+
 
     evaluate_fitness(population);
 
     // Generation loop
     var generation = 0;
-    while (generation < generations) {
-        // Selection
+  
+    //overloaded function step 
+    //@ optional param num_steps: number of steps to proceed
+    //@ optional param time: time to wait for each step, defaults to 500ms.
+    function step(num_steps, time){
+    // Selection
         var new_population = [];
         while (new_population.length < population_size) {
             var competitors = [];
@@ -183,10 +195,25 @@ function ea(population_size, max_size, generations, mutation_probability,
 
         // Increase the generation
         generation = generation + 1;
+        
+      row.data(population);
+        //Allows for stepping.
+        if(num_steps){
+          if(time){
+          setTimeout(function(){self.step(num_steps-1, time)}, time)
+          }else{
+          console.log('setting timeout default')
+          setTimeout(function(){self.step(num_steps-1)}, 500)
+          }
+        }
+      
     }
+  this.step = step;
 }
 
+
 $(function(){
-    ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
+    var main_evolution_obj = new ea(population_size=4, max_size=20, generations=4, mutation_probability=0.3,
     tournament_size=2);
+    main_evolution_obj.step(20);
 })
