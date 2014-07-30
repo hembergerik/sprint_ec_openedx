@@ -2,14 +2,13 @@
  * Created by erikhemberg on 7/16/14.
  */
 
-// TODO add random seed from https://github.com/davidbau/seedrandom
+// TODO refactor for oop
 
 var DEFAULT_FITNESS = 1000;
 
 // From http://indiegamr.com/generate-repeatable-random-numbers-in-js/
 // the initial seed
 Math.seed = 711;
-
 Math.seededRandom = function(max, min) {
     Math.seed = (Math.seed * 9301 + 49297) % 233280;
     var rnd = Math.seed / 233280;
@@ -28,11 +27,16 @@ function copy_tree(tree) {
     }
     return out;
 }
-function tree_to_str(tree, str) {
+
+function tree_to_str(tree) {
+    return "("+node_to_str(tree, "")+")"
+}
+
+function node_to_str(tree, str) {
     str = str + tree[0];
     for (var i = 1; i < tree.length; i++) {
         str = str + ",(";
-        str = tree_to_str(tree[i], str);
+        str = node_to_str(tree[i], str);
         str = str + ")";
     }
     return str;
@@ -172,7 +176,7 @@ function print_stats(generation, population) {
     console.log("Gen:" + generation + " fit_ave:" + ave_and_std[0] + "+-" + ave_and_std[1] +
         " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
         " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
-    " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"], ""));
+    " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
 }
 
 function tournament_selection(tournament_size, population) {
@@ -283,8 +287,7 @@ function initialize_population(population_size, max_size) {
         population.push({genome: tree, fitness: DEFAULT_FITNESS});
         console.log(i);
         console.log(population[i]["genome"]);
-    }
-    return population;
+    }    return population;
 }
 
 function get_node_at_index(root, idx) {
@@ -376,7 +379,11 @@ function gp(population_size, max_size, generations, mutation_probability, tourna
     while (generation < generations) {
         // Selection
         var new_population = tournament_selection(tournament_size, population);
+
+        //Crossover
         new_population = crossover(crossover_probability, new_population);
+
+        //Mutate
         mutation(mutation_probability, new_population);
 
         // Evaluate the new population
@@ -392,5 +399,5 @@ function gp(population_size, max_size, generations, mutation_probability, tourna
     }
 }
 
-// TODO fix size
+// TODO fix size for mutation and crossover, it bloats too easily for mutation
 gp(population_size=100, max_size=2, generations=40, mutation_probability=1.0, tournament_size=2, crossover_probability=0.0);

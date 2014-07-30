@@ -646,8 +646,10 @@ document.onkeyup = function read(event) {
       $('body').css('background-repeat', 'repeat');      
     }
 };
-
-
+// Erik Great, it works on my phone
+// - Can the buttons be larger (Should the side of the board be clickable?)
+// - Is it possible to do without jQuery
+// - (Can we minify and create a mobile version for the Tron)
 $(function(){
   //Array of players
 
