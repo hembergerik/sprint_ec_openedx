@@ -524,6 +524,10 @@ function end_game() {
         "Play Again": function() {
           $(this).dialog('close');
           reload();
+        },
+        "Start Over": function() {
+          $(this).dialog('close');
+          location.reload();
         }
       }
     })
