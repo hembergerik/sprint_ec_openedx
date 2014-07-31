@@ -17,6 +17,8 @@ var smaller=Math.min($(window).height(),$(window).width());
 var BIKE_WIDTH = Math.floor(smaller*GAME_PROPORTION_OF_PAGE/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
 
+var MOBILE_CUTOFF = 360;
+
 //Canvas to draw on
 var canvas = document.getElementById('game');
 //Context on canvas
@@ -712,6 +714,12 @@ document.onkeyup = function read(event) {
 $(function(){
   //Array of players
 
+if(smaller>MOBILE_CUTOFF){
+  $('#leftButton').remove();
+  $('#rightButton').remove();
+  $('#leftButton2').remove();
+  $('#rightButton2').remove();
+}
 $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
