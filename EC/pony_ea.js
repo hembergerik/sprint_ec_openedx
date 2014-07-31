@@ -18,7 +18,7 @@ var CELL_WIDTH = 30;
 var CELL_HEIGHT = 30;
 var CELL_MARGIN = 2;
 
-var NUM_STEPS_DEFAULT = 50;
+var NUM_STEPS_DEFAULT = 2;
 var TIME_DEFAULT = 500;
 var COMPUTATION_TIME_DEFAULT = 100;
 var FIGHT_TIME_DEFAULT=300;
@@ -312,9 +312,9 @@ function ea(population_size, max_size, mutation_probability,
     function flip_rect_bit($rect, deg){
       deg = deg || 0;
       $rect.css('transform', 'rotateY(' + deg +'DEG)')
-      $rect.css('transform-origin', 'initial')
+      $rect.css('transform-origin', (parseInt($rect.attr('x')) + CELL_WIDTH/2) + 'px')
       if(deg < 180){
-        setTimeout(function(){self.flip_rect_bit($rect, deg+5)}, 10)
+        setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
       }
     }
     this.flip_rect_bit = flip_rect_bit;
