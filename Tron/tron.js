@@ -662,6 +662,8 @@ $('#gameChoice').dialog({
       $(this).dialog('close');
       players = [HUMAN_PLAYER, AI_PLAYER];
       playerSetup();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     },
     "Human vs Human": function(){
       $(this).dialog('close');
@@ -674,6 +676,10 @@ $('#gameChoice').dialog({
       console.log('two');
       players = [AI_PLAYER, AI_PLAYER_2];
       playerSetup();
+      $('#leftButton').remove();
+      $('#rightButton').remove();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     }
   }
 })
@@ -682,13 +688,19 @@ $('#gameChoice').dialog({
   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       left(HUMAN_PLAYER);
   })
   $('#rightButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       right(HUMAN_PLAYER);
+  })
+  $('#leftButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      left(HUMAN_PLAYER_2);
+  })
+  $('#rightButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      right(HUMAN_PLAYER_2);
   })
 
   $('canvas').on('click', function(){
