@@ -42,7 +42,7 @@ canvas {
   box-shadow: 0 0 20px #9ecaed;
 }
 
-#leftButton, #rightButton{
+#leftButton, #rightButton, #leftButton2, #rightButton2{
   background-color: rgba(0,0,0,0);
   width:100px;
   height:50px;
@@ -62,11 +62,11 @@ canvas {
   border-width: 3px;
 }
 
-#leftButton{
+#leftButton, #leftButton2{
   background-image: url('media/images/left.png');
 }
 
-#rightButton{
+#rightButton, #rightButton{
   background-image: url('media/images/right.png');
 }
 
