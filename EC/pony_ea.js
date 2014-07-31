@@ -361,11 +361,11 @@ function ea(population_size, max_size, mutation_probability,
             $('g:last-of-type').css('stroke', 'none')
         }
           var g_index = index+1;
-          $('g:nth-of-type('+g_index+')').css('stroke', '#000');
-          $('g:nth-of-type('+index+')').css('stroke', 'none');
+          $('#d3chart g:nth-of-type('+g_index+')').css('stroke', '#000');
+          $('#d3chart g:nth-of-type('+index+')').css('stroke', 'none');
           update_graph(population)
           if(mutate_gene_index){
-              flip_rect_bit($('g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')'))
+              flip_rect_bit($('#d3chart g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')'))
             }
           }
         
