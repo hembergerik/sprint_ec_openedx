@@ -31,9 +31,16 @@ canvas {
 }
 
 #playerScores{
+  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-size:18pt;
+  font-weight:bold;
   display:inline-block;
-  min-width:200px;
-  background-color:#bbb;
+  padding:20px;
+  background-color:rgba(128, 128, 128, 0.5);
+  border-style: solid;
+  border-color: #3effff;
+  border-width: 3px;
+  box-shadow: 0 0 20px #9ecaed;
 }
 
 #leftButton, #rightButton{
