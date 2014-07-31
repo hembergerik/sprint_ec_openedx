@@ -22,7 +22,7 @@ var NUM_STEPS_DEFAULT = 50;
 var TIME_DEFAULT = 500;
 var COMPUTATION_TIME_DEFAULT = 100;
 var FIGHT_TIME_DEFAULT=300;
-var MUTATE_TIME_DEFAULT = 200;
+var MUTATE_TIME_DEFAULT = 300;
 
 /**
  * Return the sum of the values of the array
@@ -194,8 +194,7 @@ function ea(population_size, max_size, mutation_probability,
         rows.data(population);
         row.data(function(d){return d.genome})
         square.transition().attr('fill', function(d,i){return colors[d]})
-            //  .transition().attr('transform' , 'rotate(180)')
-    }
+      }
 
     function update_winners(population){
         //All of below are needed to update the d3 graph.
@@ -249,11 +248,12 @@ function ea(population_size, max_size, mutation_probability,
       }
     }
     
+    
     //Mutates one individual
     //@param individual: object individual to be mutated
-    //I don't know passing by reference makes returning unecessary.
-    //@returns a mutated individual
-    
+    //passing by reference makes returning the individual unecessary.
+    //@returns the index of the gene mutated + 1, or false.
+    //why +1? +1 allows to do if(idx); also reduces the work when flipping the bit.
     function mutate_individual(individual){
       if (Math.random() < mutation_probability) {
           var idx = Math.floor(Math.random() *
@@ -261,8 +261,9 @@ function ea(population_size, max_size, mutation_probability,
           // Flip the gene
           individual["genome"][idx] =
               (individual["genome"][idx] + 1 ) % 2;
+          return idx+1;
       }
-      return individual;
+      return false;
     }
   
   
@@ -270,12 +271,12 @@ function ea(population_size, max_size, mutation_probability,
     //@param population: population object
     //@param delay: delay for each loop
     //@param callback: function called after the entire population is mutated.
-    //@param graph_function: function called each iteration to update the graph. graph_function is passed the index and population.
+    //@param graph_function: function called each iteration to update the graph. graph_function is passed the index, population, and the index of gene mutated(or false)
     //@internal param index: the ith individual to mutate.
     function mutate_individual_r(population,delay, callback,graph_function, index){
-      var index = index || 0;      
-      population[index] = mutate_individual(population[index]);
-      graph_function(index, population);
+      var index = index || 0;
+      var mutate_gene_index = mutate_individual(population[index])
+      graph_function(index, population, mutate_gene_index);
       if(index < population.length - 1){
         setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
       }else{
@@ -302,8 +303,22 @@ function ea(population_size, max_size, mutation_probability,
             $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')')
         }
         return competitors
+  }
+    //flips the rect 180 degreens along the Z-position.
+    //purely for the sake of looking good.
+    //@param $rect the jquery rect object.
+    //@internal_param deg the current degreens of the transition.
+  
+    function flip_rect_bit($rect, deg){
+      deg = deg || 0;
+      $rect.css('transform', 'rotateY(' + deg +'DEG)')
+      $rect.css('transform-origin', 'initial')
+      if(deg < 180){
+        setTimeout(function(){self.flip_rect_bit($rect, deg+5)}, 10)
+      }
     }
-    
+    this.flip_rect_bit = flip_rect_bit;
+
     
 
     //overloaded function step 
@@ -341,15 +356,18 @@ function ea(population_size, max_size, mutation_probability,
         }
         //mutate();
       
-        function mutate_graph(index, population){
+      function mutate_graph(index, population, mutate_gene_index){
         if(index == 0){
-            $('#d3chart g:last-of-type').css('stroke', 'none')
+            $('g:last-of-type').css('stroke', 'none')
         }
           var g_index = index+1;
-          $('#d3chart g:nth-of-type('+g_index+')').css('stroke', '#000');
-          $('#d3chart g:nth-of-type('+index+')').css('stroke', 'none')
+          $('g:nth-of-type('+g_index+')').css('stroke', '#000');
+          $('g:nth-of-type('+index+')').css('stroke', 'none');
           update_graph(population)
-        }
+          if(mutate_gene_index){
+              flip_rect_bit($('g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')'))
+            }
+          }
         
         function finalize(){
         
@@ -383,4 +401,5 @@ $(function(){
     var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
     tournament_size=2);
     main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,COMPUTATION_TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
+
 })

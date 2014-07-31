@@ -5,18 +5,16 @@
 //TODO Verify that check environment for the AI player works
 "use strict";
 
+var GAME_PROPORTION_OF_PAGE = 0.68
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
 var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var smaller=$(window).height();
-if ($(window).width()<smaller){
-  smaller=$(window).width();
-}
+var smaller=Math.min($(window).height(),$(window).width());
 
-var BIKE_WIDTH = Math.floor(smaller*0.9/ROWS);
+var BIKE_WIDTH = Math.floor(smaller*GAME_PROPORTION_OF_PAGE/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
@@ -524,6 +522,10 @@ function end_game() {
         "Play Again": function() {
           $(this).dialog('close');
           reload();
+        },
+        "Start Over": function() {
+          $(this).dialog('close');
+          location.reload();
         }
       }
     })
@@ -662,6 +664,8 @@ $('#gameChoice').dialog({
       $(this).dialog('close');
       players = [HUMAN_PLAYER, AI_PLAYER];
       playerSetup();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     },
     "Human vs Human": function(){
       $(this).dialog('close');
@@ -674,6 +678,10 @@ $('#gameChoice').dialog({
       console.log('two');
       players = [AI_PLAYER, AI_PLAYER_2];
       playerSetup();
+      $('#leftButton').remove();
+      $('#rightButton').remove();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     }
   }
 })
@@ -682,13 +690,19 @@ $('#gameChoice').dialog({
   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       left(HUMAN_PLAYER);
   })
   $('#rightButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       right(HUMAN_PLAYER);
+  })
+  $('#leftButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      left(HUMAN_PLAYER_2);
+  })
+  $('#rightButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      right(HUMAN_PLAYER_2);
   })
 
   $('canvas').on('click', function(){

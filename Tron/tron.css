@@ -18,12 +18,11 @@ h1, p {
 canvas {
   display: block;
   margin: 10px auto;
-  background-color: rgba(149, 149, 149, 0.28);
+  background-color: rgba(149, 149, 149, 0.84);
   border-style: solid;
   border-color: #3effff;
   border-width: 5px;
   box-shadow: 0 0 20px #9ecaed;
-  
 }
 
 #buttonControls{
@@ -43,7 +42,7 @@ canvas {
   box-shadow: 0 0 20px #9ecaed;
 }
 
-#leftButton, #rightButton{
+#leftButton, #rightButton, #leftButton2, #rightButton2{
   background-color: rgba(0,0,0,0);
   width:100px;
   height:50px;
@@ -63,11 +62,11 @@ canvas {
   border-width: 3px;
 }
 
-#leftButton{
+#leftButton, #leftButton2{
   background-image: url('media/images/left.png');
 }
 
-#rightButton{
+#rightButton, #rightButton2{
   background-image: url('media/images/right.png');
 }
 
