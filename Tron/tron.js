@@ -5,18 +5,16 @@
 //TODO Verify that check environment for the AI player works
 "use strict";
 
+var GAME_PROPORTION_OF_PAGE = 0.68
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
 var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var smaller=$(window).height();
-if ($(window).width()<smaller){
-  smaller=$(window).width();
-}
+var smaller=Math.min($(window).height(),$(window).width());
 
-var BIKE_WIDTH = Math.floor(smaller*0.9/ROWS);
+var BIKE_WIDTH = Math.floor(smaller*GAME_PROPORTION_OF_PAGE/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
 
 //Canvas to draw on
