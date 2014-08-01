@@ -5,19 +5,19 @@
 //TODO Verify that check environment for the AI player works
 "use strict";
 
+var GAME_PROPORTION_OF_PAGE = 0.68
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
 var ROWS = 20;
 var COLS = ROWS;
 //Bike is square
-var smaller=$(window).height();
-if ($(window).width()<smaller){
-  smaller=$(window).width();
-}
+var smaller=Math.min($(window).height(),$(window).width());
 
-var BIKE_WIDTH = Math.floor(smaller*0.9/ROWS);
+var BIKE_WIDTH = Math.floor(smaller*GAME_PROPORTION_OF_PAGE/ROWS);
 var BIKE_HEIGHT = BIKE_WIDTH;
+
+var MOBILE_CUTOFF = 360;
 
 //Canvas to draw on
 var canvas = document.getElementById('game');
@@ -524,6 +524,10 @@ function end_game() {
         "Play Again": function() {
           $(this).dialog('close');
           reload();
+        },
+        "Start Over": function() {
+          $(this).dialog('close');
+          location.reload();
         }
       }
     })
@@ -597,6 +601,45 @@ function playerSetup(){
 }
 
 
+//function to handle the input 'left key' on a player
+//@param player the player who pressed the key
+
+function left_key(player){
+  console.log('left key')
+  if(!player.direction[0]){
+    player.direction = [-1,0]
+  }
+}
+
+function right_key(player){
+  console.log('right_key')
+  if(!player.direction[0]){
+    player.direction = [1,0]
+  }
+}
+
+function up_key(player){
+  console.log('up key')
+  if(!player.direction[1]){
+    player.direction = [0, -1]
+  }
+}
+
+function down_key(player){
+  console.log('down key')
+  if(!player.direction[1]){
+    player.direction = [0, 1]
+  }
+}
+
+//this prevent up and down key from moving the window.
+window.addEventListener("keydown", function(e) {
+    // space and arrow keys
+    if([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+}, false);
+
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeyup = function read(event) {
@@ -605,32 +648,52 @@ document.onkeyup = function read(event) {
     //The event code
     var code = e.keyCode || e.which;
     //Check the event code
-    if (code === 65 || code === 68) {
+    if (64 < code && code < 88) {
         var direction = HUMAN_PLAYER_2.direction;
         switch (code) {
-            //Left arrow
+            //A key
             case 65:
-                left(HUMAN_PLAYER_2);
+                //calls the corresponding key function.
+                left_key(HUMAN_PLAYER_2);
                 break;
+            //w key
+            case 87:
+                up_key(HUMAN_PLAYER_2);
+                break;
+            //d key
             case 68:
-                right(HUMAN_PLAYER_2);
+                right_key(HUMAN_PLAYER_2);
+                break;
+            //s key
+            case 83:
+                down_key(HUMAN_PLAYER_2);
                 break;
         }
     }
-    if (code === 37 || code === 39) {
+    if (36 < code && code < 41) {
         //Current direction of HUMAN_PLAYER
         var direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
         switch (code) {
             //Left arrow    
             case 37:
-                //switch directions to the next direction in the PLAYER_DIRECTIONS array
-                left(HUMAN_PLAYER);
+                //calls the corresponding key function.
+                left_key(HUMAN_PLAYER);
+                break;
+            //up arrow
+            case 38:
+            
+                e.preventDefault();
+                up_key(HUMAN_PLAYER);
                 break;
             //Right arrow
             case 39:
-                //switch directions to the previous direction in the PLAYER_DIRECTIONS array
-                right(HUMAN_PLAYER);
+                right_key(HUMAN_PLAYER);
+                break;
+            //down arrow
+            case 40:
+                e.preventDefault();
+                down_key(HUMAN_PLAYER);
                 break;
         }
     }
@@ -651,6 +714,12 @@ document.onkeyup = function read(event) {
 $(function(){
   //Array of players
 
+if(smaller>MOBILE_CUTOFF){
+  $('#leftButton').remove();
+  $('#rightButton').remove();
+  $('#leftButton2').remove();
+  $('#rightButton2').remove();
+}
 $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
 $('#gameChoice').dialog({
   resizable: false,
@@ -662,6 +731,8 @@ $('#gameChoice').dialog({
       $(this).dialog('close');
       players = [HUMAN_PLAYER, AI_PLAYER];
       playerSetup();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     },
     "Human vs Human": function(){
       $(this).dialog('close');
@@ -674,6 +745,10 @@ $('#gameChoice').dialog({
       console.log('two');
       players = [AI_PLAYER, AI_PLAYER_2];
       playerSetup();
+      $('#leftButton').remove();
+      $('#rightButton').remove();
+      $('#leftButton2').remove();
+      $('#rightButton2').remove();
     }
   }
 })
@@ -682,13 +757,19 @@ $('#gameChoice').dialog({
   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       left(HUMAN_PLAYER);
   })
   $('#rightButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
-    console.log("current direction is: " + direction[0] + " " + direction[1]);
       right(HUMAN_PLAYER);
+  })
+  $('#leftButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      left(HUMAN_PLAYER_2);
+  })
+  $('#rightButton2').on('click',function(){
+    var direction = HUMAN_PLAYER_2.direction;
+      right(HUMAN_PLAYER_2);
   })
 
   $('canvas').on('click', function(){
