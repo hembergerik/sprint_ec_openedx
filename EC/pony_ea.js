@@ -224,15 +224,15 @@ function ea(population_size, max_size, mutation_probability,
     }
 
     function fight(pop,index, recursive) {
-        var competitors = select_competitors(population);
+        var competitors = select_competitors(population, recursive);
         // Sort the competitors by fitness
-        competitors.sort(compare_individuals, recursive);
+        competitors.sort(compare_individuals);
         // Push the best competitor to the new population
         pop[index]={genome: competitors[0]["genome"].slice(0),
             fitness: DEFAULT_FITNESS};
     }
 
-    function fight_r(pop, delay, callback, graph_function, index, recursive){
+    function fight_r(pop, delay, callback, graph_function, recursive, index){
       var index = index || 0;
       $('#d3chart g').each(function(){
             var ctran=$(this).attr('transform').slice(10);
@@ -245,7 +245,7 @@ function ea(population_size, max_size, mutation_probability,
       fight(pop,index, recursive);
       graph_function(pop);
       if(index < population.length - 1){
-        timers.FIGHT_TIMER=setTimeout(function(){self.fight_r(pop, delay, callback, graph_function, index + 1)}, delay);
+        timers.FIGHT_TIMER=setTimeout(function(){self.fight_r(pop, delay, callback, graph_function, recursive, index + 1)}, delay);
       }else{
         timers.FIGHT_TIMER=setTimeout(function(){
           clear_winners(pop);
@@ -295,18 +295,20 @@ function ea(population_size, max_size, mutation_probability,
     //select tournament_size individuals to an array
     //@param population: the population object
     //@return competitors: an array of individuals in the competition
-    function select_competitors(population){
+    function select_competitors(population, recursive){
         var competitors = [];
         for (var i = 0; i < tournament_size; i++) {
             var idx = Math.floor(Math.random() * population.length);
             competitors.push(population[idx]);
-            var highlight=idx+1;
-            var ctran=$('#d3chart g:nth-of-type('+highlight+')').attr('transform').slice(10);
-            var translation=[];
-            ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
-                translation.push(parseInt(n,10));
-            })
-            $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')')
+            if(recursive){
+              var highlight=idx+1;
+              var ctran=$('#d3chart g:nth-of-type('+highlight+')').attr('transform').slice(10);
+              var translation=[];
+              ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
+                  translation.push(parseInt(n,10));
+              })
+              $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')')
+            }
         }
         return competitors
   }
@@ -347,6 +349,7 @@ function ea(population_size, max_size, mutation_probability,
 
     //Remove the exisiting g's to redraw a new population.
     function remove(){
+      console.log('removing')
       self.stop();
       d3.selectAll('g').remove();
     }
@@ -354,6 +357,7 @@ function ea(population_size, max_size, mutation_probability,
     
     //Stop the timeouts to end the execution
     function stop(){
+      console.log('stopping')
       Object.keys(timers).forEach(function(timer){
         clearTimeout(timers[timer]);
       })
@@ -388,9 +392,7 @@ function ea(population_size, max_size, mutation_probability,
         if (fight_time){
           fight_r(new_population,fight_time, mutate, update_winners, true);
         }else{
-          console.log('no mutation')
           for (var i=0; i < population_size; i++){
-            console.log(fight)
             fight(new_population,i, false);
           }
           mutate();
@@ -484,8 +486,8 @@ $(function(){
     $('#reload').on('click', function(){
       //console.log(main_evolution_obj)
       if(typeof main_evolution_obj != 'undefined'){
-        main_evolution_obj.stop();
         main_evolution_obj.remove();
+        create_main_obj();
       }else{
         create_main_obj();
       }
@@ -503,7 +505,6 @@ $(function(){
         if(main_evolution_obj.stepping){ return false}
       }
         var stepInfo = getStepInfo()
-        console.log(stepInfo.fightTime)
         main_evolution_obj.step(null, null, stepInfo.mutTime, stepInfo.fightTime);
     })
     
@@ -571,7 +572,7 @@ $(function(){
     
     generations_slider.slider({
       range: "min",
-      max: 200,
+      max: 100,
       min: 5,
       value: 10,
       step:5,
