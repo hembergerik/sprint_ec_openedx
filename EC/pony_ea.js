@@ -274,7 +274,7 @@ function ea(population_size, max_size, mutation_probability,
 
 
 $(function(){
-    var main_evolution_obj = new ea(population_size=15, max_size=20, mutation_probability=0.3,
+    var main_evolution_obj = new ea(population_size=15, max_size=20, mutation_probability=0.6,
     tournament_size=2);
     main_evolution_obj.step(50,5000,300);
 })
