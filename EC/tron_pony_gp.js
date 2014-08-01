@@ -44,6 +44,7 @@ var PLAYER_DIRECTIONS = [
 //Context on canvas
     tron_params['ctx'] = tron_params['canvas'].getContext('2d');
 
+    var stats = [];
 
     function setup_tron(strategy_0, strategy_1) {
 //Game board. 0 is empty
@@ -130,39 +131,46 @@ var PLAYER_DIRECTIONS = [
         } else {
             symbol = node[0];
         }
-        if (symbol === "if") {
-            // Conditional statement
+        switch (symbol) {
+            case "IFLEQ":
+                // Conditional statement
 
-            // Check the condition to see which child to evaluate
-            if (evaluate(node[1], player)) {
-                evaluate(node[2], player);
-            } else {
-                evaluate(node[3], player);
-            }
-        } else if (symbol === "is_obstacle_in_relative_direction") {
-            // Sense the distance
-
-            // Parse the direction from the child node
-            var direction = Number(evaluate(node[1], player));
-            // Return if there is an obstacle the direction
-            return is_obstacle_in_relative_direction(direction, player);
-        } else if (symbol === "left") {
-            // Turn left
-            left(player);
-        } else if (symbol === "right") {
-            // Turn right
-            right(player);
-        } else if (symbol === "ahead") {
-            // Do nothing
-        } else if (symbol === "0") {
-            return Number(symbol);
-        } else if (symbol === "1") {
-            return Number(symbol);
-        } else if (symbol === "-1") {
-            return Number(symbol);
-        } else {
-            // Unknown symbol
-            throw "Unknown symbol:" + symbol;
+                // Check the condition to see which child to evaluate
+                if (evaluate(node[1], player) <= evaluate(node[2], player)) {
+                    return evaluate(node[3], player);
+                } else {
+                    return evaluate(node[4], player);
+                }
+            case "SENSE_A":
+                // Sense the distance
+                return distance(0, player);
+            case "SENSE_L":
+                // Sense the distance
+                return distance(1, player);
+            case "SENSE_R":
+                // Sense the distance
+                return distance(-1, player);
+            case "TURN_LEFT":
+                // Turn left
+                left(player);
+                break;
+            case "TURN_RIGHT":
+                // Turn right
+                right(player);
+                break
+            case "+":
+                return evaluate(node[1], player) + evaluate(node[2], player)
+            case "-":
+                return evaluate(node[1], player) - evaluate(node[2], player)
+            case "0.1":
+                return Number(symbol);
+            case "0.3":
+                return Number(symbol);
+            case "0.6":
+                return Number(symbol);
+            default:
+                // Unknown symbol
+                throw "Unknown symbol:" + symbol;
         }
     }
 
@@ -340,7 +348,10 @@ var PLAYER_DIRECTIONS = [
                 winner = i;
                 tron_params['players'][i]['score'] = 1;
             }
+
         }
+        stats.push([tron_params['players'][0]['bike_trail'],
+            tron_params['players'][1]['bike_trail']]);
         console.log('Data: ' + winner);
         tron_params['stats_reported'] = true;
     }
@@ -400,13 +411,13 @@ var PLAYER_DIRECTIONS = [
 
     function copy_tree(tree) {
         var out = [];
-            for (var i = 0; i < tree.length; i++) {
-                if (typeof tree[i] === 'string') {
-                    out = tree;
-                } else {
-                    out[i] = copy_tree(tree[i]);
-                }
+        for (var i = 0; i < tree.length; i++) {
+            if (typeof tree[i] === 'string') {
+                out = tree;
+            } else {
+                out[i] = copy_tree(tree[i]);
             }
+        }
         return out.slice(0);
     }
 
@@ -430,14 +441,17 @@ var PLAYER_DIRECTIONS = [
 
     function get_symbols() {
         var arity = {
-            ahead: 0,
-            left: 0,
-            right: 0,
-            "0": 0,
-            "1": 0,
-            "-1": 0,
-            "is_obstacle_in_relative_direction": 1,
-            "if": 3
+            "TURN_LEFT": 0,
+            "TURN_RIGHT": 0,
+            "SENSE_A": 0,
+            "SENSE_L": 0,
+            "SENSE_R": 0,
+            "0.1": 0,
+            "0.3": 0,
+            "0.6": 0,
+            "+": 2,
+            "-": 2,
+            "IFLEQ": 4
         };
 
         var terminals = [];
@@ -771,21 +785,15 @@ var PLAYER_DIRECTIONS = [
         // Generation loop
         var generation = 0;
         while (generation < params['generations']) {
-            console.log('Start loop gen:', generation);
             // Selection
-            console.log('B tournament:', generation);
             var new_population = tournament_selection(params['tournament_size'], population);
-            console.log('B crossover:', generation);
             new_population = crossover(params['crossover_probability'], new_population);
-            console.log('B mutation:', generation);
             mutation(params['mutation_probability'], new_population, params['max_size']);
 
             // Evaluate the new population
-            console.log('B evaluation:', generation);
             evaluate_fitness(new_population);
 
             // Replace the population with the new population
-            console.log('B replacement:', generation);
             population = new_population;
 
             print_stats(generation, new_population);
@@ -805,4 +813,12 @@ var PLAYER_DIRECTIONS = [
     };
 // TODO fix size for mutation and crossover, it bloats too easily for mutation
     gp(gp_params);
+    for (var i = 0; i < stats.length; i++) {
+        if (i % (gp_params['population_size'] / 2) == 0) {
+            //console.log('Generation')
+        }
+        if (!contains([4, 5, 20], stats[i][0].length) || !contains([4, 5, 20], stats[i][1].length)) {
+            console.log(stats[i][0].length, stats[i][1].length);
+        }
+    }
 })();
