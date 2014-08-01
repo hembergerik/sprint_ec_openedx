@@ -39,3 +39,10 @@
   border-radius:15px;
   font-family:sans-serif;
 }
+
+#status{
+  margin:20px;
+  font-size:18px;
+  color:mediumPurple;
+  font-family: sans-serif;
+}
