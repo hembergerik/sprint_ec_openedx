@@ -5,6 +5,7 @@
   <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <script src="pony_ea.js"></script>
   <link rel="stylesheet" href="pony_ea.css" />
+  <script type="text/javascript" src="jscolor/jscolor.js"></script>
   <link href='//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
@@ -14,23 +15,35 @@
       Genome size: <span class='info'>8</span> <div id = 'genome_size' class = 'slider'></div>
       Mutation Probablity: <span class='info'>0.3</span> <div id = 'mut_prob' class = 'slider'></div>
       Tournament Size:<span class='info'>2</span>  <div id = 'tour_size' class = 'slider'></div>
+      Generations:<span class='info'>10</span>  <div id = 'gens' class = 'slider'></div>
+
       
+  </div>
+  <div id='moreOptions'>
+    <span id='chooseColors'>
+      <input class='color' id='chooseZero'><br>
+      <input class='color' id='chooseOne'><br>
+      <button id='setColors'>Set Colors</button>
+    </span><br>
+      <input id="fightAnimCheck" type="checkbox" checked> Fight animate! 
+      <input id="mutateAnimCheck" type="checkbox" checked> Mutate animate! 
+    <br><button id='closeSettings'>Close Settings</button>  
   </div>
   <div id='info'><b>Generation:<br>
     AVG:<br>
     SD:<br>
     Highest Fitness:</b>
   </div>
-  <div id='chooseColors'>
-    <input id='chooseZero'><br>
-    <input id='chooseOne'><br>
-    <button id='setColors'>Set Colors</button>
-  </div>
-    <input type="checkbox"/> Animate! 
     <br>
     <button id='reload'>Reload</button>
-    <button id = 'stop'>Stop</button>
+    <button id ='step'>Step One Generation</button>
+    <!--<button id = 'stop'>Stop</button>-->
+    <button id='moreSettings'>Additional Settings...</button>
 <br>
+<div>
+    
+</div>
+<div id='status'><span class='s' id='s0'>Tournament</span>--><span class='s' id='s2'>Mutate</span>--><span class='s' id='s3'>New Population</span></div>
   <svg class="chart" id="d3chart"></svg>
   <svg class="chart" id="winners"></svg>
 </body>

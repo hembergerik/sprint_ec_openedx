@@ -28,10 +28,11 @@
   height: 50px;
 }
 
-#chooseColors{
+#moreOptions{
   display:inline-block;
   padding:10px;
   margin:20px;
+  max-height:140px;
   border-width:1px;
   border-style:solid;
   border-color:black;
