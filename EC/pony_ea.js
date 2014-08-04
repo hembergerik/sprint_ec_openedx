@@ -546,7 +546,7 @@ $(function(){
       var StepInfo = {}
       var fight_time = parseInt($('#fightAnimT').val())||FIGHT_TIME_DEFAULT;
       var mutate_time = parseInt($('#mutateAnimT').val())||MUTATE_TIME_DEFAULT;
-      StepInfo.gens = step || generations_slider.slider("value");
+      StepInfo.gens = step || parseInt(generations_input.val());
       StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? mutate_time : undefined;
       StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? fight_time : undefined;
       return StepInfo;
