@@ -53,7 +53,7 @@ canvas {
   margin:15px;
 }
 
-#leftButton:hover, #rightButton:hover{
+#leftButton:hover, #rightButton:hover, #leftButton2:hover, #rightButton2:hover{
   cursor:pointer;
   background-color: rgba(40,200,200, 0.2);
 }
@@ -71,7 +71,7 @@ canvas {
 }
 
 .dialogText{
-  text-color:'#0FF';
+  color:'#0FF';
 }
 
 #winPopup{
