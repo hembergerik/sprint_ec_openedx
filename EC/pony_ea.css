@@ -1,5 +1,10 @@
 .chart{
-	margin:20px;
+  margin:20px;
+}
+
+.chartLabel{
+  text-align:center;
+  vertical-align:top;
 }
 
 span{
