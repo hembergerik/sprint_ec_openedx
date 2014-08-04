@@ -98,7 +98,7 @@ var AI_PLAYER = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]] 
+    strategy: ["+",["+",["-",["+",["IFLEQ","SENSE_A","0.6","TURN_RIGHT","0.1"],["SENSE_L"]],["+","TURN_RIGHT","TURN_LEFT"]],["-",["+","SENSE_R","TURN_RIGHT"],["-","0.6","SENSE_L"]]],["IFLEQ",["-",["+","SENSE_R","TURN_RIGHT"],["IFLEQ","TURN_LEFT","SENSE_R","SENSE_R","SENSE_A"]],["IFLEQ",["+","TURN_LEFT","0.3"],["+","SENSE_A","SENSE_A"],["+","SENSE_A","SENSE_L"],["+","SENSE_R","SENSE_L"]],["IFLEQ",["IFLEQ","0.6","TURN_LEFT","TURN_LEFT","TURN_RIGHT"],["-","SENSE_L","SENSE_R"],["+","TURN_LEFT","SENSE_L"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]] 
 };
 var AI_PLAYER_2 = {
     name: 'AI PLAYER 2',
@@ -552,6 +552,22 @@ function end_game() {
     })
 }
 
+
+//f stands for fast.
+function end_game_f(){
+    var winner = -1;
+    var scoreUpdate=-1;
+    // Find the winner
+    for (var i = 0; i < NUM_PLAYERS; i++) {
+        if (players[i].alive === true) {
+            winner = players[i].name;
+            stats_reported = true;
+            players[i].score = 1;
+        }
+    }
+    stats_reported = true;
+}
+
 /**
  * A step of the game clock, i.e. one round.
  */
@@ -590,6 +606,32 @@ function step() {
     }*/
 }
 
+//f stands for fast.
+function step_f(){
+      if (!stats_reported) {
+        for (var i = 0; i < NUM_PLAYERS; i++) {
+            if (players[i].ai) {
+                move_ai(players[i]);
+            }
+            // Update the player
+            update(players[i],players);
+        }
+    }
+    //Check if the players are alive
+    for (var i = 0; i < NUM_PLAYERS; i++) {
+        if (players[i].alive === false) {
+            game_over = true;
+        }
+    }
+    //Game over?
+    if (game_over) {
+        //TODO better way of only registering game once
+        if (!stats_reported) {
+            end_game_f();
+        }
+    }
+
+}
 function start(){
   BGM.play();
   //Set the function which is called after each interval
@@ -1042,7 +1084,7 @@ var gp_params = {
     crossover_probability: 0.3
 };
 
-gp(gp_params)
+//gp(gp_params)
 
 console.log(gp_params)
 
@@ -1122,13 +1164,13 @@ function evaluate_individuals(individuals) {
     //TODO this is only intermittently working
     //tron_game_id = setInterval(step, 1000 / FRAMES_PER_SECOND);
     var cnt = 0;
-    var BRK = tron_params['ROWS'] * tron_params['COL']; //Cannot be larger than the board
-    while (!tron_params['game_over'] && cnt < BRK) {
-        step();
+    var BRK = ROWS*COLS; //Cannot be larger than the board
+    while (!game_over && cnt < BRK) {
+        step_f();
         cnt++;
     }
-    individuals[0]['fitness'] += tron_params['players'][0]["score"];
-    individuals[1]['fitness'] += tron_params['players'][1]["score"];
+    individuals[0]['fitness'] += players[0]["score"];
+    individuals[1]['fitness'] += players[1]["score"];
 }
 
 
@@ -1136,17 +1178,17 @@ function evaluate_individuals(individuals) {
 function setup_tron(strategy_0, strategy_1) {
 //Game board. 0 is empty
     board = []
-    for (var i = 0; i < tron_params['ROWS']; i++) {
+    for (var i = 0; i < ROWS; i++) {
         var board_square = [];
-        for (var j = 0; j < tron_params['COL']; j++) {
+        for (var j = 0; j < COLS; j++) {
             board_square.push(0);
         }
         board[i] = board_square;
     }
     var AI_PLAYER_1 = {
         name: "AI PLAYER 1",
-        x:Math.floor(Math.random()*COLS);
-        y:Math.floor(Math.random()*ROWS);
+        x:Math.floor(Math.random()*COLS),
+        y:Math.floor(Math.random()*ROWS),
         //Direction on board [x,y]
         direction: [0, 1],
         COLOR: 'red',
@@ -1158,8 +1200,8 @@ function setup_tron(strategy_0, strategy_1) {
         strategy: strategy_0
     };
     var AI_PLAYER_2 = {
-        x:Math.floor(Math.random()*COLS);
-        y:Math.floor(Math.random()*ROWS);
+        x:Math.floor(Math.random()*COLS),
+        y:Math.floor(Math.random()*ROWS),
         direction: [0, 1],
         COLOR: 'blue',
         alive: true,
@@ -1171,14 +1213,12 @@ function setup_tron(strategy_0, strategy_1) {
         strategy: strategy_1
     };
 //Array of players
-    tron_params['players'] = [AI_PLAYER_1, AI_PLAYER_2];
-    tron_params['NUM_PLAYERS'] = tron_params['players'].length;
-
-    tron_params['game_over'] = false;
-    tron_params['stats_reported'] = false;
+    players = [AI_PLAYER_1, AI_PLAYER_2];
+    NUM_PLAYERS= 2;
+    game_over=false;
+    stats_reported = false;
 }
 
-//TODO: implement setup_tron
 //TODO: refactor evaluate_individuals to work with setup_tron
 
 
