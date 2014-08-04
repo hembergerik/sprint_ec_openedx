@@ -322,7 +322,7 @@ function ea(population_size, max_size, mutation_probability,
       $rect.css('transform', 'rotateY(' + deg +'DEG)')
       $rect.css('transform-origin', (parseInt($rect.attr('x')) + CELL_WIDTH/2) + 'px')
       if(deg < 180){
-        timers.FLIP_TIMER=setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
+        setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
       }
     }
     this.flip_rect_bit = flip_rect_bit;
@@ -340,7 +340,7 @@ function ea(population_size, max_size, mutation_probability,
         $rect.attr('fill', color_function(color_index));
         color_index += 0.01;
         if(color_index < 1){
-          timers.COLOR_TIMER = setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
+          setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
         }
       }
       transit_color_r($rect, color_function);
@@ -361,6 +361,7 @@ function ea(population_size, max_size, mutation_probability,
       Object.keys(timers).forEach(function(timer){
         clearTimeout(timers[timer]);
       })
+      self.stepping = false;
     }
     this.stop = stop;
     
@@ -503,6 +504,9 @@ $(function(){
     });
     
     $('#stop').on('click', function(){
+      if(typeof main_evolution_obj !== 'undefined'){
+        main_evolution_obj.stop();
+      }
     })
     
     $('#step').on('click', function(){
