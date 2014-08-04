@@ -9,20 +9,26 @@ var BAR_WIDTH;
 
 var ONE_COLOR = '#33efef';
 var ZERO_COLOR = '#ef9999';
-var MUTATE_ONE_COLOR = '#0000ff'
-var MUTATE_ZERO_COLOR = '#ff0000'
-NEGATIVE_COLOR='#999999'
-var colors = [ZERO_COLOR, ONE_COLOR,MUTATE_ONE_COLOR, MUTATE_ZERO_COLOR]
+var MUTATE_ONE_COLOR = '#0000ff';
+var MUTATE_ZERO_COLOR = '#ff0000';
+var NEGATIVE_COLOR='#999999';
+var colors = [ZERO_COLOR, ONE_COLOR,MUTATE_ONE_COLOR, MUTATE_ZERO_COLOR];
 
 var CELL_WIDTH = 30;
 var CELL_HEIGHT = 30;
 var CELL_MARGIN = 2;
 
-var NUM_STEPS_DEFAULT = 20;
+var NUM_STEPS_DEFAULT = 10;
 var TIME_DEFAULT = 500;
-var COMPUTATION_TIME_DEFAULT = 100;
 var FIGHT_TIME_DEFAULT=300;
 var MUTATE_TIME_DEFAULT = 300;
+
+var timers={MUTATE_TIMER: null,
+            FIGHT_TIMER: null,
+            TIMER:null,
+            COLOR_TIMER: null,
+            FLIP_TIMER:null,
+            TRANSITION_TIMER: null}
 
 /**
  * Return the sum of the values of the array
@@ -140,6 +146,7 @@ function ea(population_size, max_size, mutation_probability,
             tournament_size) {
     
     var self = this;
+    this.stepping = false;
     // Create population
     BAR_WIDTH=WIDTH/max_size;
     var population = [];
@@ -149,14 +156,14 @@ function ea(population_size, max_size, mutation_probability,
     for(var i = 0; i < population_size; i++) {
         var genome = [];
         for(var j = 0; j < max_size; j++) {
-            var binary=(Math.random() < 0.5 ? 0 : 1)
+            var binary=(Math.random() < 0.5 ? 0 : 1);
             genome.push(binary);
         }
         population.push({genome: genome, fitness: DEFAULT_FITNESS});
         console.log(i + " Individual:" + population[i]["genome"]);
     }
     
-    var main_chart = d3.select('#d3chart')
+    var main_chart = d3.select('#d3chart');
     main_chart.attr('width', (CELL_WIDTH+CELL_MARGIN)*max_size+20)
               .attr('height', (CELL_HEIGHT+CELL_MARGIN)*population_size);
     var rows = d3.select('#d3chart')
@@ -164,13 +171,12 @@ function ea(population_size, max_size, mutation_probability,
                  .data(population)
                  .enter()
                  .append('g')
-              .attr('transform', function(d,i){return 'translate(0,'+(CELL_WIDTH+CELL_MARGIN)*i+')'})
-    var row = rows.selectAll('rect').data(function(d){return d.genome})
+              .attr('transform', function(d,i){return 'translate(0,'+(CELL_WIDTH+CELL_MARGIN)*i+')'});
+    var row = rows.selectAll('rect').data(function(d){return d.genome});
     row.enter();
     var square = row.enter().append('rect').attr('x', function(d,i){return (CELL_WIDTH+CELL_MARGIN)*i}).attr('y',0)
-    .attr('fill', function(d,i){return colors[d]}).attr('width', CELL_WIDTH).attr('height', CELL_HEIGHT)
-
-    var winner_chart = d3.select('#winners')
+    .attr('fill', function(d,i){return colors[d]}).attr('width', CELL_WIDTH).attr('height', CELL_HEIGHT);
+    var winner_chart = d3.select('#winners');
     winner_chart.attr('width', (CELL_WIDTH+CELL_MARGIN)*max_size)
               .attr('height', (CELL_HEIGHT+CELL_MARGIN)*population_size);
     var wrows = d3.select('#winners')
@@ -178,11 +184,11 @@ function ea(population_size, max_size, mutation_probability,
                  .data(population)
                  .enter()
                  .append('g')
-              .attr('transform', function(d,i){return 'translate(0,'+(CELL_WIDTH+CELL_MARGIN)*i+')'})
-    var wrow = wrows.selectAll('rect').data(function(d){return d.genome})
+              .attr('transform', function(d,i){return 'translate(0,'+(CELL_WIDTH+CELL_MARGIN)*i+')'});
+    var wrow = wrows.selectAll('rect').data(function(d){return d.genome});
     wrow.enter();
     var wsquare = wrow.enter().append('rect').attr('x', function(d,i){return (CELL_WIDTH+CELL_MARGIN)*i}).attr('y',0)
-    .attr('fill', NEGATIVE_COLOR).attr('width', CELL_WIDTH).attr('height', CELL_HEIGHT)
+    .attr('fill', NEGATIVE_COLOR).attr('width', CELL_WIDTH).attr('height', CELL_HEIGHT);
 
     evaluate_fitness(population);
 
@@ -192,15 +198,15 @@ function ea(population_size, max_size, mutation_probability,
     function update_graph(population){
         //All of below are needed to update the d3 graph.
         rows.data(population);
-        row.data(function(d){return d.genome})
-        square.transition().attr('fill', function(d,i){return colors[d]})
+        row.data(function(d){return d.genome});
+        square.attr('fill', function(d,i){return colors[d]});
       }
 
     function update_winners(population){
         //All of below are needed to update the d3 graph.
         wrows.data(population);
-        wrow.data(function(d){return d.genome})
-        wsquare.attr('fill', function(d,i){if(d<0){return NEGATIVE_COLOR}else{return colors[d]}})
+        wrow.data(function(d){return d.genome});
+        wsquare.attr('fill', function(d,i){if(d<0){return NEGATIVE_COLOR}else{return colors[d]}});
     }
 
     function clear_winners(population){
@@ -209,16 +215,16 @@ function ea(population_size, max_size, mutation_probability,
             var translation=[];
             ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
                 translation.push(parseInt(n,10));
-            })
-            $(this).attr('transform', 'translate('+0+','+translation[1]+')')
-        })
+            });
+            $(this).attr('transform', 'translate('+0+','+translation[1]+')');
+        });
         wrows.data(population);
-        wrow.data(function(d){return d.genome})
-        wsquare.attr('fill', function(d,i){return NEGATIVE_COLOR}) 
+        wrow.data(function(d){return d.genome});
+        wsquare.attr('fill', function(d,i){return NEGATIVE_COLOR});
     }
 
-    function fight(pop,index) {
-        var competitors = select_competitors(population)
+    function fight(pop,index, recursive) {
+        var competitors = select_competitors(population, recursive);
         // Sort the competitors by fitness
         competitors.sort(compare_individuals);
         // Push the best competitor to the new population
@@ -226,22 +232,22 @@ function ea(population_size, max_size, mutation_probability,
             fitness: DEFAULT_FITNESS};
     }
 
-    function fight_r(pop, delay, callback, graph_function, index){
+    function fight_r(pop, delay, callback, graph_function, recursive, index){
       var index = index || 0;
       $('#d3chart g').each(function(){
             var ctran=$(this).attr('transform').slice(10);
             var translation=[];
             ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
                 translation.push(parseInt(n,10));
-            })
-            $(this).attr('transform', 'translate('+0+','+translation[1]+')')
-      })
-      fight(pop,index);
+            });
+            $(this).attr('transform', 'translate('+0+','+translation[1]+')');
+      });
+      fight(pop,index, recursive);
       graph_function(pop);
       if(index < population.length - 1){
-        setTimeout(function(){self.fight_r(pop, delay, callback, graph_function, index + 1)}, delay);
+        timers.FIGHT_TIMER=setTimeout(function(){self.fight_r(pop, delay, callback, graph_function, recursive, index + 1)}, delay);
       }else{
-        setTimeout(function(){
+        timers.FIGHT_TIMER=setTimeout(function(){
           clear_winners(pop);
           callback();}
           ,delay);
@@ -278,7 +284,7 @@ function ea(population_size, max_size, mutation_probability,
       var mutate_gene_index = mutate_individual(population[index])
       graph_function(index, population, mutate_gene_index);
       if(index < population.length - 1){
-        setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
+        timers.MUTATE_TIMER=setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
       }else{
         callback();
       }
@@ -289,18 +295,20 @@ function ea(population_size, max_size, mutation_probability,
     //select tournament_size individuals to an array
     //@param population: the population object
     //@return competitors: an array of individuals in the competition
-    function select_competitors(population){
+    function select_competitors(population, recursive){
         var competitors = [];
         for (var i = 0; i < tournament_size; i++) {
             var idx = Math.floor(Math.random() * population.length);
             competitors.push(population[idx]);
-            var highlight=idx+1;
-            var ctran=$('#d3chart g:nth-of-type('+highlight+')').attr('transform').slice(10);
-            var translation=[];
-            ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
-                translation.push(parseInt(n,10));
-            })
-            $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')')
+            if(recursive){
+              var highlight=idx+1;
+              var ctran=$('#d3chart g:nth-of-type('+highlight+')').attr('transform').slice(10);
+              var translation=[];
+              ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
+                  translation.push(parseInt(n,10));
+              })
+              $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')')
+            }
         }
         return competitors
   }
@@ -314,20 +322,63 @@ function ea(population_size, max_size, mutation_probability,
       $rect.css('transform', 'rotateY(' + deg +'DEG)')
       $rect.css('transform-origin', (parseInt($rect.attr('x')) + CELL_WIDTH/2) + 'px')
       if(deg < 180){
-        setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
+        timers.FLIP_TIMER=setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
       }
     }
     this.flip_rect_bit = flip_rect_bit;
-
     
+    //smoothly change the color of the passed $rect
+    //purely for the sake of looking good
+    //@param $rect the jquery rect object
+    //@param color1 the STARTING color
+    //@param color2 the ENDING color
+    function transit_color($rect, color1, color2){
+      var current_transition_proportion = 0;
+      var color_function = d3.interpolate(color1, color2);
+      function transit_color_r($rect, color_function, color_index){
+        color_index = color_index || 0;
+        $rect.attr('fill', color_function(color_index));
+        color_index += 0.01;
+        if(color_index < 1){
+          timers.COLOR_TIMER = setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
+        }
+      }
+      transit_color_r($rect, color_function);
+      this.transit_color_r = transit_color_r;
+    }
 
+    //Remove the exisiting g's to redraw a new population.
+    function remove(){
+      console.log('removing')
+      self.stop();
+      d3.selectAll('g').remove();
+    }
+    this.remove = remove;
+    
+    //Stop the timeouts to end the execution
+    function stop(){
+      console.log('stopping')
+      Object.keys(timers).forEach(function(timer){
+        clearTimeout(timers[timer]);
+      })
+    }
+    this.stop = stop;
+    
+    
+    function stop_step(){
+      
+    }
+    this.stop_step = stop_step;
     //overloaded function step 
     //@ optional param num_steps: number of steps to proceed. defaults to one.
     //@ optional param time: time to wait for each step, defaults to 500ms.
     //@ optional param mutate_time: time to wait for each mutation. defaults to 0.
-    //@ optional param competition_time: time to wait for each competition. defaults to 0.
-    function step(num_steps, time, competition_time, mutate_time, fight_time){
-    // Selection
+    //@ optional param fight_time: time to wait for each competition. defaults to 0.
+    function step(num_steps, time, mutate_time, fight_time){
+        self.stepping = true;
+        
+        // Selection
+        print_stats(generation, population);
         var new_population = [];
         for(var i = 0; i < population_size; i++) {
           var genome = [];
@@ -336,61 +387,70 @@ function ea(population_size, max_size, mutation_probability,
           }
           new_population.push({genome: genome, fitness: DEFAULT_FITNESS});
         }
-        
+        $('.s').css('font-weight', 'normal');
+        $('#s0').css('font-weight', 'bold');
         if (fight_time){
-          fight_r(new_population,fight_time, mutate, update_winners);
+          fight_r(new_population,fight_time, mutate, update_winners, true);
         }else{
           for (var i=0; i < population_size; i++){
-            fight(new_population);
+            fight(new_population,i, false);
           }
+          mutate();
         }
 
         function mutate(){
+          update_graph(new_population);
+          $('.s').css('font-weight', 'normal');
+          $('#s1').css('font-weight', 'bold');
           if(mutate_time){
-              mutate_individual_r(new_population, mutate_time, finalize, mutate_graph)
+              mutate_individual_r(new_population, mutate_time, finalize, mutate_graph);
           }else{
             for (var i = 0; i < population_size; i++) {
-              new_population[i] = mutate_individual(new_population[i])
+              mutate_individual(new_population[i]);
             }
+            finalize();
           }
         }
         //mutate();
       
       function mutate_graph(index, population, mutate_gene_index){
-        if(index == 0){
-            $('g:last-of-type').css('stroke', 'none')
+        if(index === 0){
+            $('g:last-of-type').css('stroke', 'none');
         }
           var g_index = index+1;
           $('#d3chart g:nth-of-type('+g_index+')').css('stroke', '#000');
           $('#d3chart g:nth-of-type('+index+')').css('stroke', 'none');
-          update_graph(population)
           if(mutate_gene_index){
-              flip_rect_bit($('#d3chart g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')'))
+              var $rect = $('#d3chart g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')');
+              var gene = population[index].genome[mutate_gene_index-1];
+              console.log($rect.attr('fill') , gene)
+              flip_rect_bit($rect);
+              transit_color($rect, colors[1-gene], colors[gene]);
             }
           }
         
         function finalize(){
+          $('.s').css('font-weight', 'normal');
+          $('#s2').css('font-weight', 'bold');
         
-          //update_graph(population);
+          update_graph(new_population);
           // Evaluate the new population
           evaluate_fitness(new_population);
 
           // Replace the population with the new population
           population = new_population;
 
-          print_stats(generation, new_population);
-
           // Increase the generation
           generation = generation + 1;
-
-
           //Allows for stepping.
           if(num_steps){
             if(time){
-              setTimeout(function(){self.step(num_steps-1, time, competition_time, mutate_time,fight_time)}, time);
+              timers.TIMER=setTimeout(function(){self.step(num_steps-1, time, mutate_time,fight_time)}, time);
             }else{
-              setTimeout(function(){self.step(num_steps-1, null,competition_time, mutate_time, fight_time)}, MUTATE_TIME_DEFAULT);
+              timers.TIMER=setTimeout(function(){self.step(num_steps-1, null, mutate_time, fight_time)}, TIME_DEFAULT);
             }
+          }else{
+            self.stepping = false;
           }
         }
     }
@@ -398,8 +458,133 @@ function ea(population_size, max_size, mutation_probability,
 }
 
 $(function(){
-    var main_evolution_obj = new ea(population_size=10, max_size=10, mutation_probability=0.3,
-    tournament_size=2);
-    main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,COMPUTATION_TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
+    var slider_container = $('#options');
+    var population_slider = $('#pop_size');
+    var genome_slider = $('#genome_size');
+    var mutation_prob_slider = $('#mut_prob');
+    var tournament_size_slider = $('#tour_size');
+    var generations_slider=$('#gens');
+    $('#chooseZero').val(colors[0].slice(1));
+    $('#chooseOne').val(colors[1].slice(1));
+    $('#moreOptions').css('display', 'none');
+    
+    $('#setColors').on('click', function(){
+      var zeroC='#'+$('#chooseZero').val();
+      var oneC='#'+$('#chooseOne').val();
+      colors[0]=zeroC;
+      colors[1]=oneC;
+    })
+    
+    $('#moreSettings').on('click', function(){
+      $('#moreOptions').show('slow');
+    })
+    
+    $('#closeSettings').on('click', function(){
+      $('#moreOptions').hide('slow');
+    })
+    
+    $('#reload').on('click', function(){
+      //console.log(main_evolution_obj)
+      if(typeof main_evolution_obj != 'undefined'){
+        main_evolution_obj.remove();
+        create_main_obj();
+      }else{
+        create_main_obj();
+      }
+      var stepInfo = getStepInfo();
+      main_evolution_obj.step(stepInfo.gens,null, stepInfo.mutTime, stepInfo.fightTime);
+    });
+    
+    $('#stop').on('click', function(){
+    })
+    
+    $('#step').on('click', function(){
+      if(typeof main_evolution_obj === 'undefined'){
+        create_main_obj();}
+      else{
+        if(main_evolution_obj.stepping){ return false}
+      }
+        var stepInfo = getStepInfo()
+        main_evolution_obj.step(null, null, stepInfo.mutTime, stepInfo.fightTime);
+    })
+    
+    
+    //creates a new main_evolution_obj from the slider values.
+    //the main_evolution_obj is global.
+    function create_main_obj(){
+      var newValues={};
+      newValues.pop=population_slider.slider("value");
+      newValues.genome=genome_slider.slider("value");
+      newValues.mutate=mutation_prob_slider.slider("value");
+      newValues.fight=tournament_size_slider.slider("value");
+      newValues.gens=generations_slider.slider("value");
+      main_evolution_obj = new ea(newValues.pop, newValues.genome, newValues.mutate, newValues.fight);
+    }
+    
+    
+    //gets the information needed for stepping
+    //@optional param step: the number of generations needed to go forward
+    //@returns Stepinfo obj with gens, mutTime and fightTime keys.
+    function getStepInfo(step){
+      var StepInfo = {}
+      StepInfo.gens = step || generations_slider.slider("value");
+      StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? MUTATE_TIME_DEFAULT : undefined;
+      StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? FIGHT_TIME_DEFAULT : undefined;
+      return StepInfo;
+    }
+    
+    function update_value(e, ui){
+      $(this).prev().html(ui.value);
+    }
+    
+    population_slider.slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 50,
+      value: 10,
+      slide: update_value,
+      change:update_value,
+    });
+    
+    genome_slider.slider({
+      range: "min",
+      max: 20,
+      value: 8,
+      slide: update_value,
+      change: update_value,
+    });
+    mutation_prob_slider.slider({
+      range: "min",
+      max: 1.0,
+      value: 0.3,
+      step: 0.01,
+      slide: update_value,
+      change: update_value,
+    });
+    tournament_size_slider.slider({
+      range: "min",
+      max: 8,
+      min: 2,
+      value: 2,
+      slide: update_value,
+      change: update_value,
+    });
+    
+    generations_slider.slider({
+      range: "min",
+      max: 100,
+      min: 5,
+      value: 10,
+      step:5,
+      slide: update_value,
+      change: update_value,
+    });
+      
+    //var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
+    //tournament_size=2);
+    
+    //main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
 
-})
+
+
+});

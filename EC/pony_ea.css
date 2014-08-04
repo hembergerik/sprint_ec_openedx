@@ -1,3 +1,48 @@
-.hart{
+.chart{
 	margin:20px;
+}
+
+#info{
+  display:inline-block;
+  min-width:150px;
+  padding:10px;
+  margin:20px;
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  border-radius:15px;
+  font-family:sans-serif;
+}
+#options{
+  display:inline-block;
+  padding:10px;
+  margin:20px;
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  border-radius:15px;
+  font-family:sans-serif;
+}
+.slider{
+  width: 300px;
+  height: 50px;
+}
+
+#moreOptions{
+  display:inline-block;
+  padding:10px;
+  margin:20px;
+  max-height:140px;
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  border-radius:15px;
+  font-family:sans-serif;
+}
+
+#status{
+  margin:20px;
+  font-size:18px;
+  color:mediumPurple;
+  font-family: sans-serif;
 }
