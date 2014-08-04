@@ -15,11 +15,11 @@
       Genome size: <span class='info'>8</span> <div id = 'genome_size' class = 'slider'></div>
       Mutation Probablity: <span class='info'>0.3</span> <div id = 'mut_prob' class = 'slider'></div>
       Tournament Size:<span class='info'>2</span>  <div id = 'tour_size' class = 'slider'></div>
-      Generations:<span class='info'>10</span>  <div id = 'gens' class = 'slider'></div>
-
       
   </div>
+  <br>
   <div id='moreOptions'>
+  	Generations: <input type='number' min="2" max="500" value= '10' id='generations'/><br>
     <span id='chooseColors'>
       <input class='color' id='chooseZero'><br>
       <input class='color' id='chooseOne'><br>
@@ -29,17 +29,21 @@
       <input id="mutateAnimCheck" type="checkbox" checked> Mutate animate! 
     <br><button id='closeSettings'>Close Settings</button>  
   </div>
+  <br>
+  <span id='buttons'>
+	  <button id='reload'>Reload</button>
+	  <button id ='step'>Step One Generation</button>
+	  <!--<button id = 'stop'>Stop</button>-->
+	  <button id='moreSettings'>Additional Settings...</button>
+	</span>
+	<br>
+	<div id='error'></div>
   <div id='info'><b>Generation:<br>
     AVG:<br>
     SD:<br>
     Highest Fitness:</b>
   </div>
     <br>
-    <button id='reload'>Reload</button>
-    <button id ='step'>Step One Generation</button>
-    <!--<button id = 'stop'>Stop</button>-->
-    <button id='moreSettings'>Additional Settings...</button>
-<br>
 <div id='status'><span class='s' id='s0'>Tournament</span>&#8594;<span class='s' id='s1'>Mutate</span>&#8594;<span class='s' id='s2'>New Population</span></div>
   <div id="labels">
     Mutations Fightings
