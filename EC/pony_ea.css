@@ -2,6 +2,15 @@
 	margin:20px;
 }
 
+span{
+  vertical-align: top;
+  display:inline;
+}
+
+#charts{
+  float:left; 
+}
+
 #info{
   display:inline-block;
   min-width:150px;
