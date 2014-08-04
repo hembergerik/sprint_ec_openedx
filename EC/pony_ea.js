@@ -457,6 +457,7 @@ function ea(population_size, max_size, mutation_probability,
 }
 
 $(function(){
+    var chart_container = $('#charts');
     var slider_container = $('#options');
     var population_slider = $('#pop_size');
     var genome_slider = $('#genome_size');
@@ -467,10 +468,14 @@ $(function(){
     $('#chooseZero').val(colors[0].slice(1));
     $('#chooseOne').val(colors[1].slice(1));
     $('#moreOptions').css('display', 'none');
-    
+    chart_container.css('display','none');
     
     $('#moreSettings').on('click', function(){
-      $('#moreOptions').show('slow');
+      if($('#moreOptions').css('display') == 'none'){
+        $('#moreOptions').show('slow');
+      }else{
+        $('#moreOptions').hide('slow');
+      }
     })
     
     $('#closeSettings').on('click', function(){
@@ -515,6 +520,7 @@ $(function(){
     //creates a new main_evolution_obj from the slider values.
     //the main_evolution_obj is global.
     function create_main_obj(){
+      chart_container.show();
       var newValues={};
       newValues.pop=population_slider.slider("value");
       newValues.genome=genome_slider.slider("value");
