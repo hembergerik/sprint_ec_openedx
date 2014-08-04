@@ -390,6 +390,7 @@ function ea(population_size, max_size, mutation_probability,
         }
         $('.s').css('font-weight', 'normal');
         $('#s0').css('font-weight', 'bold');
+        $('g:last-of-type').css('stroke', 'none');
         if (fight_time){
           fight_r(new_population,fight_time, mutate, update_winners, true);
         }else{
@@ -433,7 +434,7 @@ function ea(population_size, max_size, mutation_probability,
         function finalize(){
           $('.s').css('font-weight', 'normal');
           $('#s2').css('font-weight', 'bold');
-        
+          
           update_graph(new_population);
           // Evaluate the new population
           evaluate_fitness(new_population);
@@ -470,7 +471,11 @@ $(function(){
     $('#chooseOne').val(colors[1].slice(1));
     $('#moreOptions').css('display', 'none');
     
-    
+    $('#getHelp').on('click', function(){
+      $('#help').toggle();
+    })
+
+
     $('#moreSettings').on('click', function(){
       $('#moreOptions').show('slow');
     })
