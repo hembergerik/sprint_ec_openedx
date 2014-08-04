@@ -391,13 +391,7 @@ var PLAYER_DIRECTIONS = [
         }
     }
 
-    /**
-     * Created by erikhemberg on 7/16/14.
-     */
-
-// TODO refactor for oop
-
-    var DEFAULT_FITNESS = 1000;
+    var DEFAULT_FITNESS = -1000;
 
 // From http://indiegamr.com/generate-repeatable-random-numbers-in-js/
 // the initial seed
@@ -486,7 +480,7 @@ var PLAYER_DIRECTIONS = [
 
     function get_random_symbol(depth, max_depth, symbols, full) {
         var symbol;
-        if (depth >= max_depth) {
+        if (depth >= (max_depth - 1)) {
             symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
         } else {
             var terminal = get_random_boolean();
@@ -805,7 +799,7 @@ var PLAYER_DIRECTIONS = [
 
     var gp_params = {
         population_size: 400,
-        max_size: 2,
+        max_size: 3,
         generations: 20,
         mutation_probability: 1.0,
         tournament_size: 2,
@@ -818,7 +812,7 @@ var PLAYER_DIRECTIONS = [
             //console.log('Generation')
         }
         if (!contains([4, 5, 20], stats[i][0].length) || !contains([4, 5, 20], stats[i][1].length)) {
-            console.log(stats[i][0].length, stats[i][1].length);
+            //console.log(stats[i][0].length, stats[i][1].length);
         }
     }
 })();

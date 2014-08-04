@@ -18,7 +18,7 @@ var CELL_WIDTH = 30;
 var CELL_HEIGHT = 30;
 var CELL_MARGIN = 2;
 
-var NUM_STEPS_DEFAULT = 2;
+var NUM_STEPS_DEFAULT = 20;
 var TIME_DEFAULT = 500;
 var COMPUTATION_TIME_DEFAULT = 100;
 var FIGHT_TIME_DEFAULT=300;
@@ -398,7 +398,7 @@ function ea(population_size, max_size, mutation_probability,
 }
 
 $(function(){
-    var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
+    var main_evolution_obj = new ea(population_size=10, max_size=10, mutation_probability=0.3,
     tournament_size=2);
     main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,COMPUTATION_TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
 

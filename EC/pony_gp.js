@@ -84,7 +84,7 @@ function get_random_boolean() {
 
 function get_random_symbol(depth, max_depth, symbols, full) {
     var symbol;
-    if (depth >= max_depth) {
+    if (depth >= (max_depth - 1)) {
         symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
     } else {
         var terminal = get_random_boolean();
@@ -169,6 +169,18 @@ function get_max_tree_depth(node, depth, max_depth) {
     return max_depth;
 }
 
+function max(list) {
+    return list.reduce(function(previous, current) {
+        return previous > current ? previous : current;
+    })
+}
+
+function min(list) {
+    return list.reduce(function(previous, current) {
+        return previous < current ? previous : current;
+    })
+}
+
 function print_stats(generation, population) {
     population.sort(sort_individuals);
     var fitness_values = [];
@@ -186,6 +198,9 @@ function print_stats(generation, population) {
         " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
         " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
         " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
+    console.log("min_fit:" + min(fitness_values) + " max_fit:" + max(fitness_values) +
+        " min_size:" + min(sizes) + " max_size:" + max(sizes) +
+        " min_depth:" + min(depths) + " max_depth:" + max(depths))
 }
 
 function tournament_selection(tournament_size, population) {
@@ -251,12 +266,15 @@ function mutation(mutation_probability, new_population, max_size) {
             var node_idx = get_random_int(0, end_node_idx);
             var node_info = get_depth_from_index(new_population[i]["genome"], {idx_depth: 0, idx: 0}, node_idx, 0);
             var max_subtree_depth = max_size - node_info['idx_depth'];
+            //console.log('mut', max_subtree_depth, max_size, node_info['idx_depth'], new_population[i]["genome"]);
             var new_subtree = [get_random_symbol(max_subtree_depth, max_size, symbols)];
             if (contains(symbols['functions'], new_subtree[0])) {
                 var full = false;//get_random_boolean();
                 grow(new_subtree, node_info['idx_depth'], max_size, full, symbols);
             }
             find_and_replace_subtree(new_population[i]["genome"], new_subtree, node_idx, -1);
+            var new_depth = get_max_tree_depth(new_population[i]["genome"], 0, 0);
+            //console.log('new depth:', new_depth, new_population[i]["genome"]);
         }
     }
 }
@@ -310,6 +328,7 @@ function initialize_population(population_size, max_size) {
         }
         population.push({genome: tree, fitness: DEFAULT_FITNESS});
         console.log(i, tree_to_str(population[i]["genome"]));
+        console.log(population[i]["genome"]);
     }
     return population;
 }
@@ -408,9 +427,9 @@ function gp(params) {
 }
 
 var gp_params = {
-    population_size: 400,
-    max_size: 2,
-    generations: 20,
+    population_size: 8,
+    max_size: 3,
+    generations: 4,
     mutation_probability: 1.0,
     tournament_size: 2,
     crossover_probability: 1.0
