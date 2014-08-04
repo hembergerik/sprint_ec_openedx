@@ -24,12 +24,14 @@
   </div>
   <div id='moreOptions'>
     <span id='chooseColors'>
-      <input class='color' id='chooseZero'><br>
-      <input class='color' id='chooseOne'><br>
-      <button id='setColors'>Set Colors</button>
+      Display Settings:<br>
+      Square Size:<input type = 'text' id = 'chooseSize' value = '30'> px<br>
+      Zero bit Color:<input class='color' id='chooseZero'><br>
+      One bit Color:<input class='color' id='chooseOne'><br>
     </span><br>
-      <input id="fightAnimCheck" type="checkbox" checked> Fight animate! 
-      <input id="mutateAnimCheck" type="checkbox" checked> Mutate animate! 
+      Animation Settings: <br>
+      <input id="fightAnimCheck" type="checkbox" checked>Animate Competition; Duration <input id = 'fightAnimT' type = 'text' value = '300'> <br>
+      <input id="mutateAnimCheck" type="checkbox" checked>Animate Mutation; Duration <input id = 'mutateAnimT' type = 'text' value = '300'>
     <br><button id='closeSettings'>Close Settings</button>  
   </div>
   <div id='info'><b>Generation:<br>
@@ -41,7 +43,6 @@
     <button id='reload'>Start</button>
     <button id='stop'>Stop</button>
     <button id ='step'>Step One Generation</button>
-    <!--<button id = 'stop'>Stop</button>-->
     <button id='moreSettings'>Additional Settings...</button>
 <br>
 <div id='status'><span class='s' id='s0'>Tournament</span>&#8594;<span class='s' id='s1'>Mutate</span>&#8594;<span class='s' id='s2'>New Population</span></div>
