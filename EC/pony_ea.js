@@ -495,6 +495,7 @@ $(function(){
   })
   
   $('#reload').on('click', function(){
+    getStepInfo();
     //console.log(main_evolution_obj)
     var gen_num=parseInt(generations_input.val());
     if(!isNaN(gen_num) && gen_num>=2&&gen_num<=500){
@@ -519,6 +520,7 @@ $(function(){
   })
   
   $('#step').on('click', function(){
+    getStepInfo();
     if(typeof main_evolution_obj === 'undefined'){
       create_main_obj();
     }else{
@@ -559,8 +561,7 @@ $(function(){
     }else{
       alert('please put in only integers for square size.')
     }
-    
-    
+
     var StepInfo = {}
     var fight_time = parseInt($('#fightAnimT').val())||FIGHT_TIME_DEFAULT;
     var mutate_time = parseInt($('#mutateAnimT').val())||MUTATE_TIME_DEFAULT;

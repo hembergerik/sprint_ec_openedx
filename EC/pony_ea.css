@@ -20,6 +20,10 @@ span{
   float:left; 
 }
 
+#charts table tr td{
+  text-align:center;
+}
+
 #fightAnimT, #mutateAnimT, #chooseSize{
   width: 50px;
 }
@@ -63,7 +67,7 @@ span{
 #status{
   margin:20px;
   font-size:18px;
-  color:#7eeb47;
+  color:mediumpurple;
 }
 
 #error{
@@ -77,7 +81,6 @@ span{
 
 #help{
 	width:350px;
-	height:450px;
 	background-color: #f7ffdd;
 	padding:50px;
 	position: absolute;
@@ -97,4 +100,8 @@ span{
 	position:absolute;
 	top:20px;
 	right:20px;
+}
+
+#getHelp:hover{
+  cursor:pointer;
 }

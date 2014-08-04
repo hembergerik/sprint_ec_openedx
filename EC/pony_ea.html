@@ -22,6 +22,13 @@
       Tournament Size:<span class='info'>2</span>  <div id = 'tour_size' class = 'slider'></div>
   </div>
   <br>
+  <span id='buttons'>
+	  <button id='reload'>Start</button>
+	  <button id ='step'>Step One Generation</button>
+	  <button id = 'stop'>Stop</button>
+	  <button id='moreSettings'>Additional Settings...</button>
+	</span>
+	<br>
   <div id='moreOptions'>
   	Generations: <input type='number' min="2" max="500" value= '10' id='generations'/><br>
     <span id='chooseColors'>
@@ -36,13 +43,6 @@
     <br><button id='closeSettings'>Close Settings</button>  
   </div>
   <br>
-  <span id='buttons'>
-	  <button id='reload'>Start</button>
-	  <button id ='step'>Step One Generation</button>
-	  <button id = 'stop'>Stop</button>
-	  <button id='moreSettings'>Additional Settings...</button>
-	</span>
-	<br>
 	<div id='error'></div>
   <div id='info'><b>Generation:<br>
     AVG:<br>
@@ -56,8 +56,8 @@
 	<div id = 'charts'>
 		<table>
     <tr>
-      <td style="text-align:center;">  Current Generation<br/></td>
-      <td style="text-align:center;">  Next Generation</td>
+      <td>  Current Generation<br/></td>
+      <td>  Next Generation</td>
     </tr>
     <tr>
       <td>
