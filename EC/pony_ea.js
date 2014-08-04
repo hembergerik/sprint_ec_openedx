@@ -283,10 +283,10 @@ function ea(population_size, max_size, mutation_probability,
       var index = index || 0;
       var mutate_gene_index = mutate_individual(population[index])
       graph_function(index, population, mutate_gene_index);
-      if(index < population.length - 1){
+      if(index < population.length -1){
         timers.MUTATE_TIMER=setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
       }else{
-        callback();
+        timers.MUTATE_TIMER=setTimeout(function(){callback()}, delay);
       }
     }
     this.mutate_individual_r = mutate_individual_r;
@@ -416,9 +416,6 @@ function ea(population_size, max_size, mutation_probability,
         //mutate();
       
       function mutate_graph(index, population, mutate_gene_index){
-        if(index === 0){
-            $('g:last-of-type').css('stroke', 'none');
-        }
           var g_index = index+1;
           $('#d3chart g:nth-of-type('+g_index+')').css('stroke', '#000');
           $('#d3chart g:nth-of-type('+index+')').css('stroke', 'none');
@@ -432,6 +429,7 @@ function ea(population_size, max_size, mutation_probability,
           }
         
         function finalize(){
+          $('g:last-of-type').css('stroke', 'none');
           $('.s').css('font-weight', 'normal');
           $('#s2').css('font-weight', 'bold');
           
@@ -551,11 +549,11 @@ $(function(){
       
       
       var StepInfo = {}
-      var fight_time = parseInt($('fightAnimT').val())||FIGHT_TIME_DEFAULT;
-      var mutate_time = parseInt($('mutateAnimT').val())||MUTATE_TIME_DEFAULT;
+      var fight_time = parseInt($('#fightAnimT').val())||FIGHT_TIME_DEFAULT;
+      var mutate_time = parseInt($('#mutateAnimT').val())||MUTATE_TIME_DEFAULT;
       StepInfo.gens = step || parseInt(generations_input.val());
-      StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? fight_time : undefined;
-      StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? mutate_time : undefined;
+      StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? mutate_time : undefined;
+      StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? fight_time : undefined;
       return StepInfo;
     }
     
