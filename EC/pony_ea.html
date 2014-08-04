@@ -9,12 +9,9 @@
   <link href='//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  
   <div id = 'title'>
     <h1>Code Evolution Simulation</h1>
-    
   </div>
-
   <div id='options'>
       Population size: <span class = 'info'>10</span> <div id = 'pop_size' class = 'slider'></div>
       Genome size: <span class='info'>8</span> <div id = 'genome_size' class = 'slider'></div>
@@ -47,21 +44,21 @@
 <br>
 <div id='status'><span class='s' id='s0'>Tournament</span>&#8594;<span class='s' id='s1'>Mutate</span>&#8594;<span class='s' id='s2'>New Population</span></div>
 <div id = 'charts'>
-<table>
-  <tr>
-    <td>  Current Generation</td>
-    <td>  Next Generation</td>
-  </tr>
-  <tr>
-    <td>
-      <svg class="chart" id="d3chart"></svg>
-    </td>
-    <td>
-      <svg class="chart" id="winners"></svg>
-    </td>
-  </tr>
-  
-</table>
+  <table>
+    <tr>
+      <td>  Current Generation<br/>
+      Different Genes</td>
+      <td>  Next Generation</td>
+    </tr>
+    <tr>
+      Different individuals
+      <td>
+        <svg class="chart" id="d3chart"></svg>
+      </td>
+      <td>
+        <svg class="chart" id="winners"></svg>
+      </td>
+    </tr>
+  </table>
 </div>
-
 </body>
