@@ -60,11 +60,11 @@ var NUM_PLAYERS;
 //Game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
-    var board_square = [];
-    for (var j = 0; j < COLS; j++) {
-        board_square.push(0);
-    }
-    board.push(board_square);
+  var board_square = [];
+  for (var j = 0; j < COLS; j++) {
+    board_square.push(0);
+  }
+  board.push(board_square);
 }
 //Directions player can move in [x, y] coordinates
 var PLAYER_DIRECTIONS = [
@@ -73,7 +73,6 @@ var PLAYER_DIRECTIONS = [
     [0, -1],//West 'UP'
     [-1, 0] //South 'LEFT'
 ];
-
 var HUMAN_PLAYER = {
     name: 'HUMAN PLAYER 1',
     COLOR: 'red',
@@ -98,9 +97,8 @@ var AI_PLAYER = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
+    strategy: ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]] 
 };
-
 var AI_PLAYER_2 = {
     name: 'AI PLAYER 2',
     x: Math.floor(ROWS / 4),
@@ -112,7 +110,7 @@ var AI_PLAYER_2 = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["if", ["is_obstacle_in_relative_direction", ["-1"]], ["left"], ["right"]]
+    strategy: ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]] 
 };
 
 var game_over = false;
@@ -131,18 +129,18 @@ ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math
  * @returns {number} The index of the direction in the PLAYER_DIRECTIONS array
  */
 function get_direction_index(direction) {
-    var idx = 0;
-    var match = false;
-    while (!match && idx < PLAYER_DIRECTIONS.length) {
-        var xDirBool = PLAYER_DIRECTIONS[idx][0] == direction[0];
-        var yDirBool = PLAYER_DIRECTIONS[idx][1] == direction[1];
-        if (xDirBool && yDirBool) {
-            match = true;
-        } else {
-            idx = idx + 1;
-        }
+  var idx = 0;
+  var match = false;
+  while (!match && idx < PLAYER_DIRECTIONS.length) {
+    var xDirBool = PLAYER_DIRECTIONS[idx][0] == direction[0];
+    var yDirBool = PLAYER_DIRECTIONS[idx][1] == direction[1];
+    if (xDirBool && yDirBool) {
+      match = true;
+    } else {
+      idx = idx + 1;
     }
-    return idx;
+  }
+  return idx;
 }
 
 /**
@@ -156,42 +154,63 @@ function get_direction_index(direction) {
  * @param {Object} player Player that is evaluated
  * @returns {*}
  */
-function evaluate(node, player) {
-    // Get the symbol of the node
-    var symbol = node[0];
+    function evaluate(node, player) {
+        // Get the symbol of the node
+        var symbol;
+        if (typeof node === 'string') {
+            symbol = node;
+        } else {
+            symbol = node[0];
+        }
+        switch (symbol) {
+            case "IFLEQ":
+                // Conditional statement
 
-    switch(symbol){
-        case "if":
-            // Conditional statement
-            // Check the condition to see which child to evaluate
-            if (evaluate(node[1], player)) {
-                evaluate(node[2], player);
-            } else {
-                evaluate(node[3], player);
-            }
-            break;
-        case "is_obstacle_in_relative_direction":
-            // Sense the distance
-            // Parse the direction from the child node
-            var direction = Number(node[1]);
-            // Return if there is an obstacle the direction
-            return is_obstacle_in_relative_direction(direction, player);
-            break;
-        case "left":
-            // Turn left
-            left(player);
-            break;
-        case "right":
-            // Turn right
-            right(player);
-            break;
-        case "ahead":
-            break;
-        default:
-            // Unknown symbol
-            throw "Unknown symbol:" + symbol;
+                // Check the condition to see which child to evaluate
+                if (evaluate(node[1], player) <= evaluate(node[2], player)) {
+                    return evaluate(node[3], player);
+                } else {
+                    return evaluate(node[4], player);
+                }
+            case "SENSE_A":
+                // Sense the distance
+                return distance(0, player);
+            case "SENSE_L":
+                // Sense the distance
+                return distance(1, player);
+            case "SENSE_R":
+                // Sense the distance
+                return distance(-1, player);
+            case "TURN_LEFT":
+                // Turn left
+                left(player);
+                break;
+            case "TURN_RIGHT":
+                // Turn right
+                right(player);
+                break
+            case "+":
+                return evaluate(node[1], player) + evaluate(node[2], player)
+            case "-":
+                return evaluate(node[1], player) - evaluate(node[2], player)
+            case "0.1":
+                return Number(symbol);
+            case "0.3":
+                return Number(symbol);
+            case "0.6":
+                return Number(symbol);
+            default:
+                // Unknown symbol
+                throw "Unknown symbol:" + symbol;
+        }
     }
-}
+    
+    function distance(direction, player) {
+        var direction_idx = get_direction_index(player["direction"]);
+        var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
+        var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
+        return player["environment"][new_direction] / ROWS;
+    }
 
 /**
  * Return a boolean denoting if the distance to an obstacle in the
@@ -401,14 +420,13 @@ function getLightTrailScale(player_direction){
     return [1, 1/2]
 }
 
-
 function getLightTrail(posx, posy, player_direction, player_prev_direction){
     var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT]
     var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)]
     var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT]
     return [pos_1,pos_2,pos_3]
   }
-                 
+                
 //Drawing the image, rotated, at x,y is off by +- 1 in both x,y
 //These numbers are to correct the offset. I don't know why they are what they are.
 function getImageOffset(player_direction){
@@ -712,44 +730,44 @@ document.onkeyup = function read(event) {
 $(function(){
   //Array of players
 
-if(smaller>MOBILE_CUTOFF){
-  $('#leftButton').remove();
-  $('#rightButton').remove();
-  $('#leftButton2').remove();
-  $('#rightButton2').remove();
-}
-$('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
-$('#gameChoice').dialog({
-  resizable: false,
-  height:240,
-  width:540,
-  modal: true,
-  buttons: {
-    "Human vs AI": function(){
-      $(this).dialog('close');
-      players = [HUMAN_PLAYER, AI_PLAYER];
-      playerSetup();
-      $('#leftButton2').remove();
-      $('#rightButton2').remove();
-    },
-    "Human vs Human": function(){
-      $(this).dialog('close');
-      console.log('two');
-      players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
-      playerSetup();
-    },
-    "AI vs AI": function(){
-      $(this).dialog('close');
-      console.log('two');
-      players = [AI_PLAYER, AI_PLAYER_2];
-      playerSetup();
-      $('#leftButton').remove();
-      $('#rightButton').remove();
-      $('#leftButton2').remove();
-      $('#rightButton2').remove();
-    }
+  if(smaller>MOBILE_CUTOFF){
+    $('#leftButton').remove();
+    $('#rightButton').remove();
+    $('#leftButton2').remove();
+    $('#rightButton2').remove();
   }
-})
+  $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
+  $('#gameChoice').dialog({
+    resizable: false,
+    height:240,
+    width:540,
+    modal: true,
+    buttons: {
+      "Human vs AI": function(){
+        $(this).dialog('close');
+        players = [HUMAN_PLAYER, AI_PLAYER];
+        playerSetup();
+        $('#leftButton2').remove();
+        $('#rightButton2').remove();
+      },
+      "Human vs Human": function(){
+        $(this).dialog('close');
+        console.log('two');
+        players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
+        playerSetup();
+      },
+      "AI vs AI": function(){
+        $(this).dialog('close');
+        console.log('two');
+        players = [AI_PLAYER, AI_PLAYER_2];
+        playerSetup();
+        $('#leftButton').remove();
+        $('#rightButton').remove();
+        $('#leftButton2').remove();
+        $('#rightButton2').remove();
+      }
+    }
+  })
 
   //can also use buttons to control player
   var started=false;
@@ -778,3 +796,177 @@ $('#gameChoice').dialog({
   })
 })
 
+
+//Seeded Random number functions
+function get_random() {
+    return Math.seededRandom(0, 1);
+}
+
+function get_random_int(min, max) {
+    return Math.floor(Math.seededRandom(min, max));
+}
+
+function get_random_boolean() {
+    return Math.seededRandom(0, 1) < 0.5;
+}
+
+// From http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+// the initial seed
+Math.seed = 711;
+Math.seededRandom = function (max, min) {
+    Math.seed = (Math.seed * 9301 + 49297) % 233280;
+    var rnd = Math.seed / 233280;
+
+    return min + rnd * (max - min);
+};
+
+
+//Parameters Needed for AI
+
+//Pool of total possible symbols
+function get_symbols() {
+    var arity = {
+        "TURN_LEFT": 0,
+        "TURN_RIGHT": 0,
+        "SENSE_A": 0,
+        "SENSE_L": 0,
+        "SENSE_R": 0,
+        "0.1": 0,
+        "0.3": 0,
+        "0.6": 0,
+        "+": 2,
+        "-": 2,
+        "IFLEQ": 4
+    };
+
+    var terminals = [];
+    var functions = [];
+
+    for (var key in arity) {
+        if (arity.hasOwnProperty(key)) {
+            if (arity[key] == 0) {
+                terminals.push(key);
+            } else {
+                functions.push(key);
+            }
+        }
+    }
+
+    return {arity: arity, terminals: terminals, functions: functions};
+}
+
+var symbols = get_symbols();
+
+//returns a random symbol
+//@param depth: current depth in tree
+//@param max_depth: maximum depth
+//@param symbols: total possible symbols
+//@param full: TO BE DOCUMENTED
+function get_random_symbol(depth, max_depth, symbols, full) {
+    var symbol;
+    if (depth >= (max_depth - 1)) {
+        symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
+    } else {
+        var terminal = get_random_boolean();
+        if (!full && terminal) {
+            symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
+        } else {
+            symbol = symbols["functions"][get_random_int(0, symbols["functions"].length)];
+        }
+    }
+    return symbol;
+}
+
+
+//Begin Evolutionary Code
+
+var gp_params = {
+    population_size: 400,
+    max_size: 5,
+    generations: 50,
+    mutation_probability: 0.3,
+    tournament_size: 2,
+    crossover_probability: 0.3
+};
+//Main Function
+//@param params: Object with keys listed above.
+//Prints stats in the generations.
+function gp(params) {
+    // Create population
+    var population = initialize_population(params['population_size'],
+        params['max_size']);
+    console.log('B initial eval');
+    evaluate_fitness(population);
+    console.log('A initial eval');
+
+    // Generation loop
+    var generation = 0;
+    while (generation < params['generations']) {
+        // Selection
+        var new_population = tournament_selection(params['tournament_size'], population);
+        new_population = crossover(params['crossover_probability'], new_population);
+        mutation(params['mutation_probability'], new_population, params['max_size']);
+
+        // Evaluate the new population
+        evaluate_fitness(new_population);
+
+        // Replace the population with the new population
+        population = new_population;
+
+        print_stats(generation, new_population);
+      
+        // Increase the generation
+        generation = generation + 1;
+    }
+}
+
+//Initializes a Tron AI population
+//@param population_size size of total # of AI's
+//@param max_size Max Depth of AI's
+function initialize_population(population_size, max_size) {
+    var population = [];
+    for (var i = 0; i < population_size; i++) {
+        var full = get_random_boolean();
+        var max_depth = (i % max_size) + 1;
+        var symbol = get_random_symbol(1, max_depth, symbols, full);
+        var tree = [symbol];
+        if (max_depth > 0 && contains(symbols["functions"], symbol)) {
+            grow(tree, 1, max_depth, full, symbols);
+        }
+        population.push({genome: tree, fitness: DEFAULT_FITNESS});
+        console.log(i);
+        console.log(tree_to_str(population[i]["genome"]));
+    }
+    return population;
+}
+
+//Evaluates individuals' fitness 
+//Loops through the population, fitness increases by one per win
+//@param population: the population
+function evaluate_fitness(population) {
+    // Evaluate fitness
+    var SOLUTIONS = 2;
+    for (var i = 0; i < population.length; i += SOLUTIONS) {
+        evaluate_individuals([population[i], population[i + 1]]);
+    }
+}
+
+//Evaluates two individuals and compare them
+//@param individuals: list of two individuals
+//
+function evaluate_individuals(individuals) {
+    //Set the function which is called after each interval
+    console.log('evaluate_individuals 0:', JSON.stringify(individuals[0]['genome']));
+    console.log('evaluate_individuals 1:', JSON.stringify(individuals[1]['genome']));
+    setup_tron(individuals[0]['genome'], individuals[1]['genome']);
+    //TODO this is only intermittently working
+    //tron_game_id = setInterval(step, 1000 / FRAMES_PER_SECOND);
+    var cnt = 0;
+    var BRK = tron_params['ROWS'] * tron_params['COL']; //Cannot be larger than the board
+    while (!tron_params['game_over'] && cnt < BRK) {
+        step();
+        cnt++;
+    }
+    individuals[0]['fitness'] += tron_params['players'][0]["score"];
+    individuals[1]['fitness'] += tron_params['players'][1]["score"];
+}
