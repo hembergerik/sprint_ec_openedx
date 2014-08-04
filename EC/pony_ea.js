@@ -338,20 +338,20 @@ function ea(population_size, max_size, mutation_probability,
   }
   this.flip_rect_bit = flip_rect_bit;
   
-  //smoothly change the color of the passed $rect
-  //purely for the sake of looking good
-  //@param $rect the jquery rect object
-  //@param color1 the STARTING color
-  //@param color2 the ENDING color
-  function transit_color($rect, color1, color2){
-    var current_transition_proportion = 0;
-    var color_function = d3.interpolate(color1, color2);
-    function transit_color_r($rect, color_function, color_index){
-      color_index = color_index || 0;
-      $rect.attr('fill', color_function(color_index));
-      color_index += 0.01;
-      if(color_index < 1){
-        setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
+  //recursively mutates all the individuals in the population
+  //@param population: population object
+  //@param delay: delay for each loop
+  //@param callback: function called after the entire population is mutated.
+  //@param graph_function: function called each iteration to update the graph. graph_function is passed the index, population, and the index of gene mutated(or false)
+  //@internal param index: the ith individual to mutate.
+  function mutate_individual_r(population,delay, callback,graph_function, index){
+    var index = index || 0;
+    var mutate_gene_index = mutate_individual(population[index])
+    graph_function(index, population, mutate_gene_index);
+    if(index < population.length -1){
+      timers.MUTATE_TIMER=setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
+    }else{
+      timers.MUTATE_TIMER=setTimeout(function(){callback()}, delay);
       }
     }
     transit_color_r($rect, color_function);
@@ -470,116 +470,59 @@ function ea(population_size, max_size, mutation_probability,
 }
 
 $(function(){
-    var slider_container = $('#options');
-    var population_slider = $('#pop_size');
-    var genome_slider = $('#genome_size');
-    var mutation_prob_slider = $('#mut_prob');
-    var tournament_size_slider = $('#tour_size');
-    var generations_slider=$('#gens');
-    var generations_input=$('#generations');
-    $('#chooseZero').val(colors[0].slice(1));
-    $('#chooseOne').val(colors[1].slice(1));
-    $('#moreOptions').css('display', 'none');
-    
-    
-    $('#moreSettings').on('click', function(){
-      $('#moreOptions').show('slow');
-    })
-    
-    $('#closeSettings').on('click', function(){
-      $('#moreOptions').hide('slow');
-    })
-    
-    $('#reload').on('click', function(){
-      //console.log(main_evolution_obj)
-      var gen_num=parseInt(generations_input.val());
-      if (!isNaN(gen_num) && gen_num>=2&&gen_num<=500){
-        if(typeof main_evolution_obj != 'undefined'){
-          main_evolution_obj.remove();
-          create_main_obj();
-        }else{
-          create_main_obj();
-        }
-        var stepInfo = getStepInfo();
-        main_evolution_obj.step(stepInfo.gens,null, stepInfo.mutTime, stepInfo.fightTime);
-        $('#error').text('');
+  var slider_container = $('#options');
+  var population_slider = $('#pop_size');
+  var genome_slider = $('#genome_size');
+  var mutation_prob_slider = $('#mut_prob');
+  var tournament_size_slider = $('#tour_size');
+  var generations_slider=$('#gens');
+  var generations_input=$('#generations');
+  $('#chooseZero').val(colors[0].slice(1));
+  $('#chooseOne').val(colors[1].slice(1));
+  $('#moreOptions').css('display', 'none');
+
+  $('#moreSettings').on('click', function(){
+    $('#moreOptions').show('slow');
+  })
+ 
+  $('#closeSettings').on('click', function(){
+    $('#moreOptions').hide('slow');
+  })
+
+  $('#reload').on('click', function(){
+    //console.log(main_evolution_obj)
+    var gen_num=parseInt(generations_input.val());
+    if (!isNaN(gen_num) && gen_num>=2&&gen_num<=500){
+      if(typeof main_evolution_obj != 'undefined'){
+        main_evolution_obj.remove();
+        create_main_obj();
       }else{
-         $('#error').text('Please input an integer  between 2 and 500 for generations');
+        create_main_obj();
       }
-    });
-    
-    $('#stop').on('click', function(){
-      if(typeof main_evolution_obj !== 'undefined'){
-        main_evolution_obj.stop();
-      }
-    })
-    
-    $('#step').on('click', function(){
-      if(typeof main_evolution_obj === 'undefined'){
-        create_main_obj();}
-      else{
-        if(main_evolution_obj.stepping){ return false}
-      }
-        var stepInfo = getStepInfo()
-        main_evolution_obj.step(null, null, stepInfo.mutTime, stepInfo.fightTime);
-    })
-    
-    
-    //creates a new main_evolution_obj from the slider values.
-    //the main_evolution_obj is global.
-    function create_main_obj(){
-      var newValues={};
-      newValues.pop=population_slider.slider("value");
-      newValues.genome=genome_slider.slider("value");
-      newValues.mutate=mutation_prob_slider.slider("value");
-      newValues.fight=tournament_size_slider.slider("value");
-      newValues.gens=generations_slider.slider("value");
-      main_evolution_obj = new ea(newValues.pop, newValues.genome, newValues.mutate, newValues.fight);
+      var stepInfo = getStepInfo();
+      main_evolution_obj.step(stepInfo.gens,null, stepInfo.mutTime, stepInfo.fightTime);
+      $('#error').text('');
+    }else{
+      $('#error').text('Please input an integer  between 2 and 500 for generations');
     }
+  });
     
-    
-    //gets the information needed for stepping
-    //@optional param step: the number of generations needed to go forward
-    //@returns Stepinfo obj with gens, mutTime and fightTime keys.
-    //Also gets the display information.
-    function getStepInfo(step){
-      var size = parseInt($('#chooseSize').val())
-      var zeroC='#'+$('#chooseZero').val();
-      var oneC='#'+$('#chooseOne').val();
-      colors[0]=zeroC;
-      colors[1]=oneC;
-      if(!isNaN(size)){
-        CELL_WIDTH = size;
-        CELL_HEIGHT = size;
-      }else{
-        alert('please put in only integers for square size.')
-      }
-      
-      
-      var StepInfo = {}
-      var fight_time = parseInt($('fightAnimT').val())||FIGHT_TIME_DEFAULT;
-      var mutate_time = parseInt($('mutateAnimT').val())||MUTATE_TIME_DEFAULT;
-      StepInfo.gens = step || parseInt(generations_input.val());
-      StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? fight_time : undefined;
-      StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? mutate_time : undefined;
-      return StepInfo;
+  $('#stop').on('click', function(){
+    if(typeof main_evolution_obj !== 'undefined'){
+      main_evolution_obj.stop();
     }
   })
-  
+
   $('#step').on('click', function(){
     if(typeof main_evolution_obj === 'undefined'){
       create_main_obj();
-    }
-    else{
-      if(main_evolution_obj.stepping){
-        return false
-      }
+    }else{
+      if(main_evolution_obj.stepping){ return false}
     }
     var stepInfo = getStepInfo()
     main_evolution_obj.step(null, null, stepInfo.mutTime, stepInfo.fightTime);
   })
-  
-  
+
   //creates a new main_evolution_obj from the slider values.
   //the main_evolution_obj is global.
   function create_main_obj(){
@@ -591,121 +534,115 @@ $(function(){
     newValues.gens=generations_slider.slider("value");
     main_evolution_obj = new ea(newValues.pop, newValues.genome, newValues.mutate, newValues.fight);
   }
-  
-  
+    
   //gets the information needed for stepping
   //@optional param step: the number of generations needed to go forward
   //@returns Stepinfo obj with gens, mutTime and fightTime keys.
+  //Also gets the display information.
   function getStepInfo(step){
+    var size = parseInt($('#chooseSize').val())
+    var zeroC='#'+$('#chooseZero').val();
+    var oneC='#'+$('#chooseOne').val();
+    colors[0]=zeroC;
+    colors[1]=oneC;
+    if(!isNaN(size)){
+      CELL_WIDTH = size;
+      CELL_HEIGHT = size;
+    }else{
+      alert('please put in only integers for square size.')
+    }
+
     var StepInfo = {}
+    var fight_time = parseInt($('#fightAnimT').val())||FIGHT_TIME_DEFAULT;
+    var mutate_time = parseInt($('#mutateAnimT').val())||MUTATE_TIME_DEFAULT;
     StepInfo.gens = step || generations_slider.slider("value");
-    StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? MUTATE_TIME_DEFAULT : undefined;
-    StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? FIGHT_TIME_DEFAULT : undefined;
+    StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? mutate_time : undefined;
+    StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? fight_time : undefined;
     return StepInfo;
   }
+})
   
-  function update_value(e, ui){
-    $(this).prev().html(ui.value);
+$('#step').on('click', function(){
+  if(typeof main_evolution_obj === 'undefined'){
+    create_main_obj();
+  }else{
+    if(main_evolution_obj.stepping){
+      return false
+    }
   }
+  var stepInfo = getStepInfo()
+  main_evolution_obj.step(null, null, stepInfo.mutTime, stepInfo.fightTime);
+})
   
-  population_slider.slider({
-    orientation: "horizontal",
-    range: "min",
-    max: 50,
-    value: 10,
-    slide: update_value,
-    change:update_value,
-  });
-  genome_slider.slider({
-    range: "min",
-    max: 20,
-    value: 8,
-    slide: update_value,
-    change: update_value,
-  });
-  mutation_prob_slider.slider({
-    range: "min",
-    max: 1.0,
-    value: 0.3,
-    step: 0.01,
-    slide: update_value,
-    change: update_value,
-  });
-  tournament_size_slider.slider({
-    range: "min",
-    max: 8,
-    min: 2,
-    value: 2,
-    slide: update_value,
-    change: update_value,
-  });
-  generations_slider.slider({
-    range: "min",
-    max: 100,
-    min: 5,
-    value: 10,
-    step:5,
-    slide: update_value,
-    change: update_value,
-  });
-    
-<<<<<<< HEAD
-  //var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
-  //tournament_size=2);
   
-  //main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
-=======
-    population_slider.slider({
-      orientation: "horizontal",
-      range: "min",
-      min: 2,
-      max: 50,
-      value: 10,
-      slide: update_value,
-      change:update_value,
-    });
-    
-    genome_slider.slider({
-      range: "min",
-      min:2,
-      max: 20,
-      value: 8,
-      slide: update_value,
-      change: update_value,
-    });
-    mutation_prob_slider.slider({
-      range: "min",
-      max: 1.0,
-      value: 0.3,
-      step: 0.01,
-      slide: update_value,
-      change: update_value,
-    });
-    tournament_size_slider.slider({
-      range: "min",
-      max: 8,
-      min: 2,
-      value: 2,
-      slide: update_value,
-      change: update_value,
-    });
-    
-    generations_slider.slider({
-      range: "min",
-      max: 100,
-      min: 5,
-      value: 10,
-      step:5,
-      slide: update_value,
-      change: update_value,
-    });
-      
-    //var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
-    //tournament_size=2);
-    
-    //main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
+//creates a new main_evolution_obj from the slider values.
+//the main_evolution_obj is global.
+function create_main_obj(){
+  var newValues={};
+  newValues.pop=population_slider.slider("value");
+  newValues.genome=genome_slider.slider("value");
+  newValues.mutate=mutation_prob_slider.slider("value");
+  newValues.fight=tournament_size_slider.slider("value");
+  newValues.gens=generations_slider.slider("value");
+  main_evolution_obj = new ea(newValues.pop, newValues.genome, newValues.mutate, newValues.fight);
+}
 
+//gets the information needed for stepping
+//@optional param step: the number of generations needed to go forward
+//@returns Stepinfo obj with gens, mutTime and fightTime keys.
+function getStepInfo(step){
+  var StepInfo = {}
+  StepInfo.gens = step || generations_slider.slider("value");
+  StepInfo.mutTime = $('#mutateAnimCheck').prop('checked') ? MUTATE_TIME_DEFAULT : undefined;
+  StepInfo.fightTime = $('#fightAnimCheck').prop('checked') ? FIGHT_TIME_DEFAULT : undefined;
+  return StepInfo;
+}
 
+function update_value(e, ui){
+  $(this).prev().html(ui.value);
+}
 
->>>>>>> 39140a14d11175011bf2d4de1314f93e743c6dd3
+population_slider.slider({
+  orientation: "horizontal",
+  range: "min",
+  max: 50,
+  value: 10,
+  slide: update_value,
+  change:update_value,
 });
+genome_slider.slider({
+  range: "min",
+  max: 20,
+  value: 8,
+  slide: update_value,
+  change: update_value,
+});
+mutation_prob_slider.slider({
+  range: "min",
+  max: 1.0,
+  value: 0.3,
+  step: 0.01,
+  slide: update_value,
+  change: update_value,
+});
+tournament_size_slider.slider({
+  range: "min",
+  max: 8,
+  min: 2,
+  value: 2,
+  slide: update_value,
+  change: update_value,
+});
+generations_slider.slider({
+  range: "min",
+  max: 100,
+  min: 5,
+  value: 10,
+  step:5,
+  slide: update_value,
+  change: update_value,
+});
+    
+//var main_evolution_obj = new ea(population_size=10, max_size=5, mutation_probability=0.3,
+//tournament_size=2);
+//main_evolution_obj.step(NUM_STEPS_DEFAULT,TIME_DEFAULT,MUTATE_TIME_DEFAULT, FIGHT_TIME_DEFAULT);
