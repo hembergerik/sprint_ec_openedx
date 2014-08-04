@@ -9,6 +9,11 @@
   <link href='//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
+  
+  <div id = 'title'>
+    <h1>Code Evolution Simulation</h1>
+    
+  </div>
 
   <div id='options'>
       Population size: <span class = 'info'>10</span> <div id = 'pop_size' class = 'slider'></div>
@@ -16,8 +21,6 @@
       Mutation Probablity: <span class='info'>0.3</span> <div id = 'mut_prob' class = 'slider'></div>
       Tournament Size:<span class='info'>2</span>  <div id = 'tour_size' class = 'slider'></div>
       Generations:<span class='info'>10</span>  <div id = 'gens' class = 'slider'></div>
-
-      
   </div>
   <div id='moreOptions'>
     <span id='chooseColors'>
@@ -35,15 +38,29 @@
     Highest Fitness:</b>
   </div>
     <br>
-    <button id='reload'>Reload</button>
+    <button id='reload'>Start</button>
+    <button id='stop'>Stop</button>
     <button id ='step'>Step One Generation</button>
     <!--<button id = 'stop'>Stop</button>-->
     <button id='moreSettings'>Additional Settings...</button>
 <br>
 <div id='status'><span class='s' id='s0'>Tournament</span>&#8594;<span class='s' id='s1'>Mutate</span>&#8594;<span class='s' id='s2'>New Population</span></div>
-  <div id="labels">
-    Mutations Fightings
+<div id = 'charts'>
+<table>
+  <tr>
+    <td>  Current Generation</td>
+    <td>  Next Generation</td>
+  </tr>
+  <tr>
+    <td>
+      <svg class="chart" id="d3chart"></svg>
+    </td>
+    <td>
+      <svg class="chart" id="winners"></svg>
+    </td>
+  </tr>
+  
+</table>
 </div>
-  <svg class="chart" id="d3chart"></svg>
-  <svg class="chart" id="winners"></svg>
+
 </body>

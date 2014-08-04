@@ -1,5 +1,19 @@
 .chart{
-	margin:20px;
+  margin:20px;
+}
+
+.chartLabel{
+  text-align:center;
+  vertical-align:top;
+}
+
+span{
+  vertical-align: top;
+  display:inline;
+}
+
+#charts{
+  float:left; 
 }
 
 #info{
