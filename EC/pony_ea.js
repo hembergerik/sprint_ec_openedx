@@ -463,6 +463,7 @@ $(function(){
     var mutation_prob_slider = $('#mut_prob');
     var tournament_size_slider = $('#tour_size');
     var generations_slider=$('#gens');
+    var generations_input=$('#generations');
     $('#chooseZero').val(colors[0].slice(1));
     $('#chooseOne').val(colors[1].slice(1));
     $('#moreOptions').css('display', 'none');
@@ -478,14 +479,20 @@ $(function(){
     
     $('#reload').on('click', function(){
       //console.log(main_evolution_obj)
-      if(typeof main_evolution_obj != 'undefined'){
-        main_evolution_obj.remove();
-        create_main_obj();
+      var gen_num=parseInt(generations_input.val());
+      if (!isNaN(gen_num) && gen_num>=2&&gen_num<=500){
+        if(typeof main_evolution_obj != 'undefined'){
+          main_evolution_obj.remove();
+          create_main_obj();
+        }else{
+          create_main_obj();
+        }
+        var stepInfo = getStepInfo();
+        main_evolution_obj.step(stepInfo.gens,null, stepInfo.mutTime, stepInfo.fightTime);
+        $('#error').text('');
       }else{
-        create_main_obj();
+         $('#error').text('Please input an integer  between 2 and 500 for generations');
       }
-      var stepInfo = getStepInfo();
-      main_evolution_obj.step(stepInfo.gens,null, stepInfo.mutTime, stepInfo.fightTime);
     });
     
     $('#stop').on('click', function(){
