@@ -18,22 +18,26 @@ When a player reaches an already reached square (the trail of another player), t
 When multiple players collide head-on, they tie.
 The last player standing wins. </div>
 <button id='mute'>Mute</button>
-<span id="column1">
-  <canvas id="game" width="100" height="100">
-    <script type="text/javascript" src="tron.js"></script>
-  </canvas>
-</span>
-<span id='column2'>
-  <span id='strategyChoice'>
-    Current Generation Completed: <span id = 'currentGen'>0</span> <br>
-    AI1's Choice:
-    <select id = 'AI1'></select><button id='viewStrategy1'>See Strategy</button><br>
-    AI2's Choice:
-    <select id = 'AI2'></select><button id='viewStrategy2'>See Strategy</button><br>
-  <button id = 'assignAI'>Assign AI's</button>
-  </span><br>
-  <span id='playerScores'></span>
-</span>
+<table>
+  <tr>
+  <td>
+    <canvas id="game" width="100" height="100">
+      <script type="text/javascript" src="tron.js"></script>
+    </canvas>
+  </td>
+  <td>
+    <span id='strategyChoice'>
+      Current Generation Completed: <span id = 'currentGen'>0</span> <br>
+      AI1's Choice:
+      <select id = 'AI1'></select><button id='viewStrategy1'>See Strategy</button><br>
+      AI2's Choice:
+      <select id = 'AI2'></select><button id='viewStrategy2'>See Strategy</button><br>
+    <button id = 'assignAI'>Assign AI's</button>
+    </span><br>
+    <span id='playerScores'></span>
+  </td>
+</tr>
+</table>
   
   <div id='buttonControls'>
     <button id='leftButton'></button>

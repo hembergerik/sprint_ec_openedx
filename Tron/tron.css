@@ -15,9 +15,8 @@ h1, p {
   text-align: center;
 }
 
-#column1, column2{
-  display:inline-block;
-  margin:20px;
+table{
+  margin:0 auto;
 }
 
 canvas {
