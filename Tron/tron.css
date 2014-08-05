@@ -21,7 +21,7 @@ h1, p {
 }
 
 canvas {
-  display: block;
+  display: inline-block;
   margin: 10px auto;
   background-color: rgba(149, 149, 149, 0.84);
   border-style: solid;

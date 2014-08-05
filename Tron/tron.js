@@ -797,7 +797,13 @@ $(function(){
   })
   
   $('#viewStrategy1').on('click', function(){
-    
+    var strategy=STRATEGIES[$('#AI1').val()]
+    console.log(strategy);
+  })
+  
+  $('#viewStrategy2').on('click', function(){
+    var strategy=tree_to_str(STRATEGIES[$('#AI2').val()])
+    console.log(strategy);
   })
   
   $('#mute').on('click', function(){
@@ -1122,11 +1128,13 @@ evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   $('#currentGen').html(e.data.generation)
-  STRATEGIES.push(e.data.genome)
-  var $option = $('<option>')
-  $option.val(STRATEGIES.length - 1)
-  $option.html('AI' + (STRATEGIES.length))
-  $('select').append($option)
+  if(typeof e.data.genome != 'undefined'){
+    STRATEGIES.push(e.data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
 }, false);
 
 
