@@ -48,17 +48,13 @@ blue_bike_img.src =  'media/images/Tron_bike_blue.png'
 
 var red_trail = new Image();
 red_trail.src = 'media/images/Glow_Trail_Red_square.png'
-
 var blue_trail = new Image();
 blue_trail.src = 'media/images/Glow_Trail_blue_square.png'
 
-
 var red_corner = new Image();
 red_corner.src = 'media/images/Glow_Trail_Red_corner.png'
-
 var blue_corner = new Image();
 blue_corner.src = 'media/images/Glow_Trail_blue_corner.png'
-
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
