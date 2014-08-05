@@ -18,6 +18,7 @@ h1, p {
 #canvasSpan{
   float:left;
   display:inline-block;
+  margin:20px;
 }
 
 canvas {
@@ -45,6 +46,8 @@ canvas {
   border-color: #3effff;
   border-width: 3px;
   box-shadow: 0 0 20px #9ecaed;
+  margin:20px;
+  width:260px;
 }
 
 #leftButton, #rightButton, #leftButton2, #rightButton2{
@@ -109,10 +112,17 @@ canvas {
   display:inline-block;
   font-family:Helvetica;
   color:#ddd;
+  margin:20px;
+  width:260px;
 }
 
 #mute{
   position:absolute;
   top:10px;
   right:10px;
+}
+
+#pretty{
+  margin-left:auto;
+  margin-right:auto;
 }

@@ -797,13 +797,13 @@ $(function(){
   })
   
   $('#viewStrategy1').on('click', function(){
-    var strategy=STRATEGIES[$('#AI1').val()]
-    console.log(strategy);
+    var strategy=STRATEGIES[$('#AI1').val()];
+    alert(strategy);
   })
   
   $('#viewStrategy2').on('click', function(){
-    var strategy=tree_to_str(STRATEGIES[$('#AI2').val()])
-    console.log(strategy);
+    var strategy=STRATEGIES[$('#AI2').val()];
+    alert(strategy);
   })
   
   $('#mute').on('click', function(){
@@ -1118,9 +1118,9 @@ var gp_params = {
     population_size: 300,
     max_size: 5,
     generations: 300,
-    mutation_probability: 0.1,
+    mutation_probability: 0.3,
     tournament_size: 2,
-    crossover_probability: 0.1
+    crossover_probability: 0.3
 };
 
 var evolve = new Worker('tron_evolve_worker.js')

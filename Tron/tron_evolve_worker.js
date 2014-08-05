@@ -538,6 +538,7 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
+      population.sort(sort_individuals);
       if(generation % 10 == 0){
         self.postMessage({genome: (population[0].genome), generation: generation})
       }else{
@@ -747,23 +748,29 @@ var PLAYER_DIRECTIONS = [
         // Generation loop
         var generation = 0;
         while (generation < params['generations']) {
-            // Selection
-            var new_population = tournament_selection(params['tournament_size'], population);
-            new_population = crossover(params['crossover_probability'], new_population);
-            mutation(params['mutation_probability'], new_population, params['max_size']);
-
-            // Evaluate the new population
-            evaluate_fitness(new_population);
-
-            // Replace the population with the new population
-            population = new_population;
-
-            print_stats(generation, new_population);
-          
+            population = evolve_population(params, population, generation)
             // Increase the generation
             generation = generation + 1;
         }
     }
+    
+    //this steps one generation forward.
+    //@param params the params object for gp.
+    //@param population the previous population.
+    //@param generation: the current generation #
+    //@returns the new population.
+    function evolve_population(params, population, generation){
+      var new_population = tournament_selection(params['tournament_size'], population);
+      new_population = crossover(params['crossover_probability'], new_population);
+      mutation(params['mutation_probability'], new_population, params['max_size']);
+      // Evaluate the new population
+      evaluate_fitness(new_population);
+      print_stats(generation, new_population);
+      // Replace the population with the new population
+      population = new_population;
+      return population;
+    }
+    
 
 //Worker Syntax.
 //This runs when main thread sends message.
