@@ -93,3 +93,15 @@ canvas {
 .ui-widget-overlay {
   background: #000;
 }
+
+#strategyChoice{
+  padding:20px;
+  background-color:rgba(128, 128, 128, 0.5);
+  border-style: solid;
+  border-color: #3effff;
+  border-width: 3px;
+  box-shadow: 0 0 20px #9ecaed;
+  display:inline-block;
+  font-family:Helvetica;
+  color:#ddd;
+}

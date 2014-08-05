@@ -797,7 +797,14 @@ $(function(){
     
   })
   
-
+  $('#mute').on('click', function(){
+    if(BGM.muted===false){
+      BGM.muted=true;
+    }else{
+      BGM.muted=false;
+    }
+  })
+  
   if(smaller>MOBILE_CUTOFF){
     $('#leftButton').remove();
     $('#rightButton').remove();
@@ -1098,20 +1105,22 @@ function grow(tree, depth, max_depth, full, symbols) {
 }
 
 
-//Begin Evolutionary Code
-
 var gp_params = {
-    population_size: 50,
-    max_size: 10,
-    generations: 100,
+    population_size: 300,
+    max_size: 5,
+    generations: 250,
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3
 };
 
-//gp(gp_params)
+var evolve = new Worker('tron_evolve_worker.js')
+evolve.postMessage(gp_params);
 
-console.log(gp_params)
+evolve.addEventListener('message', function(e) {
+  console.log(e.data);
+}, false);
+
 
 //Main Function
 //@param params: Object with keys listed above.
