@@ -16,7 +16,8 @@ h1, p {
 }
 
 #canvasSpan{
-    float:left;
+  float:left;
+  display:inline-block;
 }
 
 canvas {

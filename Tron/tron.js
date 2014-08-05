@@ -796,6 +796,10 @@ $(function(){
     
   })
   
+  $('#viewStrategy1').on('click', function(){
+    
+  })
+  
   $('#mute').on('click', function(){
     if(BGM.muted===false){
       BGM.muted=true;
