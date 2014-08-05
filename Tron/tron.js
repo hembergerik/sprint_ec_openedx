@@ -1076,15 +1076,15 @@ function grow(tree, depth, max_depth, full, symbols) {
 //Begin Evolutionary Code
 
 var gp_params = {
-    population_size: 400,
-    max_size: 5,
-    generations: 50,
+    population_size: 50,
+    max_size: 10,
+    generations: 100,
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3
 };
 
-//gp(gp_params)
+gp(gp_params)
 
 console.log(gp_params)
 
