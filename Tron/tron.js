@@ -29,6 +29,15 @@ canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
 
 
+var STRATEGIES = [
+["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],
+["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],
+["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["-",["-",["0.3"],["IFLEQ",["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
+["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
+["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]],
+["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
+]
+
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
 red_bike_img.src = 'media/images/Tron_bike_red.png'
@@ -772,6 +781,21 @@ document.onkeyup = function read(event) {
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
   //Array of players
+  
+  STRATEGIES.forEach(function(val, index){
+    var $option = $('<option>')
+    $option.val(index)
+    $option.html('AI'+(index+1))
+    $('select').append($option)
+  })
+  
+  $('#assignAI').click(function(e){
+    console.log($('#AI1').val(),$('#AI2').val())
+    /*AI_PLAYER.strategy=STRATEGY[$('#AI1').val()]
+    AI_PLAYER_2.strategy=STRATEGY[$('#AI2').val()]*/
+    
+  })
+  
 
   if(smaller>MOBILE_CUTOFF){
     $('#leftButton').remove();
@@ -782,8 +806,8 @@ $(function(){
   $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
   $('#gameChoice').dialog({
     resizable: false,
-    height:240,
-    width:540,
+    height: 240,
+    width: 540,
     modal: true,
     buttons: {
       "Human vs AI": function(){
