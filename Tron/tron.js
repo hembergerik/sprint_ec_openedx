@@ -98,7 +98,7 @@ var AI_PLAYER = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["+",["+",["-",["+",["IFLEQ","SENSE_A","0.6","TURN_RIGHT","0.1"],["SENSE_L"]],["+","TURN_RIGHT","TURN_LEFT"]],["-",["+","SENSE_R","TURN_RIGHT"],["-","0.6","SENSE_L"]]],["IFLEQ",["-",["+","SENSE_R","TURN_RIGHT"],["IFLEQ","TURN_LEFT","SENSE_R","SENSE_R","SENSE_A"]],["IFLEQ",["+","TURN_LEFT","0.3"],["+","SENSE_A","SENSE_A"],["+","SENSE_A","SENSE_L"],["+","SENSE_R","SENSE_L"]],["IFLEQ",["IFLEQ","0.6","TURN_LEFT","TURN_LEFT","TURN_RIGHT"],["-","SENSE_L","SENSE_R"],["+","TURN_LEFT","SENSE_L"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]] 
+    strategy: ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]] 
 };
 var AI_PLAYER_2 = {
     name: 'AI PLAYER 2',
@@ -1158,8 +1158,6 @@ function evaluate_fitness(population) {
 //increments the winners' score by 1
 function evaluate_individuals(individuals) {
     //Set the function which is called after each interval
-    console.log('evaluate_individuals 0:', JSON.stringify(individuals[0]['genome']));
-    console.log('evaluate_individuals 1:', JSON.stringify(individuals[1]['genome']));
     setup_tron(individuals[0]['genome'], individuals[1]['genome']);
     //TODO this is only intermittently working
     //tron_game_id = setInterval(step, 1000 / FRAMES_PER_SECOND);
