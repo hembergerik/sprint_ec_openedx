@@ -105,3 +105,9 @@ canvas {
   font-family:Helvetica;
   color:#ddd;
 }
+
+#mute{
+  position:absolute;
+  top:10px;
+  right:10px;
+}

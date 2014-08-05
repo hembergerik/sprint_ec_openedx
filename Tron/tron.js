@@ -200,7 +200,7 @@ function get_direction_index(direction) {
             case "TURN_RIGHT":
                 // Turn right
                 right(player);
-                break
+                break;
             case "+":
                 return evaluate(node[1], player) + evaluate(node[2], player)
             case "-":
@@ -549,7 +549,7 @@ function end_game() {
       resizable: false,
       height:270,
       width:540,
-      modal: true,
+      modal: false,
       buttons: {
         "Play Again": function() {
           $(this).dialog('close');
@@ -671,7 +671,6 @@ function playerSetup(){
     $('#playerScores').append(label);
   })
 }
-
 
 //function to handle the input 'left key' on a player
 //@param player the player who pressed the key
@@ -816,7 +815,7 @@ $(function(){
     resizable: false,
     height: 240,
     width: 540,
-    modal: true,
+    modal: false,
     buttons: {
       "Human vs AI": function(){
         $(this).dialog('close');
@@ -1108,17 +1107,22 @@ function grow(tree, depth, max_depth, full, symbols) {
 var gp_params = {
     population_size: 300,
     max_size: 5,
-    generations: 250,
-    mutation_probability: 0.3,
+    generations: 300,
+    mutation_probability: 0.1,
     tournament_size: 2,
-    crossover_probability: 0.3
+    crossover_probability: 0.1
 };
 
 var evolve = new Worker('tron_evolve_worker.js')
 evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
-  console.log(e.data);
+  $('#currentGen').html(e.data.generation)
+  STRATEGIES.push(e.data.genome)
+  var $option = $('<option>')
+  $option.val(STRATEGIES.length - 1)
+  $option.html('AI' + (STRATEGIES.length))
+  $('select').append($option)
 }, false);
 
 
@@ -1249,8 +1253,6 @@ function setup_tron(strategy_0, strategy_1) {
     game_over=false;
     stats_reported = false;
 }
-
-//TODO: refactor evaluate_individuals to work with setup_tron
 
 
 //Selects individuals into the tournament

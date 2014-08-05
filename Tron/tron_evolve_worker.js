@@ -538,8 +538,7 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
-        self.postMessage(JSON.stringify(population[0].genome))
-        self.postMessage('generation'+generation+' complete!')
+        self.postMessage({genome: (population[0].genome), generation: generation})
     }
 
     function tournament_selection(tournament_size, population) {
@@ -762,6 +761,9 @@ var PLAYER_DIRECTIONS = [
         }
     }
 
+//Worker Syntax.
+//This runs when main thread sends message.
+//postMessage sends a message back to main thread.
 
 // TODO fix size for mutation and crossover, it bloats too easily for mutation
   self.addEventListener('message', function(e) {
