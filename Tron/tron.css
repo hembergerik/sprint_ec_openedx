@@ -15,6 +15,10 @@ h1, p {
   text-align: center;
 }
 
+#canvasSpan{
+    float:left;
+}
+
 canvas {
   display: block;
   margin: 10px auto;

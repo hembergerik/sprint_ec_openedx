@@ -538,7 +538,9 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
+      if(generation % 10 == 0){
         self.postMessage({genome: (population[0].genome), generation: generation})
+      }
     }
 
     function tournament_selection(tournament_size, population) {
