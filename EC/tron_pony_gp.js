@@ -561,7 +561,7 @@ var PLAYER_DIRECTIONS = [
         var fitness_values = [];
         var sizes = [];
         var depths = [];
-        for (var i = 0; i < population.length; i++) {
+        for (var i = 0; i < population.length; i++){
             fitness_values.push(population[i]["fitness"]);
             sizes.push(get_number_of_nodes(population[i]["genome"], 0));
             depths.push(get_max_tree_depth(population[i]["genome"], 0, 0));
@@ -573,6 +573,7 @@ var PLAYER_DIRECTIONS = [
             " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
             " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
             " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
+        console.log(JSON.stringify(population[0].genome))
     }
 
     function tournament_selection(tournament_size, population) {
@@ -593,7 +594,7 @@ var PLAYER_DIRECTIONS = [
         }
         return new_population;
     }
-
+  
     function get_number_of_nodes(root, cnt) {
         cnt = cnt + 1;
         if (typeof root !== 'string') {
@@ -791,7 +792,7 @@ var PLAYER_DIRECTIONS = [
             population = new_population;
 
             print_stats(generation, new_population);
-
+          
             // Increase the generation
             generation = generation + 1;
         }
@@ -799,11 +800,11 @@ var PLAYER_DIRECTIONS = [
 
     var gp_params = {
         population_size: 400,
-        max_size: 3,
-        generations: 20,
-        mutation_probability: 1.0,
+        max_size: 5,
+        generations: 50,
+        mutation_probability: 0.3,
         tournament_size: 2,
-        crossover_probability: 1.0
+        crossover_probability: 0.3
     };
 // TODO fix size for mutation and crossover, it bloats too easily for mutation
     gp(gp_params);
