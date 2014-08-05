@@ -1108,7 +1108,7 @@ var gp_params = {
     crossover_probability: 0.3
 };
 
-gp(gp_params)
+//gp(gp_params)
 
 console.log(gp_params)
 
