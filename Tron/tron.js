@@ -1126,19 +1126,27 @@ evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
-    $('#currentGen').html(e.data.generation)
-    if(typeof e.data.genome != 'undefined'){
-      STRATEGIES.push(e.data.genome)
-      var $option = $('<option>')
-      $option.val(STRATEGIES.length - 1)
-      $option.html('AI' + (STRATEGIES.length))
-      $('select').append($option)
-    }
+    show_stats(e.data)
   }else{
     evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
     generation = e.data.generation
-      }
+  }
 }, false);
+
+
+
+//Delivers the data onto the screen
+//@param data: object, contains a generation and a optional genome.
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+}
 
 
 
@@ -1467,6 +1475,11 @@ function print_stats(generation, population) {
     //     " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
     //     " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
     //     " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
-    console.log(JSON.stringify(population[0].genome))
-    console.log(generation + ' complete')
+    if(generation % 10 == 0){
+      show_stats({generation: generation, population: population})
+    }else{
+      show_stats({generation: generation})
+    }
+    //console.log(JSON.stringify(population[0].genome))
+    //console.log(generation + ' complete')
 }
