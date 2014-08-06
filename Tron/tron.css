@@ -141,3 +141,11 @@ button{
   border-radius:5px;
   color:#3effff;
 }
+
+button:hover{
+  cursor:pointer;
+}
+
+#assignMessage{
+  opacity:0.0;
+}
