@@ -831,7 +831,6 @@ var PLAYER_DIRECTIONS = [
 //Worker Syntax.
 //This runs when main thread sends message.
 //postMessage sends a message back to main thread.
-
   self.addEventListener('message', function(e) {
     var start_t = new Date().getTime();
     
