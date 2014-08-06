@@ -538,6 +538,7 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
+      
       population.sort(sort_individuals);
       if(generation % 10 == 0){
         self.postMessage({genome: (population[0].genome), generation: generation})
@@ -545,6 +546,11 @@ var PLAYER_DIRECTIONS = [
         self.postMessage({generation: generation})
       }
     }
+
+    function print_init_stats(generation, population){
+        self.postMessage({generation: generation, population:population})
+    }
+
 
     function tournament_selection(tournament_size, population) {
         var new_population = [];
@@ -748,12 +754,62 @@ var PLAYER_DIRECTIONS = [
         // Generation loop
         var generation = 0;
         while (generation < params['generations']) {
+
             population = evolve_population(params, population, generation)
-            // Increase the generation
             generation = generation + 1;
         }
     }
+
+  function initialize_main(params){
+    // Create population
+    var population = initialize_population(params['population_size'],
+        params['max_size']);
+    //console.log('B initial eval');
+    evaluate_fitness(population);
+    //console.log('A initial eval');
+    // Generation loop
+    var generation = 0;
+    print_init_stats(generation, population)
+  }
+
+
+  //mt stands for multi-threaded
+  //Spawns threads to accelrate the speed of workers
+  //@param population: the population to evaluate.
+  //some parameters are declared out of the function so that things aren't done for more than once.
+  var THREADS_INITIALIZED = false;
+  var workers = [];
+  var workers_ready_status = [];
+  var THREADS = 6;
+  function evaluate_fitness_mt(population){
+
+    //Initialize the workers if they don't exist.
+    if(!THREADS_INITIALIZED){
+      for (var i = 0; i < THREADS; i++){
+        var worker = new Worker('tron_evolve_subworker.js')
+        workers.push(worker)
+        workers_ready_status.push(false);
+      }
+      THREADS_INITIALIZED = true;
+    }
+    var population_len = population.length;
+    for (var i = 0; i < THREADS; i++){
+      console.log(workers[i])
+      workers[i].postMessage('reset');
+      workers[i].postMessage(population.slice(population_len/THREADS*i, population_len/THREADS*(i+1)))
+      workers[i].addEventListener('message',function(e){
+          workers_ready_status[i] = true;
+      })
+    }
     
+    function check_ready(){
+      for (var i = 0; i < THREADS; i++){
+        if (!workers_ready_status[i]){return false}
+      }
+      return true
+    }
+  }
+
     //this steps one generation forward.
     //@param params the params object for gp.
     //@param population the previous population.
@@ -775,9 +831,9 @@ var PLAYER_DIRECTIONS = [
 //Worker Syntax.
 //This runs when main thread sends message.
 //postMessage sends a message back to main thread.
-
-// TODO fix size for mutation and crossover, it bloats too easily for mutation
   self.addEventListener('message', function(e) {
+    var start_t = new Date().getTime();
+    
     e=e.data;
     var gp_params = {
         population_size: e.population_size,
@@ -787,7 +843,12 @@ var PLAYER_DIRECTIONS = [
         tournament_size: e.tournament_size,
         crossover_probability: e.crossover_probability
     };
-    gp(gp_params);
-    self.postMessage('evolution complete')
+    if (e.single_thread){
+      gp(gp_params)
+    }else{
+      initialize_main(gp_params);
+    }
+    var end_t = new Date().getTime();
+    console.log(end_t - start_t)
     self.close();
   })

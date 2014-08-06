@@ -37,7 +37,8 @@ var STRATEGIES = [
 ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
 ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]],
 ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
-['0.6']
+['0.6'],
+["+",["IFLEQ",["+",["IFLEQ",["+",["0.3"],["0.3"]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["+","SENSE_A","0.3"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["TURN_LEFT"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]]
 ]
 
 // Use Image constructor. $('<image>') will not work.
@@ -48,17 +49,13 @@ blue_bike_img.src =  'media/images/Tron_bike_blue.png'
 
 var red_trail = new Image();
 red_trail.src = 'media/images/Glow_Trail_Red_square.png'
-
 var blue_trail = new Image();
 blue_trail.src = 'media/images/Glow_Trail_blue_square.png'
 
-
 var red_corner = new Image();
 red_corner.src = 'media/images/Glow_Trail_Red_corner.png'
-
 var blue_corner = new Image();
 blue_corner.src = 'media/images/Glow_Trail_blue_corner.png'
-
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
@@ -793,7 +790,8 @@ $(function(){
   $('#assignAI').click(function(e){
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()]
     AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()]
-    
+    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!')
+    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)})
   })
   
   $('#viewStrategy1').on('click', function(){
@@ -809,8 +807,10 @@ $(function(){
   $('#mute').on('click', function(){
     if(BGM.muted===false){
       BGM.muted=true;
+      Crash_effect.muted=true;
     }else{
       BGM.muted=false;
+      Crash_effect.muted=false;
     }
   })
   
@@ -833,6 +833,7 @@ $(function(){
         playerSetup();
         $('#leftButton2').remove();
         $('#rightButton2').remove();
+        $('.AI2controls').remove();
       },
       "Human vs Human": function(){
         $(this).dialog('close');
@@ -1120,22 +1121,131 @@ var gp_params = {
     generations: 300,
     mutation_probability: 0.3,
     tournament_size: 2,
-    crossover_probability: 0.3
+    crossover_probability: 0.3,
+    single_thread: false
 };
 
 var evolve = new Worker('tron_evolve_worker.js')
+var start_time = new Date().getTime();
 evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
-  $('#currentGen').html(e.data.generation)
-  if(typeof e.data.genome != 'undefined'){
-    STRATEGIES.push(e.data.genome)
+  if(gp_params.single_thread){
+    show_stats(e.data)
+  }else{
+    evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
+    generation = e.data.generation
+  }
+}, false);
+
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
     var $option = $('<option>')
     $option.val(STRATEGIES.length - 1)
     $option.html('AI' + (STRATEGIES.length))
     $('select').append($option)
   }
-}, false);
+}
+
+
+
+//Delivers the data onto the screen
+//@param data: object, contains a generation and a optional genome.
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+}
+
+
+
+function mutate_and_crossover(population, params){
+  
+    var new_population = tournament_selection(params['tournament_size'], population);
+    new_population = crossover(params['crossover_probability'], new_population);
+    mutation(params['mutation_probability'], new_population, params['max_size']);
+    // Replace the population with the new population
+    population = new_population;
+    evaluate_population_multi_thread(population, mutate_and_crossover, gp_params.generations)
+
+}
+
+
+var new_population = []
+var THREADS_INITIALIZED = false;
+var workers = [];
+var workers_ready_status = [];
+var num_workers_ready = 0
+var THREADS = 5; //optimized for AMD hexacores?
+var generation = 0;
+var time_prev = 0;
+
+
+//multithreaded evaluate population code.
+//@param population: the population to evaluate.
+//@param callback: function to call after each evaluation. passed the new_population and gp_params.
+//@param end_generation: the last generation.
+function evaluate_population_multi_thread(population, callback, end_generation){
+    num_workers_ready = 0;
+    new_population = []
+    //Initialize the workers if they don't exist.
+    if(!THREADS_INITIALIZED){
+      for (var i = 0; i < THREADS; i++){
+        var worker = new Worker('tron_evolve_subworker.js')
+        workers.push(worker)
+        worker.finished = false;
+        worker.index = i;
+        workers_ready_status.push({i: false});
+        
+        worker.addEventListener('message',function(e){
+          this.finished = true;
+          e.data.forEach(function(val){new_population.push(val)})
+          if(check_ready()){
+            if(generation < end_generation){
+              generation += 1
+              console.log(new_population.length)
+              print_stats(generation, new_population);
+              callback(new_population, gp_params);
+              }else{
+              workers.forEach(function(val){
+                val.terminate();
+              });
+              var end_time = new Date().getTime();
+              console.log(end_time - start_time)
+              console.log('end')
+            }
+          }
+      })
+      }
+      THREADS_INITIALIZED = true;
+    }
+  
+    var population_len = population.length;    
+    for (var i = 0; i < THREADS; i++){
+      workers[i].finished = false;
+      workers[i].postMessage(population.slice(population_len/THREADS*i, population_len/THREADS*(i+1)))
+
+    }
+  
+    function check_ready(){ 
+      for(var i=0; i<workers.length; i++){
+        worker = workers[i]
+        if (!worker.finished){
+          return false;
+        }
+      }
+      return true;
+  }
+  }
+
+
 
 
 //Main Function
@@ -1381,5 +1491,9 @@ function print_stats(generation, population) {
     //     " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
     //     " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
     //     " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
-    console.log(JSON.stringify(population[0].genome))
+    if(generation % 10 == 0){
+      show_stats({generation: generation, genome: population[0].genome})
+    }else{
+      show_stats({generation: generation})
+    }
 }
