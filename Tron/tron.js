@@ -829,6 +829,7 @@ $(function(){
         playerSetup();
         $('#leftButton2').remove();
         $('#rightButton2').remove();
+        $('.AI2controls').remove();
       },
       "Human vs Human": function(){
         $(this).dialog('close');
