@@ -538,8 +538,13 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
-        self.postMessage(JSON.stringify(population[0].genome))
-        self.postMessage('generation'+generation+' complete!')
+        population.sort(sort_individuals);
+        self.postMessage({generation: generation, genome: population[0].genome})
+    }
+
+    function print_init_stats(generation, population){
+        self.postMessage({generation: generation, population:population})
+
     }
 
     function tournament_selection(tournament_size, population) {
@@ -744,27 +749,87 @@ var PLAYER_DIRECTIONS = [
         // Generation loop
         var generation = 0;
         while (generation < params['generations']) {
+           // var start = new Date().getTime();
+
             // Selection
+            // These are fast(~10ms per gen)
             var new_population = tournament_selection(params['tournament_size'], population);
+            //var selection_time = new Date().getTime() - start
             new_population = crossover(params['crossover_probability'], new_population);
+           // var crossover_time = new Date().getTime() - selection_time - start
             mutation(params['mutation_probability'], new_population, params['max_size']);
-
+           // var mutation_time = new Date().getTime() - crossover_time - selection_time - start
             // Evaluate the new population
+            // this takes the longest (~1000ms per gen)
             evaluate_fitness(new_population);
-
+            //var evaluate_time = new Date().getTime() - mutation_time - crossover_time - selection_time - start
             // Replace the population with the new population
             population = new_population;
 
             print_stats(generation, new_population);
-          
+           // console.log('s'+selection_time)
+           // console.log(' c' + crossover_time)
+          //  console.log(' m' + mutation_time)
+          //  console.log(' e'+evaluate_time)
             // Increase the generation
             generation = generation + 1;
         }
     }
 
+  function initialize_main(params){
+    // Create population
+    var population = initialize_population(params['population_size'],
+        params['max_size']);
+    //console.log('B initial eval');
+    evaluate_fitness(population);
+    //console.log('A initial eval');
+    // Generation loop
+    var generation = 0;
+    print_init_stats(generation, population)
+  }
 
-// TODO fix size for mutation and crossover, it bloats too easily for mutation
+
+  //mt stands for multi-threaded
+  //Spawns threads to accelrate the speed of workers
+  //@param population: the population to evaluate.
+  //some parameters are declared out of the function so that things aren't done for more than once.
+  var THREADS_INITIALIZED = false;
+  var workers = [];
+  var workers_ready_status = [];
+  var THREADS = 6;
+  function evaluate_fitness_mt(population){
+
+    //Initialize the workers if they don't exist.
+    if(!THREADS_INITIALIZED){
+      for (var i = 0; i < THREADS; i++){
+        var worker = new Worker('tron_evolve_subworker.js')
+        workers.push(worker)
+        workers_ready_status.push(false);
+      }
+      THREADS_INITIALIZED = true;
+    }
+    var population_len = population.length;
+    for (var i = 0; i < THREADS; i++){
+      console.log(workers[i])
+      workers[i].postMessage('reset');
+      workers[i].postMessage(population.slice(population_len/THREADS*i, population_len/THREADS*(i+1)))
+      workers[i].addEventListener('message',function(e){
+          workers_ready_status[i] = true;
+      })
+    }
+    
+    function check_ready(){
+      for (var i = 0; i < THREADS; i++){
+        if (!workers_ready_status[i]){return false}
+      }
+      return true
+    }
+  }
+
+
   self.addEventListener('message', function(e) {
+    var start_t = new Date().getTime();
+    
     e=e.data;
     var gp_params = {
         population_size: e.population_size,
@@ -774,7 +839,12 @@ var PLAYER_DIRECTIONS = [
         tournament_size: e.tournament_size,
         crossover_probability: e.crossover_probability
     };
-    gp(gp_params);
-    self.postMessage('evolution complete')
+    if (e.single_thread){
+      gp(gp_params)
+    }else{
+      initialize_main(gp_params);
+    }
+    var end_t = new Date().getTime();
+    console.log(end_t - start_t)
     self.close();
   })
