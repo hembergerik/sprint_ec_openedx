@@ -538,14 +538,19 @@ var PLAYER_DIRECTIONS = [
     }
 
     function print_stats(generation, population) {
-        population.sort(sort_individuals);
-        self.postMessage({generation: generation, genome: population[0].genome})
+      
+      population.sort(sort_individuals);
+      if(generation % 10 == 0){
+        self.postMessage({genome: (population[0].genome), generation: generation})
+      }else{
+        self.postMessage({generation: generation})
+      }
     }
 
     function print_init_stats(generation, population){
         self.postMessage({generation: generation, population:population})
-
     }
+
 
     function tournament_selection(tournament_size, population) {
         var new_population = [];
@@ -749,29 +754,8 @@ var PLAYER_DIRECTIONS = [
         // Generation loop
         var generation = 0;
         while (generation < params['generations']) {
-           // var start = new Date().getTime();
 
-            // Selection
-            // These are fast(~10ms per gen)
-            var new_population = tournament_selection(params['tournament_size'], population);
-            //var selection_time = new Date().getTime() - start
-            new_population = crossover(params['crossover_probability'], new_population);
-           // var crossover_time = new Date().getTime() - selection_time - start
-            mutation(params['mutation_probability'], new_population, params['max_size']);
-           // var mutation_time = new Date().getTime() - crossover_time - selection_time - start
-            // Evaluate the new population
-            // this takes the longest (~1000ms per gen)
-            evaluate_fitness(new_population);
-            //var evaluate_time = new Date().getTime() - mutation_time - crossover_time - selection_time - start
-            // Replace the population with the new population
-            population = new_population;
-
-            print_stats(generation, new_population);
-           // console.log('s'+selection_time)
-           // console.log(' c' + crossover_time)
-          //  console.log(' m' + mutation_time)
-          //  console.log(' e'+evaluate_time)
-            // Increase the generation
+            population = evolve_population(params, population, generation)
             generation = generation + 1;
         }
     }
@@ -826,6 +810,30 @@ var PLAYER_DIRECTIONS = [
     }
   }
 
+=======
+    
+    //this steps one generation forward.
+    //@param params the params object for gp.
+    //@param population the previous population.
+    //@param generation: the current generation #
+    //@returns the new population.
+    function evolve_population(params, population, generation){
+      var new_population = tournament_selection(params['tournament_size'], population);
+      new_population = crossover(params['crossover_probability'], new_population);
+      mutation(params['mutation_probability'], new_population, params['max_size']);
+      // Evaluate the new population
+      evaluate_fitness(new_population);
+      print_stats(generation, new_population);
+      // Replace the population with the new population
+      population = new_population;
+      return population;
+    }
+    
+
+//Worker Syntax.
+//This runs when main thread sends message.
+//postMessage sends a message back to main thread.
+>>>>>>> 629bdad760d64a5959b2093832a17f77d2a04b9e
 
   self.addEventListener('message', function(e) {
     var start_t = new Date().getTime();

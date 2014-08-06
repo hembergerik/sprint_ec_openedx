@@ -15,10 +15,14 @@ h1, p {
   text-align: center;
 }
 
+table{
+  margin:0 auto;
+}
+
 canvas {
-  display: block;
+  display: inline-block;
   margin: 10px auto;
-  background-color: rgba(149, 149, 149, 0.84);
+  background-color: rgba(149, 149, 149, 0.5);
   border-style: solid;
   border-color: #3effff;
   border-width: 5px;
@@ -35,11 +39,13 @@ canvas {
   font-weight:bold;
   display:inline-block;
   padding:20px;
-  background-color:rgba(128, 128, 128, 0.5);
+  background-color: rgba(149, 149, 149, 0.5);
   border-style: solid;
   border-color: #3effff;
   border-width: 3px;
   box-shadow: 0 0 20px #9ecaed;
+  margin:20px;
+  width:260px;
 }
 
 #leftButton, #rightButton, #leftButton2, #rightButton2{
@@ -96,7 +102,7 @@ canvas {
 
 #strategyChoice{
   padding:20px;
-  background-color:rgba(128, 128, 128, 0.5);
+  background-color: rgba(149, 149, 149, 0.5);
   border-style: solid;
   border-color: #3effff;
   border-width: 3px;
@@ -104,4 +110,35 @@ canvas {
   display:inline-block;
   font-family:Helvetica;
   color:#ddd;
+  margin:20px;
+  width:260px;
+  text-align:center;
+}
+
+#mute{
+  position:absolute;
+  top:10px;
+  right:10px;
+}
+
+.key{
+  border-width:1px;
+  border-color:#ddd;
+  border-style:solid;
+  height:20px;
+  width:20px;
+  display:inline-block;
+  border-radius:4px;
+  text-align:center;
+  margin:2px;
+}
+
+button{
+  border-style:solid;
+  border-width:1px;
+  background-color:rgba(128, 128, 128, 0.5);
+  border-color:#3effff;
+  border-radius:5px;
+  color:#3effff;
+  
 }

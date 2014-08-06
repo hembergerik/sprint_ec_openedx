@@ -48,17 +48,13 @@ blue_bike_img.src =  'media/images/Tron_bike_blue.png'
 
 var red_trail = new Image();
 red_trail.src = 'media/images/Glow_Trail_Red_square.png'
-
 var blue_trail = new Image();
 blue_trail.src = 'media/images/Glow_Trail_blue_square.png'
 
-
 var red_corner = new Image();
 red_corner.src = 'media/images/Glow_Trail_Red_corner.png'
-
 var blue_corner = new Image();
 blue_corner.src = 'media/images/Glow_Trail_blue_corner.png'
-
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
@@ -200,7 +196,7 @@ function get_direction_index(direction) {
             case "TURN_RIGHT":
                 // Turn right
                 right(player);
-                break
+                break;
             case "+":
                 return evaluate(node[1], player) + evaluate(node[2], player)
             case "-":
@@ -549,7 +545,7 @@ function end_game() {
       resizable: false,
       height:270,
       width:540,
-      modal: true,
+      modal: false,
       buttons: {
         "Play Again": function() {
           $(this).dialog('close');
@@ -671,7 +667,6 @@ function playerSetup(){
     $('#playerScores').append(label);
   })
 }
-
 
 //function to handle the input 'left key' on a player
 //@param player the player who pressed the key
@@ -797,6 +792,16 @@ $(function(){
     
   })
   
+  $('#viewStrategy1').on('click', function(){
+    var strategy=STRATEGIES[$('#AI1').val()];
+    alert(strategy);
+  })
+  
+  $('#viewStrategy2').on('click', function(){
+    var strategy=STRATEGIES[$('#AI2').val()];
+    alert(strategy);
+  })
+  
   $('#mute').on('click', function(){
     if(BGM.muted===false){
       BGM.muted=true;
@@ -816,7 +821,7 @@ $(function(){
     resizable: false,
     height: 240,
     width: 540,
-    modal: true,
+    modal: false,
     buttons: {
       "Human vs AI": function(){
         $(this).dialog('close');
@@ -1106,9 +1111,9 @@ function grow(tree, depth, max_depth, full, symbols) {
 
 
 var gp_params = {
-    population_size: 500,
-    max_size: 4,
-    generations: 100,
+    population_size: 300,
+    max_size: 5,
+    generations: 300,
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3,
@@ -1121,7 +1126,14 @@ evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
-      console.log(JSON.stringify(e.data.genome))
+    $('#currentGen').html(e.data.generation)
+    if(typeof e.data.genome != 'undefined'){
+      STRATEGIES.push(e.data.genome)
+      var $option = $('<option>')
+      $option.val(STRATEGIES.length - 1)
+      $option.html('AI' + (STRATEGIES.length))
+      $('select').append($option)
+    }
   }else{
     evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
     generation = e.data.generation
@@ -1339,8 +1351,6 @@ function setup_tron(strategy_0, strategy_1) {
     game_over=false;
     stats_reported = false;
 }
-
-//TODO: refactor evaluate_individuals to work with setup_tron
 
 
 //Selects individuals into the tournament
