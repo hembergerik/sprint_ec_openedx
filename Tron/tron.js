@@ -1477,7 +1477,7 @@ function print_stats(generation, population) {
     //     " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
     //     " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
     if(generation % 10 == 0){
-      show_stats({generation: generation, population: population})
+      show_stats({generation: generation, genome: population[0].genome})
     }else{
       show_stats({generation: generation})
     }
