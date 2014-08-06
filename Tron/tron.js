@@ -1135,9 +1135,24 @@ evolve.addEventListener('message', function(e) {
   }else{
     evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
     generation = e.data.generation
-      }
+  }
 }, false);
 
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+}
+
+
+
+//Delivers the data onto the screen
+//@param data: object, contains a generation and a optional genome.
 function show_stats(data){
   $('#currentGen').html(data.generation)
   if(typeof data.genome != 'undefined'){
@@ -1481,5 +1496,4 @@ function print_stats(generation, population) {
     }else{
       show_stats({generation: generation})
     }
-    
 }
