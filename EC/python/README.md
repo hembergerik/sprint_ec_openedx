@@ -5,7 +5,7 @@ Python EC code intructions
 might not work in combination due to different stages of refactoring
 
 `tron_adversarial_dist` contains files for persisting tron with SQLite
-on and communicating via JSON objects over http
+on, running the evolution as a background process and communicating via JSON objects over http
 
 `python_code_ow7` contains the latest version of Tron using GP (GP is Object Oriented)
 
