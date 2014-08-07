@@ -3,10 +3,10 @@
 
 # enable debugging
 import cgitb
-import ponyGA_coev
+#import ponyGA_coev
 import random
-import database
-import run_tron_coev
+#import database
+#import run_tron_coev
 
 cgitb.enable()
 
@@ -30,6 +30,7 @@ def get_random_ai_opponent():
 print "Content-Type: text/plain;charset=utf-8"
 print
 
-opponent = get_random_ai_opponent() 
+#opponent = get_random_ai_opponent() 
+opponent = 'Hellow world from server!'
 print("%s"%opponent[0])
 

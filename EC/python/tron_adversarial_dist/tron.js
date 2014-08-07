@@ -294,7 +294,7 @@ function end_game() {
 	    }
 	}
     //TODO send json object to python
-    var url = "http://128.30.109.173/stu_tron/register_results.py?winner=" + winner + "&id=" + 1;
+    var url = "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py?winner=" + winner + "&id=" + 1;
 	getJSON(url, function(data) {
 	console.log('Data: ' + data.winner + ' id:' + data.id);
 	    stats_reported = true;

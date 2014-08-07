@@ -81,7 +81,7 @@ ON C.id_individual = R.id
 INSERT INTO individuals (individual, fitness)
   Values (?, ?)
 '''
-        c.execute(query, individual.to_db())
+        c.execute(query, individual)
         self.connection.commit()
 
     def update_AI_individual(self, individual, _id):

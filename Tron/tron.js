@@ -778,7 +778,21 @@ document.onkeyup = function read(event) {
 // - Can the buttons be larger (Should the side of the board be clickable?)
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
+  
+  //test code for ajax.
+  $.ajax({
+  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
+  data: {data:'["TURN_LEFT"]'}
+})
+  .done(function( data ) {
+    console.log(data)
+  });
+  
+  
   //Array of players
+  
+  
+  
   
   STRATEGIES.forEach(function(val, index){
     var $option = $('<option>')
@@ -1118,7 +1132,7 @@ function grow(tree, depth, max_depth, full, symbols) {
 var gp_params = {
     population_size: 300,
     max_size: 5,
-    generations: 300,
+    generations: 5,
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3,
