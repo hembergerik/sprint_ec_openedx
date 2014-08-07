@@ -19,7 +19,7 @@ var CELL_HEIGHT = 30;
 var CELL_MARGIN = 2;
 
 var NUM_STEPS_DEFAULT = 10;
-var TIME_DEFAULT = 500;
+var TIME_DEFAULT = 200;
 var FIGHT_TIME_DEFAULT=300;
 var MUTATE_TIME_DEFAULT = 300;
 
@@ -228,6 +228,12 @@ function ea(population_size, max_size, mutation_probability,
       });
       $(this).attr('transform', 'translate('+0+','+translation[1]+')');
     });
+    rows.data(population);
+    row.data(function(d){return d.genome});
+    square.attr('fill', function(d,i){return NEGATIVE_COLOR});
+  }
+
+  function grey_winners(population){
     wrows.data(population);
     wrow.data(function(d){return d.genome});
     wsquare.attr('fill', function(d,i){return NEGATIVE_COLOR});
@@ -293,7 +299,13 @@ function ea(population_size, max_size, mutation_probability,
     if(index < population.length -1){
       timers.MUTATE_TIMER=setTimeout(function(){self.mutate_individual_r(population, delay, callback, graph_function, index + 1)}, delay)
     }else{
-      timers.MUTATE_TIMER=setTimeout(function(){callback()}, delay);
+    $('#d3chart').hide(delay);
+    console.log('bye')
+    setTimeout(function(){$('#winners').hide();
+      console.log('clear');
+      $('#d3chart').show();
+      $('#winners').show(delay);}, delay+100);
+    timers.MUTATE_TIMER=setTimeout(function(){callback()}, delay+100);
     }
   }
   this.mutate_individual_r = mutate_individual_r;
@@ -329,7 +341,7 @@ function ea(population_size, max_size, mutation_probability,
     $rect.css('transform', 'rotateY(' + deg +'DEG)');
     $rect.css('transform-origin', (parseInt($rect.attr('x')) + CELL_WIDTH/2) + 'px');
     if(deg < 180){
-      setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
+      timers.FLIP_TIMER=setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
     }
   }
   this.flip_rect_bit = flip_rect_bit;
@@ -347,7 +359,7 @@ function ea(population_size, max_size, mutation_probability,
       $rect.attr('fill', color_function(color_index));
       color_index += 0.01;
       if(color_index < 1){
-        setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
+        timers.COLOR_TIMER=setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
       }
     }
     transit_color_r($rect, color_function);
@@ -366,7 +378,8 @@ function ea(population_size, max_size, mutation_probability,
   function stop(){
     console.log('stopping')
     Object.keys(timers).forEach(function(timer){
-      clearTimeout(timers[timer]);
+      if (timer!=='COLOR_TIMER' && timer!=='FLIP_TIMER'){
+      clearTimeout(timers[timer]);}
     })
     self.stepping = false;
   }
@@ -399,6 +412,7 @@ function ea(population_size, max_size, mutation_probability,
     $('#s0').css('font-weight', 'bold');
     $('g:last-of-type').css('stroke', 'none');
     if (fight_time){
+      update_winners(new_population);
       fight_r(new_population,fight_time, mutate, update_winners, true);
     }else{
       for (var i=0; i < population_size; i++){
@@ -408,7 +422,6 @@ function ea(population_size, max_size, mutation_probability,
     }
 
     function mutate(){
-      update_graph(new_population);
       $('.s').css('font-weight', 'normal');
       $('#s1').css('font-weight', 'bold');
       if(mutate_time){
@@ -424,10 +437,10 @@ function ea(population_size, max_size, mutation_probability,
     
     function mutate_graph(index, population, mutate_gene_index){
       var g_index = index+1;
-      $('#d3chart g:nth-of-type('+g_index+')').css('stroke', '#000');
-      $('#d3chart g:nth-of-type('+index+')').css('stroke', 'none');
+      $('#winners g:nth-of-type('+g_index+')').css('stroke', '#000');
+      $('#winners g:nth-of-type('+index+')').css('stroke', 'none');
       if(mutate_gene_index){
-        var $rect = $('#d3chart g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')');
+        var $rect = $('#winners g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')');
         var gene = population[index].genome[mutate_gene_index-1];
         console.log($rect.attr('fill') , gene)
         flip_rect_bit($rect);
@@ -441,6 +454,8 @@ function ea(population_size, max_size, mutation_probability,
       $('#s2').css('font-weight', 'bold');
       
       update_graph(new_population);
+      grey_winners(new_population);
+
       // Evaluate the new population
       evaluate_fitness(new_population);
 

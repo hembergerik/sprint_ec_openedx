@@ -37,7 +37,8 @@ var STRATEGIES = [
 ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
 ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]],
 ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
-['0.6']
+['0.6'],
+["+",["IFLEQ",["+",["IFLEQ",["+",["0.3"],["0.3"]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["+","SENSE_A","0.3"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["TURN_LEFT"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]]
 ]
 
 // Use Image constructor. $('<image>') will not work.
@@ -789,7 +790,8 @@ $(function(){
   $('#assignAI').click(function(e){
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()]
     AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()]
-    
+    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!')
+    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)})
   })
   
   $('#viewStrategy1').on('click', function(){
@@ -805,8 +807,10 @@ $(function(){
   $('#mute').on('click', function(){
     if(BGM.muted===false){
       BGM.muted=true;
+      Crash_effect.muted=true;
     }else{
       BGM.muted=false;
+      Crash_effect.muted=false;
     }
   })
   
@@ -829,6 +833,7 @@ $(function(){
         playerSetup();
         $('#leftButton2').remove();
         $('#rightButton2').remove();
+        $('.AI2controls').remove();
       },
       "Human vs Human": function(){
         $(this).dialog('close');
@@ -1126,19 +1131,38 @@ evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
-    $('#currentGen').html(e.data.generation)
-    if(typeof e.data.genome != 'undefined'){
-      STRATEGIES.push(e.data.genome)
-      var $option = $('<option>')
-      $option.val(STRATEGIES.length - 1)
-      $option.html('AI' + (STRATEGIES.length))
-      $('select').append($option)
-    }
+    show_stats(e.data)
   }else{
     evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
     generation = e.data.generation
-      }
+  }
 }, false);
+
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+}
+
+
+
+//Delivers the data onto the screen
+//@param data: object, contains a generation and a optional genome.
+function show_stats(data){
+  $('#currentGen').html(data.generation)
+  if(typeof data.genome != 'undefined'){
+    STRATEGIES.push(data.genome)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+}
 
 
 
@@ -1467,6 +1491,9 @@ function print_stats(generation, population) {
     //     " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
     //     " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
     //     " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
-    console.log(JSON.stringify(population[0].genome))
-    console.log(generation + ' complete')
+    if(generation % 10 == 0){
+      show_stats({generation: generation, genome: population[0].genome})
+    }else{
+      show_stats({generation: generation})
+    }
 }

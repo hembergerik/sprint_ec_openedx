@@ -810,8 +810,6 @@ var PLAYER_DIRECTIONS = [
     }
   }
 
-=======
-    
     //this steps one generation forward.
     //@param params the params object for gp.
     //@param population the previous population.
@@ -833,8 +831,6 @@ var PLAYER_DIRECTIONS = [
 //Worker Syntax.
 //This runs when main thread sends message.
 //postMessage sends a message back to main thread.
->>>>>>> 629bdad760d64a5959b2093832a17f77d2a04b9e
-
   self.addEventListener('message', function(e) {
     var start_t = new Date().getTime();
     
