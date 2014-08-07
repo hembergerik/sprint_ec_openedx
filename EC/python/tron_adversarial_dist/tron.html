@@ -1,0 +1,38 @@
+<!-- From --
+  -- --
+  --https://github.com/JDStraughan/html5-lightcycles/blob/master/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Tron HTML5</title>
+<style>
+  article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+    display: block;
+  }
+  body {
+    background-color: #333;
+  }
+  h1 {
+    font-size: 32px;
+  }
+  h1, p {
+    color: #FFF;
+    text-align: center;
+  }
+  canvas {
+    display: block;
+    margin: 10px auto;
+    background-color: #666;
+  }
+</style>
+</head>
+<body>
+<div id="myDiv"><h2>Let AJAX change this text</h2></div>
+<button type="button" onclick="get_ai_strategy()">Change Content</button>
+
+  <h1>Tron (Use arrow keys control. Click inside canvas to play.) </h1>
+  <canvas id="game" width="200" height="200">
+  <script type="text/javascript" src="tron.js"></script>
+</body>
+</html>
