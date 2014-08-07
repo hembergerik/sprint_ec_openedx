@@ -5,7 +5,7 @@
 //TODO Verify that check environment for the AI player works
 "use strict";
 
-var GAME_PROPORTION_OF_PAGE = 0.68
+var GAME_PROPORTION_OF_PAGE = 0.68;
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
@@ -347,17 +347,17 @@ function draw(player) {
     // Fill a rectangle to the previous player position
     // This is to cover the bike up.
     // The modding and addind ROWS takes care of edge cases.
-    var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS
+    var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS;
     var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
     ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
   
     //Draw the trail with a context line stroke.
     
-    var prev_direction = player.bike_trail[player.bike_trail.length-2]
-    var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction)
-    var prev_trailScale = getLightTrailScale(prev_direction)
-    var curr_trailScale = getLightTrailScale(player.direction)
-    var rotation = getImageRotation(player.direction)
+    var prev_direction = player.bike_trail[player.bike_trail.length-2];
+    var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
+    var prev_trailScale = getLightTrailScale(prev_direction);
+    var curr_trailScale = getLightTrailScale(player.direction);
+    var rotation = getImageRotation(player.direction);
     /*ctx.beginPath(); 
     ctx.lineWidth="10";
     ctx.strokeStyle=player.COLOR; 
@@ -543,6 +543,7 @@ function end_game() {
     var current=parseInt($(scores[scoreUpdate]).text(),10);
     $(scores[scoreUpdate]).text(current+1);}
     $('#winPopup').dialog({
+      dialogClass: "no-close",
       resizable: false,
       height:270,
       width:540,
@@ -775,18 +776,62 @@ document.onkeyup = function read(event) {
       $('body').css('background-repeat', 'repeat');      
     }
 };
+
+//AJAX functions
+//function to get a random AI
+//@param callback: called when the server responds, currently passed with the parsed strategy. 
+//SUBJECT TO CHANGE
+function getRandomAI(callback){
+  $.ajax({
+  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/get_ai_opponent.py",
+})
+  .done(function(data) {
+    console.log(data)
+    callback(JSON.parse(data))
+  });
+}
+
+//function to add a AI to the DB
+//@param AI: the strategy list object.
+//SUBJECT TO CHANGE
+function postAI(AI){
+  $.ajax({
+  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
+  data: {operation: 'add_AI', data: JSON.stringify(AI)}
+  })
+  .done(function(data){
+    console.log(data)
+  })
+}
+
+
+function updateAI(AI, _id){
+    $.ajax({
+        url:"http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
+        data:{operation:'update_AI', data: JSON.stringify(AI), _id: _id}
+    })
+    .done(function(data){
+        console.log(data)
+    })
+}
 // - Can the buttons be larger (Should the side of the board be clickable?)
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
   
-  //test code for ajax.
-  $.ajax({
-  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
-  data: {data:'["TURN_LEFT"]'}
-})
-  .done(function( data ) {
-    console.log(data)
-  });
+
+  getRandomAI(addAI)
+  //postAI(STRATEGIES[1])
+
+  function addAI(data){
+    STRATEGIES.push(data)
+    var $option = $('<option>')
+    $option.val(STRATEGIES.length - 1)
+    $option.html('AI' + (STRATEGIES.length))
+    $('select').append($option)
+  }
+  
+  
+  updateAI(["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],1)
   
   
   //Array of players
@@ -836,6 +881,7 @@ $(function(){
   }
   $('#gameChoiceMessage').html('<h2>WHICH MODE?</h2>');
   $('#gameChoice').dialog({
+    dialogClass: "no-close",
     resizable: false,
     height: 240,
     width: 540,
@@ -1136,12 +1182,12 @@ var gp_params = {
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3,
-    single_thread: false
+    single_thread: true
 };
 
 var evolve = new Worker('tron_evolve_worker.js')
 var start_time = new Date().getTime();
-evolve.postMessage(gp_params);
+//evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){

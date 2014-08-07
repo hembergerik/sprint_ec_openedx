@@ -6,7 +6,7 @@ import cgitb
 import cgi
 import json
 import database
-#import pony_ga
+#import ponyGA_coev
 #import run_tron_coev
 
 def store_game_stat():
@@ -28,27 +28,41 @@ def store_game_stat():
     response = json.dumps({database.Database.WIN: winner, database.Database.STAT_ID: _id})
     return response
 
-def get_sent_data():
+def get_sent(field):
     form = cgi.FieldStorage()
-    return form.getvalue('data')
+    return form.getvalue(field)
     
-    
-def store_sent_data(individual):
+
+def store_AI(individual):
     db = database.Database('tron.db')
-    db.create_tables()
-    #db.store_AI_individual('test')
-    population = db.get_AI_individuals()
+    db.store_AI_individual(individual)
+    latest = db.get_AI_individuals()[-1]
     db.close()
-    return population
+    return latest[2]
     
+def update_AI(individual, _id):
+    db=database.Database('tron.db')
+    db.update_AI_individual(individual, _id)
+    updated=db.get_AI_individuals()[int(_id)-1]
+    db.close()
+    return updated
+
 def get_database_data():
     db = database.Database('tron.db')
-    return 'test'
+    return db.get_AI_individuals()
     
 print 'Content-type: text/html'
 print
 
 #response = store_game_stat()
-response = store_sent_data('test')
-
+data = get_sent('data')
+operation = get_sent('operation')
+_id = get_sent('_id')
+if operation == 'add_AI':
+    stored_AI = store_AI(data)
+    response = stored_AI
+elif operation == 'update_AI':
+    response = update_AI(data, _id)
+else:
+    response = 'unknown operation'
 print(response)

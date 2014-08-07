@@ -308,6 +308,5 @@ function evaluate_fitness(population) {
 self.addEventListener('message', function(e){
   population = e.data;
   evaluate_fitness(population);
-  self.postMessage(population)
-  
-})
+  self.postMessage(population);
+});

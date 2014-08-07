@@ -28,7 +28,7 @@ var timers={MUTATE_TIMER: null,
             TIMER:null,
             COLOR_TIMER: null,
             FLIP_TIMER:null,
-            TRANSITION_TIMER: null}
+            TRANSITION_TIMER: null};
 
 /**
  * Return the sum of the values of the array
@@ -102,14 +102,14 @@ function print_stats(generation, population) {
   population.sort(compare_individuals);
   var fitness_values = [];
   for (var i = 0; i < population.length; i++) {
-    fitness_values.push(population[i]["fitness"]);
+    fitness_values.push(population[i].fitness);
   }
   var ave_and_std = get_ave_and_std(fitness_values);
   console.log("Gen:" + generation + " fit_avg:" + round(ave_and_std[0],3) + "+-" +
-    round(ave_and_std[1],3) + " " + population[0]["fitness"] + " " +
-    population[0]["genome"]);
+    round(ave_and_std[1],3) + " " + population[0].fitness + " " +
+    population[0].genome);
   $('#info').html("<b>Generation: </b>" + generation + " <br><b>AVG: </b>" + ave_and_std[0].toFixed(2) + "<br><b>SD: </b>" +
-    ave_and_std[1].toFixed(2) + "<br><b>Highest Fitness: </b>" + population[0]["fitness"])
+    ave_and_std[1].toFixed(2) + "<br><b>Highest Fitness: </b>" + population[0].fitness);
 }
 
 /**
@@ -160,7 +160,7 @@ function ea(population_size, max_size, mutation_probability,
       genome.push(binary);
     }
     population.push({genome: genome, fitness: DEFAULT_FITNESS});
-    console.log(i + " Individual:" + population[i]["genome"]);
+    console.log(i + " Individual:" + population[i].genome);
   }
   
   var main_chart = d3.select('#d3chart');
@@ -228,9 +228,9 @@ function ea(population_size, max_size, mutation_probability,
       });
       $(this).attr('transform', 'translate('+0+','+translation[1]+')');
     });
-    rows.data(population);
+    /*rows.data(population);
     row.data(function(d){return d.genome});
-    square.attr('fill', function(d,i){return NEGATIVE_COLOR});
+    square.attr('fill', function(d,i){return NEGATIVE_COLOR});*/
   }
 
   function grey_winners(population){
@@ -325,11 +325,11 @@ function ea(population_size, max_size, mutation_probability,
         var translation=[];
         ctran.substring(0, ctran.length-1).split(',').forEach(function(n){
           translation.push(parseInt(n,10));
-        })
+        });
         $('#d3chart g:nth-of-type('+highlight+')').attr('transform', 'translate('+20+','+translation[1]+')');
       }
     }
-    return competitors
+    return competitors;
   }
   //flips the rect 180 degreens along the Z-position.
   //purely for the sake of looking good.
@@ -341,7 +341,7 @@ function ea(population_size, max_size, mutation_probability,
     $rect.css('transform', 'rotateY(' + deg +'DEG)');
     $rect.css('transform-origin', (parseInt($rect.attr('x')) + CELL_WIDTH/2) + 'px');
     if(deg < 180){
-      timers.FLIP_TIMER=setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5)
+      timers.FLIP_TIMER=setTimeout(function(){self.flip_rect_bit($rect, deg+2)}, 5);
     }
   }
   this.flip_rect_bit = flip_rect_bit;
@@ -359,7 +359,7 @@ function ea(population_size, max_size, mutation_probability,
       $rect.attr('fill', color_function(color_index));
       color_index += 0.01;
       if(color_index < 1){
-        timers.COLOR_TIMER=setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5)
+        timers.COLOR_TIMER=setTimeout(function(){this.transit_color_r($rect, color_function, color_index)}, 5);
       }
     }
     transit_color_r($rect, color_function);
@@ -368,7 +368,7 @@ function ea(population_size, max_size, mutation_probability,
 
   //Remove the exisiting g's to redraw a new population.
   function remove(){
-    console.log('removing')
+    console.log('removing');
     self.stop();
     d3.selectAll('g').remove();
   }
@@ -376,11 +376,11 @@ function ea(population_size, max_size, mutation_probability,
   
   //Stop the timeouts to end the execution
   function stop(){
-    console.log('stopping')
+    console.log('stopping');
     Object.keys(timers).forEach(function(timer){
       if (timer!=='COLOR_TIMER' && timer!=='FLIP_TIMER'){
       clearTimeout(timers[timer]);}
-    })
+    });
     self.stepping = false;
   }
   this.stop = stop;
@@ -409,7 +409,10 @@ function ea(population_size, max_size, mutation_probability,
       new_population.push({genome: genome, fitness: DEFAULT_FITNESS});
     }
     $('.s').css('font-weight', 'normal');
+    $('.s').css('color','mediumpurple');
     $('#s0').css('font-weight', 'bold');
+    $('#s0').css('color', '#f00');
+    console.log($('#s0'))
     $('g:last-of-type').css('stroke', 'none');
     if (fight_time){
       update_winners(new_population);
@@ -423,7 +426,9 @@ function ea(population_size, max_size, mutation_probability,
 
     function mutate(){
       $('.s').css('font-weight', 'normal');
+      $('.s').css('color','mediumpurple');
       $('#s1').css('font-weight', 'bold');
+      $('#s1').css('color', '#f00');
       if(mutate_time){
         mutate_individual_r(new_population, mutate_time, finalize, mutate_graph);
       }else{
@@ -442,7 +447,7 @@ function ea(population_size, max_size, mutation_probability,
       if(mutate_gene_index){
         var $rect = $('#winners g:nth-of-type('+g_index+') rect:nth-of-type('+ mutate_gene_index +')');
         var gene = population[index].genome[mutate_gene_index-1];
-        console.log($rect.attr('fill') , gene)
+        console.log($rect.attr('fill') , gene);
         flip_rect_bit($rect);
         transit_color($rect, colors[1-gene], colors[gene]);
       }
@@ -451,8 +456,9 @@ function ea(population_size, max_size, mutation_probability,
     function finalize(){
       $('g:last-of-type').css('stroke', 'none');
       $('.s').css('font-weight', 'normal');
+      $('.s').css('color','mediumpurple');
       $('#s2').css('font-weight', 'bold');
-      
+      $('#s2').css('color', 'red');
       update_graph(new_population);
       grey_winners(new_population);
 

@@ -24,6 +24,10 @@ span{
   text-align:center;
 }
 
+#buttons button{
+
+}
+
 #fightAnimT, #mutateAnimT, #chooseSize{
   width: 50px;
 }

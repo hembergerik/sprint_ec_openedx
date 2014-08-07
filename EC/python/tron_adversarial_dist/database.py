@@ -79,9 +79,9 @@ ON C.id_individual = R.id
         c = self.connection.cursor()
         query = '''
 INSERT INTO individuals (individual, fitness)
-  Values (?, ?)
+  Values (test,1)
 '''
-        c.execute(query, individual)
+        c.execute("INSERT INTO individuals (individual, fitness) VALUES(?,?)", (individual, 0))
         self.connection.commit()
 
     def update_AI_individual(self, individual, _id):
@@ -94,9 +94,10 @@ INSERT INTO individuals (individual, fitness)
         c = self.connection.cursor()
         query = '''
 REPLACE INTO individuals (id, individual, fitness)
-  Values (?, ?, ?)
+  VALUES(?, ?, ?)
 '''
-        c.execute(query, ([_id] + list(individual.to_db())))
+        #[_id] + list(individual.to_db()))
+        c.execute(query, (_id, individual,1))
         self.connection.commit()
 
     def store_front_individual(self, individual):
