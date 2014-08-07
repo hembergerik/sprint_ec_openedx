@@ -783,7 +783,7 @@ $(function(){
   STRATEGIES.forEach(function(val, index){
     var $option = $('<option>')
     $option.val(index)
-    $option.html('AI'+(index+1))
+    $option.html('AI '+(index+1))
     $('select').append($option)
   })
   

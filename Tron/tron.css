@@ -22,7 +22,7 @@ table{
 canvas {
   display: inline-block;
   margin: 10px auto;
-  background-color: rgba(149, 149, 149, 0.5);
+  background-color: rgba(149, 149, 149, 0.875);
   border-style: solid;
   border-color: #3effff;
   border-width: 5px;
