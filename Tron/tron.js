@@ -39,23 +39,23 @@ var STRATEGIES = [
 ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],
 ['0.6'],
 ["+",["IFLEQ",["+",["IFLEQ",["+",["0.3"],["0.3"]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["+","SENSE_A","0.3"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["TURN_LEFT"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]]
-]
+];
 
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
-red_bike_img.src = 'media/images/Tron_bike_red.png'
+red_bike_img.src = 'media/images/Tron_bike_red.png';
 var blue_bike_img = new Image();
-blue_bike_img.src =  'media/images/Tron_bike_blue.png'
+blue_bike_img.src =  'media/images/Tron_bike_blue.png';
 
 var red_trail = new Image();
-red_trail.src = 'media/images/Glow_Trail_Red_square.png'
+red_trail.src = 'media/images/Glow_Trail_Red_square.png';
 var blue_trail = new Image();
-blue_trail.src = 'media/images/Glow_Trail_blue_square.png'
+blue_trail.src = 'media/images/Glow_Trail_blue_square.png';
 
 var red_corner = new Image();
-red_corner.src = 'media/images/Glow_Trail_Red_corner.png'
+red_corner.src = 'media/images/Glow_Trail_Red_corner.png';
 var blue_corner = new Image();
-blue_corner.src = 'media/images/Glow_Trail_blue_corner.png'
+blue_corner.src = 'media/images/Glow_Trail_blue_corner.png';
 
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
@@ -146,7 +146,7 @@ function get_direction_index(direction) {
     if (xDirBool && yDirBool) {
       match = true;
     } else {
-      idx = idx + 1;
+      idx += 1;
     }
   }
   return idx;
@@ -199,9 +199,9 @@ function get_direction_index(direction) {
                 right(player);
                 break;
             case "+":
-                return evaluate(node[1], player) + evaluate(node[2], player)
+                return evaluate(node[1], player) + evaluate(node[2], player);
             case "-":
-                return evaluate(node[1], player) - evaluate(node[2], player)
+                return evaluate(node[1], player) - evaluate(node[2], player);
             case "0.1":
                 return Number(symbol);
             case "0.3":
@@ -352,8 +352,11 @@ function draw(player) {
     ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
   
     //Draw the trail with a context line stroke.
-    
-    var prev_direction = player.bike_trail[player.bike_trail.length-2];
+    if(player.bike_trail.length>1){
+      var prev_direction = player.bike_trail[player.bike_trail.length-2];
+    }else{
+      var prev_direction = player.bike_trail[0];
+    }
     var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
     var prev_trailScale = getLightTrailScale(prev_direction);
     var curr_trailScale = getLightTrailScale(player.direction);
@@ -528,6 +531,10 @@ function end_game() {
     // Find the winner
     for (var i = 0; i < NUM_PLAYERS; i++) {
         if (players[i].alive === true) {
+            if (players[i].ai){
+                var strategy=players[i].strategy;
+                updateAI(strategy);
+            }
             winner = players[i].name;
             stats_reported = true;
             scoreUpdate=i;
@@ -800,15 +807,15 @@ function postAI(AI){
   data: {operation: 'add_AI', data: JSON.stringify(AI)}
   })
   .done(function(data){
-    console.log(data)
-  })
+    console.log(data);
+  });
 }
 
 
-function updateAI(AI, _id){
+function updateAI(AI){
     $.ajax({
         url:"http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
-        data:{operation:'update_AI', data: JSON.stringify(AI), _id: _id}
+        data:{operation:'update_AI', data: JSON.stringify(AI)}
     })
     .done(function(data){
         console.log(data)
@@ -831,7 +838,7 @@ $(function(){
   }
   
   
-  updateAI(["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],1)
+  //updateAI(["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]])
   
   
   //Array of players
@@ -844,6 +851,7 @@ $(function(){
     $option.val(index)
     $option.html('AI '+(index+1))
     $('select').append($option)
+    //postAI(val)
   })
   
   $('#assignAI').click(function(e){
@@ -1174,7 +1182,6 @@ function grow(tree, depth, max_depth, full, symbols) {
     }
 }
 
-
 var gp_params = {
     population_size: 300,
     max_size: 5,
@@ -1187,7 +1194,7 @@ var gp_params = {
 
 var evolve = new Worker('tron_evolve_worker.js')
 var start_time = new Date().getTime();
-//evolve.postMessage(gp_params);
+evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
@@ -1199,7 +1206,7 @@ evolve.addEventListener('message', function(e) {
 }, false);
 
 function show_stats(data){
-  $('#currentGen').html(data.generation)
+  $('#currentGen').html(data.generation + ' / ' + gp_params.generations)
   if(typeof data.genome != 'undefined'){
     STRATEGIES.push(data.genome)
     var $option = $('<option>')
@@ -1214,7 +1221,7 @@ function show_stats(data){
 //Delivers the data onto the screen
 //@param data: object, contains a generation and a optional genome.
 function show_stats(data){
-  $('#currentGen').html(data.generation)
+  $('#currentGen').html(data.generation + ' / ' + gp_params.generations)
   if(typeof data.genome != 'undefined'){
     STRATEGIES.push(data.genome)
     var $option = $('<option>')
@@ -1302,7 +1309,7 @@ function evaluate_population_multi_thread(population, callback, end_generation){
         }
       }
       return true;
-  }
+    }
   }
 
 

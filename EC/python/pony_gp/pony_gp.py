@@ -1,4 +1,4 @@
-#! /usr/env python
+#! /usr/bin/env python
 
 # The MIT License (MIT)
 
@@ -80,6 +80,9 @@ The parameters for Pony GP are in a dictionary.
 .. codeauthor:: Erik Hemberg <hembergerik@csail.mit.edu>
 
 """
+print "Content-Type: text/plain;charset=utf-8"
+print 
+
 DEFAULT_FITNESS = -1000
 
 

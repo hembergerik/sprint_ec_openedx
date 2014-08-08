@@ -7,7 +7,7 @@ function evaluate_individuals(individuals) {
     //TODO this is only intermittently working
     //tron_game_id = setInterval(step, 1000 / FRAMES_PER_SECOND);
     var cnt = 0;
-    var BRK = tron_params['ROWS'] * tron_params['COL']; //Cannot be larger than the board
+    var BRK = tron_params['ROWS'] * tron_params['COLS']; //Cannot be larger than the board
     while (!tron_params['game_over'] && cnt < BRK) {
         step();
         cnt++;
@@ -254,7 +254,7 @@ function evaluate_fitness(population) {
         stats_reported: undefined
 
     };
-    tron_params['COL'] = tron_params['ROWS'];
+    tron_params['COLS'] = tron_params['ROWS'];
     tron_params['BIKE_HEIGHT'] = tron_params['BIKE_WIDTH;'];
 
 
@@ -264,7 +264,7 @@ function evaluate_fitness(population) {
         tron_params['board'] = [];
         for (var i = 0; i < tron_params['ROWS']; i++) {
             var board_square = [];
-            for (var j = 0; j < tron_params['COL']; j++) {
+            for (var j = 0; j < tron_params['COLS']; j++) {
                 board_square.push(0);
             }
             tron_params['board'].push(board_square);

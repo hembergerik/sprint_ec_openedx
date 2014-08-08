@@ -84,7 +84,7 @@ INSERT INTO individuals (individual, fitness)
         c.execute("INSERT INTO individuals (individual, fitness) VALUES(?,?)", (individual, 0))
         self.connection.commit()
 
-    def update_AI_individual(self, individual, _id):
+    def update_AI_individual(self, individual):
         """Update an individual.
 
         Keyword arguments:
@@ -92,12 +92,16 @@ INSERT INTO individuals (individual, fitness)
         _id -- id in the individuals table
         """
         c = self.connection.cursor()
+        c.execute("SELECT id FROM individuals WHERE individual=? ORDER BY id ASC LIMIT 1", (individual,))
+        one_id = c.fetchone()[0]
+
+        c.execute("UPDATE individuals SET fitness=fitness+1 WHERE id=?", (int(one_id),))
         query = '''
 REPLACE INTO individuals (id, individual, fitness)
   VALUES(?, ?, ?)
 '''
         #[_id] + list(individual.to_db()))
-        c.execute(query, (_id, individual,1))
+        #c.execute(query, (_id, individual,1))
         self.connection.commit()
 
     def store_front_individual(self, individual):
@@ -113,6 +117,12 @@ SELECT individual, id FROM individuals WHERE individual = ? and fitness = ?
 '''
         c.execute(query, individual.to_db())
         self.connection.commit()
+        
+    def get_AI_by_data(self,data):
+        c=self.connection.cursor()
+        c.execute("SELECT * FROM individuals WHERE individual=?",(data,))
+        rows=c.fetchall()
+        return rows
 
     def get_AI_individuals(self):
         c = self.connection.cursor()

@@ -1,4 +1,4 @@
-#! /usr/env python
+#! /usr/bin/env python
 
 # The MIT License (MIT)
 
@@ -50,6 +50,9 @@ out-of-sample performance of the evaluated expressions.
 .. codeauthor:: Erik Hemberg <hembergerik@csail.mit.edu>
 
 """
+print "Content-Type: text/plain;charset=utf-8"
+print 
+
 
 class Tree(object):
     """

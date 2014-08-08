@@ -40,10 +40,10 @@ def store_AI(individual):
     db.close()
     return latest[2]
     
-def update_AI(individual, _id):
+def update_AI(individual):
     db=database.Database('tron.db')
-    db.update_AI_individual(individual, _id)
-    updated=db.get_AI_individuals()[int(_id)-1]
+    db.update_AI_individual(individual)
+    updated=db.get_AI_by_data(individual)
     db.close()
     return updated
 
@@ -57,12 +57,13 @@ print
 #response = store_game_stat()
 data = get_sent('data')
 operation = get_sent('operation')
-_id = get_sent('_id')
 if operation == 'add_AI':
     stored_AI = store_AI(data)
     response = stored_AI
 elif operation == 'update_AI':
-    response = update_AI(data, _id)
+    response = update_AI(data)
+elif operation =='see_all':
+    response=get_database_data()
 else:
     response = 'unknown operation'
 print(response)

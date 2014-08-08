@@ -1,4 +1,4 @@
-#! /usr/env python
+#! /usr/bin/env python
 
 # The MIT License (MIT)
 
@@ -36,7 +36,7 @@ import collections
 import json
 import database
 import run_tron_coev
-import ponyGA
+#import pony_ga
 
 """
 PonyGA Coevolution
@@ -77,7 +77,7 @@ class Tron_fitness_coev(ponyGA.Tron_fitness):
                                                ai=True,
                                                canvas=tron_game.canvas,
                                                strategy=strategy_0) 
-	tron_game.canvas.players[1] = PlayerAI(x=self.rows/2 + 1, 
+      	tron_game.canvas.players[1] = PlayerAI(x=self.rows/2 + 1, 
                                                y=self.cols/2 + 1, 
                                                direction=(0,1),
                                                color="Green", 
