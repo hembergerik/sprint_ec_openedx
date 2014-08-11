@@ -11,9 +11,7 @@ def count_nodes(node, terminals, functions, symbols):
         raise (node)
     for child in node[1:]:
         terminals, functions = count_nodes(child, terminals, functions, symbols)
-
     return terminals, functions
-
 
 symbols = pony_gp.get_symbols()
 args = pony_gp.parse_arguments()

@@ -8,13 +8,16 @@ import database
 import random
 import json
 import tron_v3
-
+import copy
+import math
+import database
 
 def tron_evaluate_AIs(AI_1, AI_2):
     tron_game = tron_v3.Tron(20, AI_1['genome'], AI_2['genome'])
     result = tron_game.run()
+
     #return 1 if AI2 wins, returns 0 if AI1 wins
-    AI_1['fitness'] = AI_1['fitness'] - result + 1
+    AI_1['fitness'] += AI_1['fitness'] - result + 1
     AI_2['fitness'] += result
     
 
@@ -31,10 +34,10 @@ def get_symbols():
         "+": 2,
         "-": 2,
         "IFLEQ": 4
-    };
+    }
 
-    terminals = [];
-    functions = [];
+    terminals = []
+    functions = []
 
     for key in arity.keys():
         if (arity[key] == 0):
@@ -44,9 +47,9 @@ def get_symbols():
 
     return {'arity': arity, 'terminals': terminals, 'functions': functions}
 
-symbols = get_symbols();
+symbols = get_symbols()
 
-DEFAULT_FITNESS = 0;
+DEFAULT_FITNESS = 0
 
 #returns a random symbol
 #@param depth: current depth in tree
@@ -73,10 +76,10 @@ def get_random_boolean():
 #@param symbols: the collection of symbols, used to test if the symbol is terminal/functional.
 def append_symbol(node, symbol, symbols):
     if symbol in symbols['terminals']:
-        new_node = symbol;
+        new_node = symbol
     else:
-        new_node = [symbol];
-    node.append(new_node);
+        new_node = [symbol]
+    node.append(new_node)
     return new_node
     
     
@@ -88,41 +91,143 @@ def append_symbol(node, symbol, symbols):
     node.append(new_node)
     return new_node
 
+def copy_tree(tree):
+    return copy.deepcopy(tree)
     
+def get_node_at_index(root, idx):
+    unvisited_nodes = [root]
+    node = root
+    cnt = 0
+    while (cnt <= idx and len(unvisited_nodes) > 0):
+        node = unvisited_nodes.pop()
+        if (type(node) is not str):
+            i=len(node)-1
+            while i > 0:
+                unvisited_nodes.append(node[i])
+                i-=1
+        else:
+            unvisited_nodes.append(node)
+        cnt += 1
+    return node    
     
 def grow(tree, depth, max_depth, full, symbols):
     if (type(tree) is not str):
-        symbol = tree[0];
+        symbol = tree[0]
     else:
-        symbol = tree;
+        symbol = tree
     i = 0
     while (i < symbols["arity"][symbol]):
-        new_symbol = get_random_symbol(depth, max_depth, symbols, full);
-        new_node = append_symbol(tree, new_symbol, symbols);
-        new_depth = depth + 1;
+        new_symbol = get_random_symbol(depth, max_depth, symbols, full)
+        new_node = append_symbol(tree, new_symbol, symbols)
+        new_depth = depth + 1
         if (new_symbol in symbols['functions']):
             grow(new_node, new_depth, max_depth, full, symbols)
         i += 1
-        
-def find_and_replace_subtree(root, subtree, node_idx, idx):
+    '''   
+    def find_and_replace_subtree(root, subtree, node_idx, idx):
     idx = idx + 1;
     if (node_idx == idx):
         print 'root', root
         replace_subtree(subtree, root);
     else:
-        i = 1
-        while i < len(root):
-            idx = find_and_replace_subtree(root[i], subtree, node_idx, idx)
-            i += 1
+        for child in root[1:]:
+            print 'child', child
+            print type(child)
+            idx = find_and_replace_subtree(child, subtree, node_idx, idx)
     return idx;
+    '''
+def find_and_replace_subtree(root, subtree, node_idx, idx):
+    """
+    Returns the current index and replaces the root with another subtree at the
+    given index. The index is based on depth-first left-to-right traversal.
+    """
+    if type(subtree)==str:
+        subtree='\"'+subtree+'\"'
+    else:
+        subtree=repr(subtree)
+    return changeItem(root,node_idx + 1,subtree)
+    # Increase the index
+    # print 'idx', idx
+    # idx += 1
+    # # Check if index is a the given node
+    # if node_idx == idx:
+    #     print 'root', root
+    #     if type(root) == str:
+    #         print 'replacing', subtree
+    #         root = subtree
+    #         print subtree
+    #     else:
+    #         replace_subtree(subtree, root);
+    # elif type(root) == list:
+    #     # Iterate over the children
+    #     for child in get_children(root):
+    #         print 'child', child
+    #         # Recursively travers the child
+    #         idx = find_and_replace_subtree(child, subtree, node_idx, idx)
+    # return idx
+    
+    
+    # idxes = find_subtree_index(root, node_idx, 0 ,[])[::-1]
+    # print 'idxes', idxes
+    # if len(idxes) == 1:
+    #     root[idxes[0]]=subtree;
+    # else:
+    #     for idx in idxes[:-1]:
+    #         tar = root[idx]
+    #     tar[idxes[-1]] = subtree
+    
+
+
+#convert a node_idx to a list of indexes that point to the index.
+#returns a list upside-down: flip it to make it work
+def find_subtree_index(subtree,node_idx, count, result):
+    for sub_subtree in subtree:
+        if count == node_idx:
+            result.append(count)
+            while type(sub_subtree) == list:
+                sub_subtree= sub_subtree[0]
+                result.append(0)
+            return result[::-1]
+        else:
+            if type(sub_subtree) == list:
+                a = find_subtree_index(sub_subtree, node_idx - count, 0, result)
+                if type(a) == list:
+                    a.append(count)
+                    return a
+                else:
+                    count += a
+            else:
+                count += 1
+    result.append(count)
+    return count
+
+        
+    
+    
+    
+    
+    
+def get_children(node):
+    """
+    Return the children of the node. The children are all the elements of the
+    except the first
+    :param node: The node
+    :type node: list
+    :return: The children of the node
+    :rtype: list
+    """
+    # Take a slice of the list except the head
+    return node[1:]
+    
+    
         
 def get_number_of_nodes(root, cnt):
-    cnt = cnt + 1;
+    cnt = cnt + 1
     if (type(root) is not str):
         i=1
-        while (i < len(root)):
-            cnt = get_number_of_nodes(root[i], cnt)
-            i+=1
+        cnt -= 1
+        for tree in root:
+            cnt = get_number_of_nodes(tree, cnt)
     return cnt
 
 def get_depth_from_index(node, tree_info, node_idx, depth):
@@ -131,14 +236,13 @@ def get_depth_from_index(node, tree_info, node_idx, depth):
     tree_info["idx"] = tree_info["idx"] + 1
     i=1
     while i < len(node):
-        depth = depth + 1;
+        depth = depth + 1
         tree_info = get_depth_from_index(node[i], tree_info, node_idx, depth)
         depth = depth - 1
         i+=1
     return tree_info
 
 def replace_subtree(new_subtree, old_subtree):
-    print 'old',old_subtree, 'new',new_subtree
     if (type(old_subtree) is not str):
         del old_subtree[:]
         #http://stackoverflow.com/questions/1400608/how-to-empty-a-list-in-python
@@ -150,8 +254,38 @@ def replace_subtree(new_subtree, old_subtree):
                 old_subtree.append(new_subtree[i])
                 i+=1
     else:
-        old_subtree = new_subtree;
+        old_subtree = new_subtree
+        
+# returns the index of the nth instance of a character in a string (1-indexed)
+def findNth(string,char,n):
+    current=string.find(char)
+    while current>=0 and n>1:
+        current=string.find(char,current+1)
+        n-=1
+    return current
 
+# changes the nth element in listOfLists to changeTo (n is 1-indexed)
+# AN EXTRA SET OF QUOTES MUST BE PLACED AROUND changeTo
+def changeItem(listOfLists,n,changeTo):
+    stringForm=repr(listOfLists)
+    if n==1:
+        startOfSection=0
+    else:
+        startOfSection=findNth(stringForm,',',n-1)+1
+    endOfSection=findNth(stringForm,',',n)
+    stringSection=stringForm[startOfSection:endOfSection]
+    outputString=stringForm[:startOfSection]
+    replaced=False
+    for char in stringSection:
+        if char in '[] ':
+            outputString+=char
+        else:
+            if replaced:
+                continue
+            replaced=True
+            outputString+=str(changeTo)
+    outputString+=stringForm[endOfSection:]
+    return eval(outputString)
 
 class Tron_GA_v3(object):
     
@@ -213,16 +347,16 @@ class Tron_GA_v3(object):
         i = 0
         while(i < self.population_size):
             full = random.randint(0,1)
-            max_depth = (i % self.max_size) + 1;
-            symbol = get_random_symbol(1, max_depth, symbols, full);
-            tree = [symbol];
+            max_depth = (i % self.max_size) + 1
+            symbol = get_random_symbol(1, max_depth, symbols, full)
+            tree = [symbol]
             if (max_depth > 0 and symbol in symbols["functions"]):
-                grow(tree, 1, max_depth, full, symbols);
+                grow(tree, 1, max_depth, full, symbols)
             self.population.append({'genome': tree, 'fitness': DEFAULT_FITNESS})
             print i
             print json.dumps(self.population[i]['genome'])
             i += 1
-        return self.population;
+        return self.population
         
         
         
@@ -251,37 +385,37 @@ class Tron_GA_v3(object):
             # Evaluate fitness
             self.evaluate_fitness(new_individuals, self.fitness_function)
             # Find best solution by sorting the population
-            new_individuals.sort(reverse=True)
+            new_individuals.sort(lambda x,y: y['fitness'] - x['fitness'])
             best_ever = new_individuals[0]
             # Replace population
             individuals = self.generational_replacement(new_individuals,
                                                         individuals)
-            # Print the stats of the population
             self.print_stats(generation, individuals)
+
+            # Print the stats of the population
             # Write population to file
-            self.serialize_population(individuals)
             # Increase the generation counter
             generation += 1
             # Selection
-            parents = self.tournament_selection(individuals)
+            parents = self.tournament_selection()
+            self.evaluate_fitness(individuals, self.fitness_function)
             # Create new population
             new_individuals = []
             #TODO crossover does the copying of the individuals, is this too
             # implicit?
             while len(new_individuals) < self.population_size:
+                cross=random.sample(parents, 2)
                 # Vary the population by crossover
                 new_individuals.extend(
                     # Pick 2 parents and pass them into crossover.
                     # '*' means that the list is collapsed
-                    self.onepoint_crossover(*random.sample(parents, 2))
+                    self.onepoint_crossover(cross[0], cross[1])
                 )
-
             # Select population size individuals. Handles uneven population
             # sizes, since crossover returns 2 offspring
             new_individuals = new_individuals[:self.population_size]
             # Vary the population by mutation
             new_individuals = list(map(self.mutation, new_individuals))
-
         return best_ever
 
     def print_stats(self, generation, individuals):
@@ -309,9 +443,9 @@ class Tron_GA_v3(object):
             return _ave, _std
 
         # Sort individuals
-        individuals.sort(reverse=True)
+        individuals.sort(lambda x,y: y['fitness'] - x['fitness'])
         # Get the fitness values
-        fitness_values = [i.fitness for i in individuals]
+        fitness_values = [i['fitness'] for i in individuals]
         # Calculate average and standard deviation of the fitness in
         # the population
         ave_fit, std_fit = get_ave_and_std(fitness_values)
@@ -344,7 +478,7 @@ class Tron_GA_v3(object):
             # from the population.
             competitors = random.sample(self.population, tournament_size)
             # Rank the selected solutions
-            competitors.sort(lambda x,y: x.fitness - y.fitness)
+            competitors.sort(lambda x,y: y['fitness'] - x['fitness'])
             # Append the best solution to the winners
             winners.append(competitors[0])
         return winners
@@ -364,13 +498,13 @@ class Tron_GA_v3(object):
         """
 
         # Sort the population
-        old_population.sort(reverse=True)
+        old_population.sort(lambda x,y: y['fitness'] - x['fitness'])
         # Append a copy of the best solutions of the old population to
         # the new population. ELITE_SIZE are taken
         for ind in old_population[:self.elite_size]:
             new_population.append(copy.deepcopy(ind))
         # Sort the new population
-        new_population.sort(reverse=True)
+        new_population.sort(lambda x,y: y['fitness'] - x['fitness'])
         # Set the new population size
         return new_population[:self.population_size]
 
@@ -386,47 +520,69 @@ class Tron_GA_v3(object):
         :type fitness_function: Object
         """
         # Iterate over all the individual solutions
-        i = 0
+        for individual in individuals:
+            individual['fitness'] = 0
+        i = 0 
         if len(individuals) % 2 == 1:
             individuals.append({'genome': ['TURN_LEFT'], 'fitness': DEFAULT_FITNESS})
-        while i < len(individuals):
-            fitness_function(individuals[i], individuals[i+1])
-            print individuals[i]['fitness'], individuals[i+1]['fitness']
-            i += 2
-
-            
-
+        best_individuals = individuals[:]
         
-    #WHAT IS GET_DEPTH_FROM_INDEX, WHAT IS FIND_AND_REPLACE_SUBTREE       
-    def mutation(self,mutation_probability, individual):
-        if (random.random() < mutation_probability):
-            end_node_idx = get_number_of_nodes(individual["genome"], 0) - 1;
-            print 'end index,' 
-            print end_node_idx
-            node_idx =random.randint(0, end_node_idx);
-            node_info = get_depth_from_index(individual["genome"], {'idx_depth': 0, 'idx': 0}, node_idx, 0);
-            max_subtree_depth = self.max_size - node_info['idx_depth'];
-            new_subtree = [get_random_symbol(max_subtree_depth, self.max_size, symbols,False)]
-            print new_subtree
-            print node_idx
-            if (new_subtree[0] in symbols['functions']):
+        
+        while len(best_individuals > 2):
+            fitnesses = [j['fitness'] for j in individuals]
+            max_fitness = max(fitnesses)
+            def fitness_compare(individual):
+                if individual['fitness'] == max_fitness:
+                    return individual
+            best_individuals = filter(fitness_compare, best_individuals)
+            print len(best_individuals)
+            best_individuals.sort(lambda x,y: y['fitness'] - x['fitness'])
+            if len(best_individuals) % 2 == 1:
+                best_individuals.pop()
+            i = 0
+            while i < len(best_individuals):
+                fitness_function(best_individuals[i], best_individuals[i+1])
+                i += 2
+
+
+    def mutation(self, individual):
+        if (random.random() < self.mutation_probability):
+            end_node_idx = get_number_of_nodes(individual["genome"], 0) - 1
+            node_idx =random.randint(0, end_node_idx)
+            node_info = get_depth_from_index(individual["genome"], {'idx_depth': 0, 'idx': 0}, node_idx, 0)
+            max_subtree_depth = self.max_size - node_info['idx_depth']
+            new_subtree = get_random_symbol(max_subtree_depth, self.max_size, symbols,False)
+            if (new_subtree in symbols['functions']):
+                new_subtree = [new_subtree]
                 full = False
                 grow(new_subtree, node_info['idx_depth'], self.max_size, full, symbols)
-            find_and_replace_subtree(individual["genome"], new_subtree, node_idx, -1)
-
-
+            individual['genome'] = find_and_replace_subtree(individual["genome"], new_subtree, node_idx, -1)
+        return individual
+    
+    
+    # WHATIS get_node_at_index
     def onepoint_crossover(self, parent_0, parent_1):
-        """
-        Return a list of two new individuals that given two
-        individuals, create two children using one-point crossover.
+        children = []
+        genome_0=copy_tree(parent_0["genome"])
+        child_0 = {'genome': genome_0,'fitness': DEFAULT_FITNESS}
+        children.append(child_0)
+        genome_1=copy_tree(parent_1["genome"])
+        child_1 = {'genome': genome_1,'fitness': DEFAULT_FITNESS}
+        children.append(child_1)
+        if (random.random() < self.crossover_probability):
+            xo_nodes = []
+            for j in range(2):
+                end_node_idx = get_number_of_nodes(children[j]["genome"], 0) - 1
+                node_idx = random.randint(0, end_node_idx)
+                xo_nodes.append(get_node_at_index(children[j]["genome"], node_idx))
+            tmp_child_1_node = copy_tree(xo_nodes[1])
+            replace_subtree(xo_nodes[0], xo_nodes[1])
+            replace_subtree(tmp_child_1_node, xo_nodes[0])
+        return children
 
-        :param parent_0: Parent one
-        :type parent_0: Individual
-        :param parent_1: Parent two
-        :type parent_1: Individual
-        :returns: Two children from the parents
-        :rtype: List of individuals
-        """
+    '''
+    def onepoint_crossover(self, parent_0, parent_1):
+        
         # Get the genomes from the parents
         genome_parent_0, genome_parent_1 = parent_0.genome, parent_1.genome
         # Uniformly generate crossover points. 
@@ -439,6 +595,7 @@ class Tron_GA_v3(object):
             child_0, child_1 = genome_parent_0[:], genome_parent_1[:]
         # Put the new chromosomes into new individuals
         return [Individual(child_0), Individual(child_1)]
+    '''
 
     def run(self):
         """
@@ -455,10 +612,11 @@ class Tron_GA_v3(object):
         best_ever = self.search_loop(individuals)
 
         return best_ever
-
-
-
-
+    
+    def moar_run_plz(self, population):
+        best_ever=self.search_loop(population)
+        return best_ever
+            
 
 
 
@@ -467,10 +625,17 @@ print
 print "Hello World!"
 
 
-t=Tron_GA_v3(10,4,10,10,0,0,1)
-t.initialize_population()
-t.evaluate_fitness(t.population, tron_evaluate_AIs)
-print t.population[2]
-t.mutation(1,t.population[2])
-print t.population[2]
-
+t=Tron_GA_v3(10,3,10,0,0.3,0.3,tron_evaluate_AIs)
+t.run()
+#t.initialize_population()
+print 'initial pop', t.population
+db = database.Database('tron.db')
+db.replace_population(t.population)
+print 'ARE YOU THE SAME', db.get_population()
+'''
+for i in range(4):
+    db = database.Database('tron.db')
+    db.replace_population(t.population)
+    t.moar_run_plz(db.get_population())
+    print 'potatoes', i, t.population
+'''

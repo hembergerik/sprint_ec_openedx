@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sqlite3
+import json
 
 class Database():
     """Database for Tron"""
@@ -49,7 +50,24 @@ class Database():
         c.execute('''DROP TABLE IF EXISTS individuals''')
         c.execute('''DROP TABLE IF EXISTS front_individuals''')
         c.execute('''DROP TABLE IF EXISTS stats''')
-
+        
+    def replace_population(self, new_pop):
+        c=self.connection.cursor()
+        c.execute('DELETE FROM individuals')
+        for ind in new_pop:
+            c.execute("INSERT INTO individuals (individual, fitness) VALUES(?,?)", (json.dumps(ind["genome"]), ind["fitness"]))
+        self.connection.commit()
+        
+    def get_population(self):
+        c=self.connection.cursor()
+        c.execute("SELECT individual, fitness FROM individuals")
+        rows=c.fetchall()
+        population=[]
+        for row in rows:
+            ind={'genome':json.loads(str(row[0])), 'fitness':str(row[1])}
+            population.append(ind)
+        return population
+    
     def truncate_front_individuals(self):
         """Truncate table for front individuals."""
         c = self.connection.cursor()

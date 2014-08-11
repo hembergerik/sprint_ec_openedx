@@ -20,8 +20,8 @@ class Tron(object):
             for j in range(rows):
                 row.append(0)
             self.board.append(row)
-        self.player1 = Player(0,0,AI_1, self.board)
-        self.player2 = Player(len(row)-8,len(row)-10,AI_2, self.board)
+        self.player1 = Player(random.randint(0, rows),random.randint(0, rows),AI_1, self.board)
+        self.player2 = Player(random.randint(0, rows),random.randint(0, rows),AI_2, self.board)
 
 
     def step(self):
