@@ -528,14 +528,13 @@ class Tron_GA_v3(object):
         best_individuals = individuals[:]
         
         
-        while len(best_individuals > 2):
+        while len(best_individuals) > 2:
             fitnesses = [j['fitness'] for j in individuals]
             max_fitness = max(fitnesses)
             def fitness_compare(individual):
                 if individual['fitness'] == max_fitness:
                     return individual
             best_individuals = filter(fitness_compare, best_individuals)
-            print len(best_individuals)
             best_individuals.sort(lambda x,y: y['fitness'] - x['fitness'])
             if len(best_individuals) % 2 == 1:
                 best_individuals.pop()
@@ -625,7 +624,7 @@ print
 print "Hello World!"
 
 
-t=Tron_GA_v3(10,3,10,0,0.3,0.3,tron_evaluate_AIs)
+t=Tron_GA_v3(300,4,300,1,0.3,0.3,tron_evaluate_AIs)
 t.run()
 #t.initialize_population()
 print 'initial pop', t.population

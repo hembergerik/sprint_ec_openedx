@@ -2,6 +2,7 @@
 
 import sqlite3
 import json
+import yaml
 
 class Database():
     """Database for Tron"""
@@ -64,7 +65,7 @@ class Database():
         rows=c.fetchall()
         population=[]
         for row in rows:
-            ind={'genome':json.loads(str(row[0])), 'fitness':str(row[1])}
+            ind={'genome':yaml.load(str(row[0])), 'fitness':str(row[1])}
             population.append(ind)
         return population
     
