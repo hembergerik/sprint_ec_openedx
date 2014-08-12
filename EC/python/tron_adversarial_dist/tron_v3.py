@@ -58,7 +58,7 @@ class Player(object):
         self.direction = self.PLAYER_DIRECTIONS[0]
         
         
-    
+     
     
     def right(self):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
@@ -85,7 +85,7 @@ class Player(object):
             current_x %= len(self.board)
             current_y %= len(self.board)
             distance += 1
-        return distance
+        return distance/float(len(self.board))
         
     def move(self):
         self.evaluate(self.strategy)
@@ -146,6 +146,9 @@ class Player(object):
         else:
             pass
             #raise an error
+            
+            
+            
 #t = Tron(20, ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]], ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]])
 #t = Tron(20, ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]], ['0.3'])
 #t.run()

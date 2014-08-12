@@ -19,12 +19,10 @@ var BIKE_HEIGHT = BIKE_WIDTH;
 
 var MOBILE_CUTOFF = 360;
 var DEFAULT_FITNESS = 0;
-
 //Canvas to draw on
 var canvas = document.getElementById('game');
 //Context on canvas
 var ctx = canvas.getContext('2d');
-var first_step = false;
 // Set canvas size to match the Tron board rows and bike width
 canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
@@ -293,7 +291,7 @@ function check_environment(player) {
             y_p = get_new_point(y_p, parseInt(PLAYER_DIRECTIONS[i][1]));
         }
         // Set the distance to an obstacle in the direction
-        player["environment"][PLAYER_DIRECTIONS[i]] = distance;
+        player.environment[PLAYER_DIRECTIONS[i]] = distance;
     }
 }
 
@@ -302,7 +300,7 @@ function check_environment(player) {
  * @param{Object} player Player to change the state of
  */
 function left(player) {
-    var direction_idx = get_direction_index(player["direction"]);
+    var direction_idx = get_direction_index(player.direction);
     var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + 1) % PLAYER_DIRECTIONS.length;
     player.direction = PLAYER_DIRECTIONS[new_direction_idx];
 }
@@ -312,7 +310,7 @@ function left(player) {
  * @param{Object} player Player to change the state of
  */
 function right(player) {
-    var direction_idx = get_direction_index(player["direction"]);
+    var direction_idx = get_direction_index(player.direction);
     var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length - 1) % PLAYER_DIRECTIONS.length;
     player.direction = PLAYER_DIRECTIONS[new_direction_idx];
 }
@@ -346,49 +344,49 @@ function move_bike(player) {
  * @param{Object} player
  */
 function draw(player) {
-    // Set the fill style color
-    // Fill a rectangle to the previous player position
-    // This is to cover the bike up.
-    // The modding and addind ROWS takes care of edge cases.
-    var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS;
-    var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
-    ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
-  
-    //Draw the trail with a context line stroke.
-    if(player.bike_trail.length>1){
-      var prev_direction = player.bike_trail[player.bike_trail.length-2];
-    }else{
-      var prev_direction = player.bike_trail[0];
-    }
-    var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
-    var prev_trailScale = getLightTrailScale(prev_direction);
-    var curr_trailScale = getLightTrailScale(player.direction);
-    var rotation = getImageRotation(player.direction);
-    /*ctx.beginPath(); 
-    ctx.lineWidth="10";
-    ctx.strokeStyle=player.COLOR; 
-    ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
-    ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
-    ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
-    ctx.stroke(); */
-    if(player.bike_trail.length>2){  
-      if (player.COLOR === 'red'){
-        if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
-          drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-        }else{
-          drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-        }
-        drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+  // Set the fill style color
+  // Fill a rectangle to the previous player position
+  // This is to cover the bike up.
+  // The modding and addind ROWS takes care of edge cases.
+  var pre_pos_x = (player.x - player.direction[0] + ROWS) % ROWS;
+  var pre_pos_y = (player.y - player.direction[1] + COLS) % COLS;
+  ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
+
+  //Draw the trail with a context line stroke.
+  if(player.bike_trail.length>1){
+    var prev_direction = player.bike_trail[player.bike_trail.length-2];
+  }else{
+    var prev_direction = player.bike_trail[0];
+  }
+  var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
+  var prev_trailScale = getLightTrailScale(prev_direction);
+  var curr_trailScale = getLightTrailScale(player.direction);
+  var rotation = getImageRotation(player.direction);
+  /*ctx.beginPath(); 
+  ctx.lineWidth="10";
+  ctx.strokeStyle=player.COLOR; 
+  ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
+  ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
+  ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
+  ctx.stroke(); */
+  if(player.bike_trail.length>3){  
+    if (player.COLOR === 'red'){
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
       }else{
-        if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
-          drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-        }else{
-          drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-        }
-        drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
       }
-      ctx.restore()
+      drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
+    }else{
+      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+        drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
+      }else{
+        drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
+      }
+      drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
     }
+    ctx.restore();
+  }
 }
 
   //Draws the image on the context at x,y with w,h and rotated to player_direction.
@@ -396,23 +394,23 @@ function draw(player) {
 function drawRotatedImage(image, context, player_direction, x, y, w, h){
   context.save();
   context.translate(x, y);
-  context.rotate(getImageRotation(player_direction))
-  var Image_offset = getImageOffset(player_direction)
-  context.drawImage(image, (Image_offset[0])*w, (Image_offset[1])*h, w,h)
+  context.rotate(getImageRotation(player_direction));
+  var Image_offset = getImageOffset(player_direction);
+  context.drawImage(image, (Image_offset[0])*w, (Image_offset[1])*h, w,h);
   context.restore();
 }
 
 function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
-    var dx = prev_direction[0] - curr_direction[0]
-    var dy = prev_direction[1] - curr_direction[1]
+    var dx = prev_direction[0] - curr_direction[0];
+    var dy = prev_direction[1] - curr_direction[1];
     if(dx == 1 && dy == -1){
-      drawRotatedImage(image,context, [-1,0], x,y,w,h)
+      drawRotatedImage(image,context, [-1,0], x,y,w,h);
     }else if(dx == -1 && dy == -1){
-      drawRotatedImage(image,context, [0,1], x,y,w,h)
+      drawRotatedImage(image,context, [0,1], x,y,w,h);
     }else if(dx == -1 && dy == 1){
-      drawRotatedImage(image,context, [1,0], x,y,w,h)
-    }else{
-      drawRotatedImage(image,context, [0,-1], x,y,w,h)
+      drawRotatedImage(image,context, [1,0], x,y,w,h);
+    }else if(dx == 1 && dy == 1){
+      drawRotatedImage(image,context, [0,-1], x,y,w,h);
     }
   }
   
@@ -420,40 +418,40 @@ function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
 function getImageRotation(player_direction){
   //can't compare by the array directly. [1,0] == [1,0] becomes false.
   if (player_direction[0] == 1)
-    return Math.PI
+    return Math.PI;
   else if(player_direction[1] == 1)
-    return -Math.PI/2
+    return -Math.PI/2;
   else if(player_direction[0] == -1)
-    return 0
+    return 0;
   else
-    return Math.PI/2
+    return Math.PI/2;
 }
 
 function getLightTrailScale(player_direction){
   if(player_direction[0] == 0)
-    return [1/2, 1]
+    return [1/2, 1];
   else
-    return [1, 1/2]
+    return [1, 1/2];
 }
 
 function getLightTrail(posx, posy, player_direction, player_prev_direction){
-    var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT]
-    var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)]
-    var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT]
-    return [pos_1,pos_2,pos_3]
+    var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT];
+    var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)];
+    var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT];
+    return [pos_1,pos_2,pos_3];
   }
                 
 //Drawing the image, rotated, at x,y is off by +- 1 in both x,y
 //These numbers are to correct the offset. I don't know why they are what they are.
 function getImageOffset(player_direction){
   if (player_direction[0] == 1) //(1,0,180)
-    return [-1,-1]
+    return [-1,-1];
   else if(player_direction[1] == 1) //(0,1,270)
-    return [-1,0]
+    return [-1,0];
   else if(player_direction[0] == -1)  //(-1,0,0)
-    return [0,0]
+    return [0,0];
   else  //(0,-1,90)
-    return [0, -1]
+    return [0, -1];
 }
 
 /**
@@ -470,7 +468,7 @@ function update(player,players) {
       }
       //check for collision
       if (board[player.x][player.y] !== 0) {
-          player["bike_trail"].push(player["direction"]);
+          player.bike_trail.push(player.direction);
           player.alive = false;
           for(var i = 0; i < players.length; i++){
               if ((players[i].x==player.x) && (players[i].y==player.y)){
@@ -479,10 +477,10 @@ function update(player,players) {
           }
       } else {
           // Add the direction to the bike trail
-          player["bike_trail"].push(player["direction"]);
+          player.bike_trail.push(player.direction);
           // Set the board value to the bike trail length
-          if(player["bike_trail"].length>2){
-            board[player.x][player.y] = player["bike_trail"].length;
+          if(player.bike_trail.length>2){
+            board[player.x][player.y] = player.bike_trail.length;
           }
       }
     }
@@ -507,7 +505,7 @@ function reload(){
   //brings players back to life
   for (var i = 0; i < NUM_PLAYERS; i++) {
     players[i].alive = true;
-    players[i]["bike_trail"]=[];
+    players[i].bike_trail=[];
       console.log('alive');
   }
   //resets player positions
@@ -518,7 +516,7 @@ function reload(){
     p.x=Math.floor(Math.random()*COLS);
     p.y=Math.floor(Math.random()*ROWS);
     p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
-  })
+  });
 
   //resets game_over and stats_reported
   game_over=false;
@@ -573,7 +571,7 @@ function end_game() {
           location.reload();
         }
       }
-    })
+    });
 }
 
 
@@ -606,12 +604,7 @@ function step() {
             // Update the player
             update(players[i],players);
             // Draw the player
-            if (!first_step){
-                draw(players[i]);
-            }else{
-                first_step = true;
-            }
-            }
+            draw(players[i]);
         }
     }
     //Check if the players are alive
@@ -932,34 +925,34 @@ $(function(){
         $('#rightButton2').remove();
       }
     }
-  })
+  });
 
   //can also use buttons to control player
   var started=false;
   $('#leftButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
       left(HUMAN_PLAYER);
-  })
+  });
   $('#rightButton').on('click', function(){
     var direction = HUMAN_PLAYER.direction;
       right(HUMAN_PLAYER);
-  })
+  });
   $('#leftButton2').on('click',function(){
     var direction = HUMAN_PLAYER_2.direction;
       left(HUMAN_PLAYER_2);
-  })
+  });
   $('#rightButton2').on('click',function(){
     var direction = HUMAN_PLAYER_2.direction;
       right(HUMAN_PLAYER_2);
-  })
+  });
 
   $('canvas').on('click', function(){
     if (!started){
       start();
       started=true;
     }
-  })
-})
+  });
+});
 
 
 
@@ -1028,7 +1021,6 @@ function get_number_of_nodes(root, cnt) {
     return cnt;
 }
 
-
 //returns the node of a tree at target index
 //@param root: the tree
 //@param idx: the index of the node
@@ -1054,10 +1046,10 @@ function get_node_at_index(root, idx) {
 //TO BE DOCUMENTED
 function get_depth_from_index(node, tree_info, node_idx, depth) {
 
-    if (node_idx == tree_info["idx"]) {
-        tree_info["idx_depth"] = depth;
+    if (node_idx == tree_info.idx) {
+        tree_info.idx_depth = depth;
     }
-    tree_info["idx"] = tree_info["idx"] + 1;
+    tree_info.idx = tree_info.idx + 1;
     for (var i = 1; i < node.length; i++) {
         depth = depth + 1;
         tree_info = get_depth_from_index(node[i], tree_info, node_idx, depth);
@@ -1144,7 +1136,7 @@ var symbols = get_symbols();
 function get_random_symbol(depth, max_depth, symbols, full) {
     var symbol;
     if (depth >= (max_depth - 1)) {
-        symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
+        symbol = symbols.terminals[get_random_int(0, symbols.terminals.length)];
     } else {
         var terminal = get_random_boolean();
         if (!full && terminal) {
@@ -1163,13 +1155,13 @@ function get_random_symbol(depth, max_depth, symbols, full) {
 //@param symbols: the collection of symbols, used to test if the symbol is terminal/functional.
 function append_symbol(node, symbol, symbols) {
     var new_node;
-    if (contains(symbols['terminals'], symbol)) {
+    if (contains(symbols.terminals, symbol)) {
         new_node = symbol;
     } else {
         new_node = [symbol];
     }
     node.push(new_node);
-    return new_node
+    return new_node;
 }
 
 
@@ -1188,7 +1180,7 @@ function grow(tree, depth, max_depth, full, symbols) {
         var new_symbol = get_random_symbol(depth, max_depth, symbols, full);
         var new_node = append_symbol(tree, new_symbol, symbols);
         var new_depth = depth + 1;
-        if (contains(symbols['functions'], new_symbol)) {
+        if (contains(symbols.functions, new_symbol)) {
             grow(new_node, new_depth, max_depth, full, symbols);
         }
     }

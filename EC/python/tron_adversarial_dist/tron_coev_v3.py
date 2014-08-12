@@ -83,15 +83,6 @@ def append_symbol(node, symbol, symbols):
     node.append(new_node)
     return new_node
     
-    
-def append_symbol(node, symbol, symbols):
-    if symbol in symbols['terminals']:
-        new_node = symbol
-    else:
-        new_node = [symbol]
-    node.append(new_node)
-    return new_node
-
 def copy_tree(tree):
     return copy.deepcopy(tree)
     
@@ -124,19 +115,7 @@ def grow(tree, depth, max_depth, full, symbols):
         if (new_symbol in symbols['functions']):
             grow(new_node, new_depth, max_depth, full, symbols)
         i += 1
-    '''   
-    def find_and_replace_subtree(root, subtree, node_idx, idx):
-    idx = idx + 1;
-    if (node_idx == idx):
-        print 'root', root
-        replace_subtree(subtree, root);
-    else:
-        for child in root[1:]:
-            print 'child', child
-            print type(child)
-            idx = find_and_replace_subtree(child, subtree, node_idx, idx)
-    return idx;
-    '''
+    
 def find_and_replace_subtree(root, subtree, node_idx, idx):
     """
     Returns the current index and replaces the root with another subtree at the
@@ -147,64 +126,8 @@ def find_and_replace_subtree(root, subtree, node_idx, idx):
     else:
         subtree=repr(subtree)
     return changeItem(root,node_idx + 1,subtree)
-    # Increase the index
-    # print 'idx', idx
-    # idx += 1
-    # # Check if index is a the given node
-    # if node_idx == idx:
-    #     print 'root', root
-    #     if type(root) == str:
-    #         print 'replacing', subtree
-    #         root = subtree
-    #         print subtree
-    #     else:
-    #         replace_subtree(subtree, root);
-    # elif type(root) == list:
-    #     # Iterate over the children
-    #     for child in get_children(root):
-    #         print 'child', child
-    #         # Recursively travers the child
-    #         idx = find_and_replace_subtree(child, subtree, node_idx, idx)
-    # return idx
-    
-    
-    # idxes = find_subtree_index(root, node_idx, 0 ,[])[::-1]
-    # print 'idxes', idxes
-    # if len(idxes) == 1:
-    #     root[idxes[0]]=subtree;
-    # else:
-    #     for idx in idxes[:-1]:
-    #         tar = root[idx]
-    #     tar[idxes[-1]] = subtree
     
 
-
-#convert a node_idx to a list of indexes that point to the index.
-#returns a list upside-down: flip it to make it work
-def find_subtree_index(subtree,node_idx, count, result):
-    for sub_subtree in subtree:
-        if count == node_idx:
-            result.append(count)
-            while type(sub_subtree) == list:
-                sub_subtree= sub_subtree[0]
-                result.append(0)
-            return result[::-1]
-        else:
-            if type(sub_subtree) == list:
-                a = find_subtree_index(sub_subtree, node_idx - count, 0, result)
-                if type(a) == list:
-                    a.append(count)
-                    return a
-                else:
-                    count += a
-            else:
-                count += 1
-    result.append(count)
-    return count
-
-        
-    
-    
     
     
     
@@ -401,7 +324,6 @@ class Tron_GA_v3(object):
             generation += 1
             # Selection
             parents = self.tournament_selection()
-            self.evaluate_fitness(individuals, self.fitness_function)
             # Create new population
             new_individuals = []
             #TODO crossover does the copying of the individuals, is this too
@@ -641,7 +563,7 @@ def run_tron_coev():
     db = database.Database('tron.db')
     t.moar_run_plz(db.get_population())
     print 'fitness', t.population[0]['fitness']
-    #db.replace_population(t.population)
+    db.replace_population(t.population)
     
     #recursive set-timeout loops again woooooo
     timer = threading.Timer(10, run_tron_coev)
