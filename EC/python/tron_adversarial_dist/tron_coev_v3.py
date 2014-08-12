@@ -127,10 +127,6 @@ def find_and_replace_subtree(root, subtree, node_idx, idx):
         subtree=repr(subtree)
     return changeItem(root,node_idx + 1,subtree)
     
-
-    
-    
-    
 def get_children(node):
     """
     Return the children of the node. The children are all the elements of the
@@ -143,8 +139,6 @@ def get_children(node):
     # Take a slice of the list except the head
     return node[1:]
     
-    
-        
 def get_number_of_nodes(root, cnt):
     cnt = cnt + 1
     if (type(root) is not str):
@@ -219,17 +213,12 @@ class Tron_GA_v3(object):
         EVOLVE INDIVIDUALS FROM TRON GAME
         SAVE TO DATABASE
         NOT CLOG UP THREADS.
-    
-    
-    
     """
 
 
     def __init__(self, population_size, max_size, generations, elite_size, crossover_probability, mutation_probability,
                  fitness_function):
         """Constructor
-
-        
 
         :param population_size: Size of population
         :type population_size: integer
@@ -246,7 +235,7 @@ class Tron_GA_v3(object):
         :param fitness_function: Method used to evaluate fitness of a solution
         :type fitness_function: Object
         """
-        # Population size is the number of individual solutions
+        # Number of individual solutions
         self.population_size = population_size
         # Size of the individual solution
         self.max_size = max_size
@@ -265,9 +254,8 @@ class Tron_GA_v3(object):
         self.population = []
 
     def initialize_population(self):
-        """//Initializes a Tron AI population
-        //@param population_size size of total # of AI's
-        //@param max_size Max Depth of AI's"""
+        """Initializes a Tron AI population
+        """
         self.population = []
         i = 0
         while(i < self.population_size):
@@ -292,8 +280,7 @@ class Tron_GA_v3(object):
         """
         Return the best individual from the evolutionary search
         loop. Starting from the initial population.
-
-        
+        Updates the population after evolution.
 
         :param new_individuals: Initial population of individuals
         :type new_individuals: List of Individual
@@ -317,10 +304,6 @@ class Tron_GA_v3(object):
                                                         individuals)
             self.print_stats(generation, individuals)
             self.population = new_individuals
-
-            # Print the stats of the population
-            # Write population to file
-            # Increase the generation counter
             generation += 1
             # Selection
             parents = self.tournament_selection()
@@ -477,16 +460,13 @@ class Tron_GA_v3(object):
             node_idx =random.randint(0, end_node_idx)
             node_info = get_depth_from_index(individual["genome"], {'idx_depth': 0, 'idx': 0}, node_idx, 0)
             max_subtree_depth = self.max_size - node_info['idx_depth']
-            new_subtree = get_random_symbol(max_subtree_depth, self.max_size, symbols,False)
-            if (new_subtree in symbols['functions']):
-                new_subtree = [new_subtree]
+            new_subtree = [get_random_symbol(max_subtree_depth, self.max_size, symbols,False)]
+            if (new_subtree[0] in symbols['functions']):
                 full = False
                 grow(new_subtree, node_info['idx_depth'], self.max_size, full, symbols)
             individual['genome'] = find_and_replace_subtree(individual["genome"], new_subtree, node_idx, -1)
         return individual
     
-    
-    # WHATIS get_node_at_index
     def onepoint_crossover(self, parent_0, parent_1):
         children = []
         genome_0=copy_tree(parent_0["genome"])
@@ -506,23 +486,6 @@ class Tron_GA_v3(object):
             replace_subtree(tmp_child_1_node, xo_nodes[0])
         return children
 
-    '''
-    def onepoint_crossover(self, parent_0, parent_1):
-        
-        # Get the genomes from the parents
-        genome_parent_0, genome_parent_1 = parent_0.genome, parent_1.genome
-        # Uniformly generate crossover points. 
-        pt_p = random.randint(1, self.max_size)
-        # Make new chromosomes by crossover.
-        if random.random() < self.crossover_probability:
-            child_0 = genome_parent_0[:pt_p] + genome_parent_1[pt_p:]
-            child_1 = genome_parent_1[:pt_p] + genome_parent_0[pt_p:]
-        else:
-            child_0, child_1 = genome_parent_0[:], genome_parent_1[:]
-        # Put the new chromosomes into new individuals
-        return [Individual(child_0), Individual(child_1)]
-    '''
-
     def run(self):
         """
         Return the best solution. Create an initial
@@ -539,7 +502,7 @@ class Tron_GA_v3(object):
 
         return best_ever
     
-    def moar_run_plz(self, population):
+    def run_from_population(self, population):
         self.population = population
         best_ever=self.search_loop(population)
         return best_ever
@@ -552,7 +515,7 @@ print
 print "Hello World!"
 
 
-t=Tron_GA_v3(1000,4,5,10,0.3,0.3,tron_evaluate_AIs)
+t=Tron_GA_v3(1000,4,5,250,0.6,0.6,tron_evaluate_AIs)
 #t.run()
 #t.initialize_population()
 db = database.Database('tron.db')
@@ -561,7 +524,7 @@ print 'initial potato', db.get_population()
 
 def run_tron_coev():
     db = database.Database('tron.db')
-    t.moar_run_plz(db.get_population())
+    t.run_from_population(db.get_population())
     print 'fitness', t.population[0]['fitness']
     db.replace_population(t.population)
     

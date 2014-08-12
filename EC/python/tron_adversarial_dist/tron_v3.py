@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 #Recreate Tron game
 #Recreate Evaluate individual function from js
-#This is non-graphcial
+#This is non-graphcial and AI only.
 
 
 import math
@@ -15,6 +15,9 @@ class Tron(object):
         self.winner = -1 
         self.game_over = False
         self.board = []
+        
+        #boards array of 20*20, 0 denotes empty
+        # 1 denotes trail.
         for i in range(rows):
             row = []
             for j in range(rows):
@@ -59,19 +62,23 @@ class Player(object):
         
         
      
-    
+    #changes the player's direction to the right
     def right(self):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
         new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) - 1) % len(self.PLAYER_DIRECTIONS);
         self.direction = self.PLAYER_DIRECTIONS[new_direction_idx];
         
         
-        
+    #changes the player's direction to the left
     def left(self):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
         new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) + 1) % len(self.PLAYER_DIRECTIONS);
         self.direction = self.PLAYER_DIRECTIONS[new_direction_idx];
-        
+    
+    
+    #finds the distacne to obstacle in target direction
+    #direction: -1: right; 0: front; 1: left;
+    #returns a float representing the percentage.
     def distance(self, direction):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
         new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) + direction) % len(self.PLAYER_DIRECTIONS);
@@ -87,6 +94,9 @@ class Player(object):
             distance += 1
         return distance/float(len(self.board))
         
+        
+        
+    
     def move(self):
         self.evaluate(self.strategy)
         self.x += self.direction[0]
@@ -147,7 +157,7 @@ class Player(object):
             pass
             #raise an error
             
-            
+#Testing code.
             
 #t = Tron(20, ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]], ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]])
 #t = Tron(20, ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]], ['0.3'])

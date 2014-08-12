@@ -1189,49 +1189,38 @@ function grow(tree, depth, max_depth, full, symbols) {
 var gp_params = {
     population_size: 300,
     max_size: 5,
-    generations: 5,
+    generations: 50,
     mutation_probability: 0.3,
     tournament_size: 2,
     crossover_probability: 0.3,
     single_thread: true
 };
 
-var evolve = new Worker('tron_evolve_worker.js')
+var evolve = new Worker('tron_evolve_worker.js');
 var start_time = new Date().getTime();
 evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
-    show_stats(e.data)
+    show_stats(e.data);
   }else{
-    evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations)
-    generation = e.data.generation
+    evaluate_population_multi_thread(e.data.population, mutate_and_crossover, gp_params.generations);
+    generation = e.data.generation;
   }
 }, false);
-
-function show_stats(data){
-  $('#currentGen').html(data.generation + ' / ' + gp_params.generations)
-  if(typeof data.genome != 'undefined'){
-    STRATEGIES.push(data.genome)
-    var $option = $('<option>')
-    $option.val(STRATEGIES.length - 1)
-    $option.html('AI' + (STRATEGIES.length))
-    $('select').append($option)
-  }
-}
 
 
 
 //Delivers the data onto the screen
 //@param data: object, contains a generation and a optional genome.
 function show_stats(data){
-  $('#currentGen').html(data.generation + ' / ' + gp_params.generations)
+  $('#currentGen').html(data.generation + ' / ' + gp_params.generations);
   if(typeof data.genome != 'undefined'){
-    STRATEGIES.push(data.genome)
-    var $option = $('<option>')
-    $option.val(STRATEGIES.length - 1)
-    $option.html('AI' + (STRATEGIES.length))
-    $('select').append($option)
+    STRATEGIES.push(data.genome);
+    var $option = $('<option>');
+    $option.val(STRATEGIES.length - 1);
+    $option.html('AI' + (STRATEGIES.length));
+    $('select').append($option);
   }
 }
 
@@ -1269,7 +1258,7 @@ function evaluate_population_multi_thread(population, callback, end_generation){
     //Initialize the workers if they don't exist.
     if(!THREADS_INITIALIZED){
       for (var i = 0; i < THREADS; i++){
-        var worker = new Worker('tron_evolve_subworker.js')
+        var worker = new Worker('tron_evolve_worker.js')
         workers.push(worker)
         worker.finished = false;
         worker.index = i;
@@ -1547,21 +1536,6 @@ function mutation(mutation_probability, new_population, max_size) {
 //@param population: the population to be printed
 function print_stats(generation, population) {
     population.sort(sort_individuals);
-    // var fitness_values = [];
-    // var sizes = [];
-    // var depths = [];
-    // for (var i = 0; i < population.length; i++) {
-    //     fitness_values.push(population[i]["fitness"]);
-    //     sizes.push(get_number_of_nodes(population[i]["genome"], 0));
-    //     depths.push(get_max_tree_depth(population[i]["genome"], 0, 0));
-    // }
-    // var ave_and_std = get_ave_and_std(fitness_values);
-    // var ave_and_std_size = get_ave_and_std(sizes);
-    // var ave_and_std_depth = get_ave_and_std(depths);
-    // console.log("Gen:" + generation + " fit_ave:" + ave_and_std[0] + "+-" + ave_and_std[1] +
-    //     " size_ave:" + ave_and_std_size[0] + "+-" + ave_and_std_size[1] +
-    //     " depth_ave:" + ave_and_std_depth[0] + "+-" + ave_and_std_depth[1] +
-    //     " " + population[0]["fitness"] + " " + tree_to_str(population[0]["genome"]));
     if(generation % 10 == 0){
       show_stats({generation: generation, genome: population[0].genome})
     }else{

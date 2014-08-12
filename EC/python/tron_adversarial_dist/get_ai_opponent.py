@@ -20,6 +20,7 @@ def get_random_ai_opponent():
     db.close()
     idx = random.randint(0, 10)
     opponent = population[idx]
+    #0 points to the genome.
     return opponent[0]
 
 print "Content-Type: text/plain;charset=utf-8"

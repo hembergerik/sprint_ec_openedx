@@ -510,6 +510,9 @@ var PLAYER_DIRECTIONS = [
     function evaluate_fitness(population) {
         // Evaluate fitness
         var SOLUTIONS = 2;
+        if (population.length % 2 == 1){
+          population.push({genome: ['TURN_LEFT']})
+        }
         for (var i = 0; i < population.length; i += SOLUTIONS) {
             evaluate_individuals([population[i], population[i + 1]]);
         }
@@ -832,23 +835,25 @@ var PLAYER_DIRECTIONS = [
 //This runs when main thread sends message.
 //postMessage sends a message back to main thread.
   self.addEventListener('message', function(e) {
-    var start_t = new Date().getTime();
-    
     e=e.data;
-    var gp_params = {
-        population_size: e.population_size,
-        max_size: e.max_size,
-        generations: e.generations,
-        mutation_probability: e.mutation_probability,
-        tournament_size: e.tournament_size,
-        crossover_probability: e.crossover_probability
-    };
-    if (e.single_thread){
-      gp(gp_params)
+    if (e.population_size){
+            var gp_params = {
+            population_size: e.population_size,
+            max_size: e.max_size,
+            generations: e.generations,
+            mutation_probability: e.mutation_probability,
+            tournament_size: e.tournament_size,
+            crossover_probability: e.crossover_probability
+        };
+        if (e.single_thread){
+          gp(gp_params)
+        }else{
+          initialize_main(gp_params);
+        }
+        self.close();
     }else{
-      initialize_main(gp_params);
+        population = e;
+        evaluate_fitness(population);
+        self.postMessage(population);
     }
-    var end_t = new Date().getTime();
-    console.log(end_t - start_t)
-    self.close();
   })
