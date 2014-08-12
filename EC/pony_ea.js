@@ -401,6 +401,8 @@ function ea(population_size, max_size, mutation_probability,
     // Selection
     print_stats(generation, population);
     var new_population = [];
+    
+    //Builds a new, empty population.
     for(var i = 0; i < population_size; i++) {
       var genome = [];
       for(var j = 0; j < max_size; j++) {
@@ -408,12 +410,19 @@ function ea(population_size, max_size, mutation_probability,
       }
       new_population.push({genome: genome, fitness: DEFAULT_FITNESS});
     }
+    
+    //Updates the page to indicate things are being ready.
     $('.s').css('font-weight', 'normal');
     $('.s').css('color','mediumpurple');
     $('#s0').css('font-weight', 'bold');
     $('#s0').css('color', '#f00');
     console.log($('#s0'))
     $('g:last-of-type').css('stroke', 'none');
+    
+    
+    //competition step
+    //if fight time is given calls recursive function to animate
+    //otherwise, executes a for loop and continues to the mutate step.
     if (fight_time){
       update_winners(new_population);
       fight_r(new_population,fight_time, mutate, update_winners, true);
@@ -424,6 +433,10 @@ function ea(population_size, max_size, mutation_probability,
       mutate();
     }
 
+
+    //mutate step
+    //if mutate time is given, calls a recursive function to animate.
+    //otherwise, executes a for loop through all individuals, and continues to final step.
     function mutate(){
       $('.s').css('font-weight', 'normal');
       $('.s').css('color','mediumpurple');
@@ -438,8 +451,9 @@ function ea(population_size, max_size, mutation_probability,
         finalize();
       }
     }
-    //mutate();
+
     
+    //updates the graph of a mutation.
     function mutate_graph(index, population, mutate_gene_index){
       var g_index = index+1;
       $('#winners g:nth-of-type('+g_index+')').css('stroke', '#000');
@@ -453,7 +467,10 @@ function ea(population_size, max_size, mutation_probability,
       }
     }
     
+    
+    //Recursively calls itself after updating the population.
     function finalize(){
+      //updates graphics on screen
       $('g:last-of-type').css('stroke', 'none');
       $('.s').css('font-weight', 'normal');
       $('.s').css('color','mediumpurple');
@@ -470,7 +487,7 @@ function ea(population_size, max_size, mutation_probability,
 
       // Increase the generation
       generation = generation + 1;
-      //Allows for stepping.
+      //Allows for stepping, recursively calls self when stepping is necessary.
       if(num_steps){
         if(time){
           timers.TIMER=setTimeout(function(){self.step(num_steps-1, time, mutate_time,fight_time)}, time);
@@ -545,6 +562,7 @@ $(function(){
     if(typeof main_evolution_obj === 'undefined'){
       create_main_obj();
     }else{
+      //you can't step when the main obj is stepping.
       if(main_evolution_obj.stepping){ return false}
     }
     var stepInfo = getStepInfo()

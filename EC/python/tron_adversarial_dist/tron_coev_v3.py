@@ -529,7 +529,7 @@ def run_tron_coev():
     db.replace_population(t.population)
     
     #recursive set-timeout loops again woooooo
-    timer = threading.Timer(10, run_tron_coev)
+    timer = threading.Timer(20, run_tron_coev)
     timer.start()
     #print 'potatoes', i, t.population
     
