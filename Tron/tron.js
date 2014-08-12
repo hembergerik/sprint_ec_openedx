@@ -24,6 +24,7 @@ var DEFAULT_FITNESS = 0;
 var canvas = document.getElementById('game');
 //Context on canvas
 var ctx = canvas.getContext('2d');
+var first_step = false;
 // Set canvas size to match the Tron board rows and bike width
 canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
@@ -210,7 +211,7 @@ function get_direction_index(direction) {
                 return Number(symbol);
             default:
                 // Unknown symbol
-                throw "Unknown symbol:" + symbol;
+                //throw "Unknown symbol:" + symbol;
         }
     }
     
@@ -332,10 +333,12 @@ function move_ai(player) {
  * @param {Object} player player
  */
 function move_bike(player) {
-    // Get new x-coordinate
-    player.x = get_new_point(player.x, player.direction[0]);
-    // Get new y-coordinate
-    player.y = get_new_point(player.y, player.direction[1]);
+    if(!game_over){
+      // Get new x-coordinate
+      player.x = get_new_point(player.x, player.direction[0]);
+      // Get new y-coordinate
+      player.y = get_new_point(player.y, player.direction[1]);
+    }
 }
 
 /**
@@ -368,23 +371,24 @@ function draw(player) {
     ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
     ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
     ctx.stroke(); */
-    
-    if (player.COLOR === 'red'){
-      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
-        drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+    if(player.bike_trail.length>2){  
+      if (player.COLOR === 'red'){
+        if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+          drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        }else{
+          drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        }
+        drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
       }else{
-        drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+          drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        }else{
+          drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+        }
+        drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
       }
-      drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-    }else{
-      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
-        drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-      }else{
-        drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
-      }
-      drawRotatedImage(blue_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT)
+      ctx.restore()
     }
-    ctx.restore()
 }
 
   //Draws the image on the context at x,y with w,h and rotated to player_direction.
@@ -459,26 +463,30 @@ function getImageOffset(player_direction){
  * @param{Object} player
  */
 function update(player,players) {
-    //Move player
-    if (player.alive) {
-        move_bike(player);
+    if(!game_over){
+      //Move player
+      if (player.alive) {
+          move_bike(player);
+      }
+      //check for collision
+      if (board[player.x][player.y] !== 0) {
+          player["bike_trail"].push(player["direction"]);
+          player.alive = false;
+          for(var i = 0; i < players.length; i++){
+              if ((players[i].x==player.x) && (players[i].y==player.y)){
+                  players[i].alive = false;
+              }
+          }
+      } else {
+          // Add the direction to the bike trail
+          player["bike_trail"].push(player["direction"]);
+          // Set the board value to the bike trail length
+          if(player["bike_trail"].length>2){
+            board[player.x][player.y] = player["bike_trail"].length;
+          }
+      }
     }
-    //check for collision
-    if (board[player.x][player.y] !== 0) {
-        player["bike_trail"].push(player["direction"]);
-        player.alive = false;
-        for(var i = 0; i < players.length; i++){
-            if ((players[i].x==player.x) && (players[i].y==player.y)){
-                players[i].alive = false;
-            }
-        }
-    } else {
-        // Add the direction to the bike trail
-        player["bike_trail"].push(player["direction"]);
-        // Set the board value to the bike trail length
-        board[player.x][player.y] = player["bike_trail"].length;
-    }
-}
+  }
 
 /*
  * Game Over. Registers the winner.
@@ -533,7 +541,7 @@ function end_game() {
         if (players[i].alive === true) {
             if (players[i].ai){
                 var strategy=players[i].strategy;
-                updateAI(strategy);
+                //updateAI(strategy);
             }
             winner = players[i].name;
             stats_reported = true;
@@ -598,7 +606,12 @@ function step() {
             // Update the player
             update(players[i],players);
             // Draw the player
-            draw(players[i]);
+            if (!first_step){
+                draw(players[i]);
+            }else{
+                first_step = true;
+            }
+            }
         }
     }
     //Check if the players are alive
@@ -674,37 +687,37 @@ function playerSetup(){
     $(label).append(pScore);
     $(label).css('color', color);
     $('#playerScores').append(label);
-  })
+  });
 }
 
 //function to handle the input 'left key' on a player
 //@param player the player who pressed the key
 
 function left_key(player){
-  console.log('left key')
+  console.log('left key');
   if(!player.direction[0]){
-    player.direction = [-1,0]
+    player.direction = [-1,0];
   }
 }
 
 function right_key(player){
-  console.log('right_key')
+  console.log('right_key');
   if(!player.direction[0]){
-    player.direction = [1,0]
+    player.direction = [1,0];
   }
 }
 
 function up_key(player){
-  console.log('up key')
+  console.log('up key');
   if(!player.direction[1]){
-    player.direction = [0, -1]
+    player.direction = [0, -1];
   }
 }
 
 function down_key(player){
-  console.log('down key')
+  console.log('down key');
   if(!player.direction[1]){
-    player.direction = [0, 1]
+    player.direction = [0, 1];
   }
 }
 
@@ -745,8 +758,7 @@ document.onkeyup = function read(event) {
                 down_key(HUMAN_PLAYER_2);
                 break;
         }
-    }
-    if (36 < code && code < 41) {
+    } else if (36 < code && code < 41) {
         //Current direction of HUMAN_PLAYER
         var direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
@@ -774,10 +786,10 @@ document.onkeyup = function read(event) {
         }
     }
     if (code === 78){
-      BGM.src = 'media/Nyan_Cat.mp3'
-      red_trail.src = 'media/images/Nyan_Trail.png'
-      red_bike_img.src = 'media/images/Nyan_Cat.png'
-      red_corner.src = 'media/images/Nyan_Corner.png'
+      BGM.src = 'media/Nyan_Cat.mp3';
+      red_trail.src = 'media/images/Nyan_Trail.png';
+      red_bike_img.src = 'media/images/Nyan_Cat.png';
+      red_corner.src = 'media/images/Nyan_Corner.png';
       BGM.play();
       $('body').css('background-image', 'url("media/images/nyan_background.gif")');
       $('body').css('background-repeat', 'repeat');      
@@ -793,8 +805,8 @@ function getRandomAI(callback){
   url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/get_ai_opponent.py",
 })
   .done(function(data) {
-    console.log(data)
-    callback(JSON.parse(data))
+    console.log(data);
+    callback(JSON.parse(data));
   });
 }
 
@@ -818,23 +830,23 @@ function updateAI(AI){
         data:{operation:'update_AI', data: JSON.stringify(AI)}
     })
     .done(function(data){
-        console.log(data)
-    })
+        console.log(data);
+    });
 }
 // - Can the buttons be larger (Should the side of the board be clickable?)
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
   
 
-  getRandomAI(addAI)
+  getRandomAI(addAI);
   //postAI(STRATEGIES[1])
 
   function addAI(data){
-    STRATEGIES.push(data)
-    var $option = $('<option>')
-    $option.val(STRATEGIES.length - 1)
-    $option.html('AI' + (STRATEGIES.length))
-    $('select').append($option)
+    STRATEGIES.push(data);
+    var $option = $('<option>');
+    $option.val(STRATEGIES.length - 1);
+    $option.html('AI' + (STRATEGIES.length));
+    $('select').append($option);
   }
   
   
@@ -847,29 +859,29 @@ $(function(){
   
   
   STRATEGIES.forEach(function(val, index){
-    var $option = $('<option>')
-    $option.val(index)
-    $option.html('AI '+(index+1))
-    $('select').append($option)
+    var $option = $('<option>');
+    $option.val(index);
+    $option.html('AI '+(index+1));
+    $('select').append($option);
     //postAI(val)
-  })
+  });
   
   $('#assignAI').click(function(e){
-    AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()]
-    AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()]
-    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!')
-    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)})
-  })
+    AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
+    AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()];
+    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!');
+    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
+  });
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
     alert(strategy);
-  })
+  });
   
   $('#viewStrategy2').on('click', function(){
     var strategy=STRATEGIES[$('#AI2').val()];
     alert(strategy);
-  })
+  });
   
   $('#mute').on('click', function(){
     if(BGM.muted===false){
@@ -879,7 +891,7 @@ $(function(){
       BGM.muted=false;
       Crash_effect.muted=false;
     }
-  })
+  });
   
   if(smaller>MOBILE_CUTOFF){
     $('#leftButton').remove();

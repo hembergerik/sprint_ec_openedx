@@ -143,6 +143,7 @@ SELECT individual, id FROM individuals WHERE individual = ? and fitness = ?
         rows=c.fetchall()
         return rows
 
+
     def get_AI_individuals(self):
         c = self.connection.cursor()
         c.execute("SELECT * FROM individuals")
@@ -151,7 +152,8 @@ SELECT individual, id FROM individuals WHERE individual = ? and fitness = ?
 
     def get_front_individuals(self):
         c = self.connection.cursor()
-        c.execute("SELECT * FROM front_individuals")
+        #c.execute("SELECT * FROM front_individuals")
+        c.execute("SELECT individual, fitness FROM individuals ORDER BY fitness DESC")
         rows = c.fetchall()
         return rows
 

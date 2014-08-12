@@ -16,11 +16,11 @@ def get_random_ai_opponent():
     """
     population = []
     db = database.Database('tron.db')
-    population = db.get_AI_individuals()
+    population = db.get_front_individuals()
     db.close()
-
-    opponent = random.sample(population, 1)[0]
-    return opponent[2]
+    idx = random.randint(0, 10)
+    opponent = population[idx]
+    return opponent[0]
 
 print "Content-Type: text/plain;charset=utf-8"
 print

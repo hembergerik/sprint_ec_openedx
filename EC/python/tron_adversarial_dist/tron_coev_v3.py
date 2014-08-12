@@ -11,6 +11,7 @@ import tron_v3
 import copy
 import math
 import database
+import threading
 
 def tron_evaluate_AIs(AI_1, AI_2):
     tron_game = tron_v3.Tron(20, AI_1['genome'], AI_2['genome'])
@@ -338,6 +339,7 @@ class Tron_GA_v3(object):
         # Function that is used to evaluate the fitness of the
         # individual solution
         self.fitness_function = fitness_function
+        self.population = []
 
     def initialize_population(self):
         """//Initializes a Tron AI population
@@ -391,6 +393,7 @@ class Tron_GA_v3(object):
             individuals = self.generational_replacement(new_individuals,
                                                         individuals)
             self.print_stats(generation, individuals)
+            self.population = new_individuals
 
             # Print the stats of the population
             # Write population to file
@@ -417,6 +420,8 @@ class Tron_GA_v3(object):
             # Vary the population by mutation
             new_individuals = list(map(self.mutation, new_individuals))
         return best_ever
+        
+        
 
     def print_stats(self, generation, individuals):
         """
@@ -613,28 +618,35 @@ class Tron_GA_v3(object):
         return best_ever
     
     def moar_run_plz(self, population):
+        self.population = population
         best_ever=self.search_loop(population)
         return best_ever
             
 
 
-
+#enables debugging by web.
 print "Content-Type: text/plain;charset=utf-8"
 print 
 print "Hello World!"
 
 
-t=Tron_GA_v3(300,4,300,1,0.3,0.3,tron_evaluate_AIs)
-t.run()
+t=Tron_GA_v3(1000,4,5,10,0.3,0.3,tron_evaluate_AIs)
+#t.run()
 #t.initialize_population()
-print 'initial pop', t.population
 db = database.Database('tron.db')
-db.replace_population(t.population)
-print 'ARE YOU THE SAME', db.get_population()
-'''
-for i in range(4):
+#db.replace_population(t.population)
+print 'initial potato', db.get_population()
+
+def run_tron_coev():
     db = database.Database('tron.db')
-    db.replace_population(t.population)
     t.moar_run_plz(db.get_population())
-    print 'potatoes', i, t.population
-'''
+    print 'fitness', t.population[0]['fitness']
+    #db.replace_population(t.population)
+    
+    #recursive set-timeout loops again woooooo
+    timer = threading.Timer(10, run_tron_coev)
+    timer.start()
+    #print 'potatoes', i, t.population
+    
+run_tron_coev()
+
