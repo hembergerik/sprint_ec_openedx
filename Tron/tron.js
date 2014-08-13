@@ -535,8 +535,10 @@ function reload(){
 
   //resets game_over and stats_reported
   game_over=false;
-  stats_reported=false; 
-  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  stats_reported=false;
+  if (typeof timer == 'undefined'){
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  }
 /*  var scores=$('.playerScore');
       scores.each(function(){
         $(this).text(0);
@@ -672,7 +674,9 @@ function step_f(){
 function start(){
   BGM.play();
   //Set the function which is called after each interval
-  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  if (typeof timer != 'undefined'){
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  }
   //erases the text.
   ctx.clearRect(0, 0,
     ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
@@ -912,7 +916,9 @@ $(function(){
       $('#pause').text('Unpause')
     }else{
         BGM.play();
-        timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+        if (typeof timer == 'undefined'){
+          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+        }
         $('#pause').text('Pause')
     }
   })
