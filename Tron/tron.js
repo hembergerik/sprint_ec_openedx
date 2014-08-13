@@ -645,30 +645,30 @@ function step() {
 
 //f stands for fast.
 function step_f(){
-      if (!stats_reported) {
-        for (var i = 0; i < NUM_PLAYERS; i++) {
-            if (players[i].ai) {
-                move_ai(players[i]);
-            }
-            // Update the player
-            update(players[i],players);
-        }
-    }
-    //Check if the players are alive
+  if (!stats_reported) {
     for (var i = 0; i < NUM_PLAYERS; i++) {
-        if (players[i].alive === false) {
-            game_over = true;
-        }
+      if (players[i].ai) {
+        move_ai(players[i]);
+      }
+      // Update the player
+      update(players[i],players);
     }
-    //Game over?
-    if (game_over) {
-        //TODO better way of only registering game once
-        if (!stats_reported) {
-            end_game_f();
-        }
+  }
+  //Check if the players are alive
+  for (var i = 0; i < NUM_PLAYERS; i++) {
+    if (players[i].alive === false) {
+      game_over = true;
     }
-
+  }
+  //Game over?
+  if (game_over) {
+    //TODO better way of only registering game once
+    if (!stats_reported) {
+      end_game_f();
+    }
+  }
 }
+
 function start(){
   BGM.play();
   //Set the function which is called after each interval
@@ -684,7 +684,7 @@ function playerSetup(){
     p.x=Math.floor(Math.random()*COLS);
     p.y=Math.floor(Math.random()*ROWS);
     p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
-        var name = p.name;
+    var name = p.name;
     var color=p.COLOR;
     var label=$('<div class="playerLabel">');
     var pName=$('<span class="playerName">');
@@ -802,6 +802,17 @@ document.onkeyup = function read(event) {
       BGM.play();
       $('body').css('background-image', 'url("media/images/nyan_background.gif")');
       $('body').css('background-repeat', 'repeat');      
+    }
+    if (code === 80){
+      if ($('#pause').text()=='Pause'){
+        BGM.pause();
+        clearInterval(timer);
+        $('#pause').text('Unpause')
+      }else{
+          BGM.play();
+          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+          $('#pause').text('Pause')
+      }
     }
 };
 
@@ -945,6 +956,7 @@ $(function(){
         playerSetup();
         $('.AI1controls').remove();
         $('.AI2controls').remove();
+        $('#strategyChoice').remove();
       },
       "AI vs AI": function(){
         $(this).dialog('close');
