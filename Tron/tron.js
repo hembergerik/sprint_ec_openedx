@@ -117,7 +117,7 @@ var AI_PLAYER = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]] 
+    strategy: ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]] 
 };
 var AI_PLAYER_2 = {
     name: 'AI PLAYER 2',
@@ -130,7 +130,7 @@ var AI_PLAYER_2 = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]] 
+    strategy: ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]] 
 };
 
 var game_over = false;
@@ -875,12 +875,14 @@ $(function(){
     //postAI(val)
   });
   
-  $('#assignAI').click(function(e){
+  $('#AI1').on('change', function(){
+    console.log($('#AI1 option:selected').text())
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
-    AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()];
-    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!');
-    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
-  });
+  })
+
+   $('#AI2').on('change', function(){
+    AI_PLAYER.strategy=STRATEGIES[$('#AI2').val()];
+  })
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
