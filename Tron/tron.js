@@ -40,6 +40,18 @@ var STRATEGIES = [
 ["+",["IFLEQ",["+",["IFLEQ",["+",["0.3"],["0.3"]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["+","SENSE_A","0.3"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["TURN_LEFT"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]]
 ];
 
+
+var AI_names = {'1' : 'Potato',
+                '2' : 'Doorknob',
+                '3': 'Trident &#945',
+                '4': 'Seeker',
+                '5': 'Trident &#946',
+                '6': 'Serpent',
+                '7': 'Skyline',
+                '8': 'Lost',
+                '9': 'RageBot',
+                '10': 'Server' };
+
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
 red_bike_img.src = 'media/images/Tron_bike_red.png';
@@ -180,6 +192,7 @@ function get_direction_index(direction) {
                 } else {
                     return evaluate(node[4], player);
                 }
+                break;
             case "SENSE_A":
                 // Sense the distance
                 return distance(0, player);
@@ -214,10 +227,10 @@ function get_direction_index(direction) {
     }
     
     function distance(direction, player) {
-        var direction_idx = get_direction_index(player["direction"]);
+        var direction_idx = get_direction_index(player.direction);
         var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
         var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
-        return player["environment"][new_direction] / ROWS;
+        return player.environment[new_direction] / ROWS;
     }
 
 /**
@@ -246,10 +259,10 @@ function is_obstacle_in_relative_direction(direction, player) {
  * @returns {number} distance to an obstacle in the direction
  */
 function distance(direction, player) {
-    var direction_idx = get_direction_index(player["direction"]);
+    var direction_idx = get_direction_index(player.direction);
     var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
     var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
-    return player["environment"][new_direction] / ROWS;
+    return player.environment[new_direction] / ROWS;
 }
 
 /**
@@ -273,17 +286,17 @@ function get_new_point(p, d) {
  */
 function check_environment(player) {
     // Clear the environment
-    player["environment"] = {};
+    player.environment = {};
 
     // Check in the directions
     for (var i = 0; i < PLAYER_DIRECTIONS.length; i++) {
         // Get the coordinates of the adjacent cell
-        var x_p = get_new_point(player["x"], PLAYER_DIRECTIONS[i][0]);
-        var y_p = get_new_point(player["y"], PLAYER_DIRECTIONS[i][1]);
+        var x_p = get_new_point(player.x, PLAYER_DIRECTIONS[i][0]);
+        var y_p = get_new_point(player.y, PLAYER_DIRECTIONS[i][1]);
         // Distance to obstacles
         var distance = 0;
         // Iterate over the cells for and stop for obstacles or when the length of the board is reached
-        while (board[x_p][y_p] == 0 && distance < ROWS) {
+        while (board[x_p][y_p] === 0 && distance < ROWS) {
             // Increase the distance
             distance = distance + 1;
             // Get the coordinates of the adjacent cell
@@ -353,10 +366,12 @@ function draw(player) {
   ctx.clearRect(pre_pos_x * BIKE_WIDTH, pre_pos_y * BIKE_HEIGHT,BIKE_WIDTH, BIKE_HEIGHT);
 
   //Draw the trail with a context line stroke.
+  
+  var prev_direction;
   if(player.bike_trail.length>1){
-    var prev_direction = player.bike_trail[player.bike_trail.length-2];
+    prev_direction = player.bike_trail[player.bike_trail.length-2];
   }else{
-    var prev_direction = player.bike_trail[0];
+    prev_direction = player.bike_trail[0];
   }
   var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
   var prev_trailScale = getLightTrailScale(prev_direction);
@@ -371,14 +386,14 @@ function draw(player) {
   ctx.stroke(); */
   if(player.bike_trail.length>3){  
     if (player.COLOR === 'red'){
-      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+      if(prev_direction[0] == player.direction[0] && prev_direction[1] == player.direction[1]){
         drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
       }else{
         drawCorner(red_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
       }
       drawRotatedImage(red_bike_img,ctx,player.direction, player.x*BIKE_WIDTH, player.y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
     }else{
-      if(prev_direction[0] == player.direction[0] & prev_direction[1] == player.direction[1]){
+      if(prev_direction[0] == player.direction[0] && prev_direction[1] == player.direction[1]){
         drawRotatedImage(blue_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
       }else{
         drawCorner(blue_corner, ctx, prev_direction, player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
@@ -428,7 +443,7 @@ function getImageRotation(player_direction){
 }
 
 function getLightTrailScale(player_direction){
-  if(player_direction[0] == 0)
+  if(player_direction[0] === 0)
     return [1/2, 1];
   else
     return [1, 1/2];
@@ -503,7 +518,7 @@ function reload(){
   ctx.clearRect(0, 0,
       ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
   //brings players back to life
-  for (var i = 0; i < NUM_PLAYERS; i++) {
+  for (i = 0; i < NUM_PLAYERS; i++) {
     players[i].alive = true;
     players[i].bike_trail=[];
       console.log('alive');
@@ -730,8 +745,9 @@ document.onkeyup = function read(event) {
     //The event code
     var code = e.keyCode || e.which;
     //Check the event code
+    var direction;
     if (64 < code && code < 88) {
-        var direction = HUMAN_PLAYER_2.direction;
+        direction = HUMAN_PLAYER_2.direction;
         switch (code) {
             //A key
             case 65:
@@ -753,7 +769,7 @@ document.onkeyup = function read(event) {
         }
     } else if (36 < code && code < 41) {
         //Current direction of HUMAN_PLAYER
-        var direction = HUMAN_PLAYER.direction;
+        direction = HUMAN_PLAYER.direction;
         console.log("current direction is: " + direction[0] + " " + direction[1]);
         switch (code) {
             //Left arrow    
@@ -838,7 +854,7 @@ $(function(){
     STRATEGIES.push(data);
     var $option = $('<option>');
     $option.val(STRATEGIES.length - 1);
-    $option.html('AI' + (STRATEGIES.length));
+    $option.html('Server');
     $('select').append($option);
   }
   
@@ -853,8 +869,8 @@ $(function(){
   
   STRATEGIES.forEach(function(val, index){
     var $option = $('<option>');
-    $option.val(index);
-    $option.html('AI '+(index+1));
+    $option.val(index)
+    $option.html(AI_names[index + 1]);
     $('select').append($option);
     //postAI(val)
   });
@@ -875,6 +891,18 @@ $(function(){
     var strategy=STRATEGIES[$('#AI2').val()];
     alert(strategy);
   });
+  
+  $('#pause').on('click', function(){
+    if ($('#pause').text()=='Pause'){
+      BGM.pause();
+      clearInterval(timer);
+      $('#pause').text('Unpause')
+    }else{
+        BGM.play();
+        timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+        $('#pause').text('Pause')
+    }
+  })
   
   $('#mute').on('click', function(){
     if(BGM.muted===false){
@@ -1115,7 +1143,7 @@ function get_symbols() {
 
     for (var key in arity) {
         if (arity.hasOwnProperty(key)) {
-            if (arity[key] == 0) {
+            if (arity[key] === 0) {
                 terminals.push(key);
             } else {
                 functions.push(key);
@@ -1140,9 +1168,9 @@ function get_random_symbol(depth, max_depth, symbols, full) {
     } else {
         var terminal = get_random_boolean();
         if (!full && terminal) {
-            symbol = symbols["terminals"][get_random_int(0, symbols["terminals"].length)];
+            symbol = symbols.terminals[get_random_int(0, symbols.terminals.length)];
         } else {
-            symbol = symbols["functions"][get_random_int(0, symbols["functions"].length)];
+            symbol = symbols.functions[get_random_int(0, symbols.functions.length)];
         }
     }
     return symbol;
@@ -1176,7 +1204,7 @@ function grow(tree, depth, max_depth, full, symbols) {
     } else {
         symbol = tree;
     }
-    for (var i = 0; i < symbols["arity"][symbol]; i++) {
+    for (var i = 0; i < symbols.arity[symbol]; i++) {
         var new_symbol = get_random_symbol(depth, max_depth, symbols, full);
         var new_node = append_symbol(tree, new_symbol, symbols);
         var new_depth = depth + 1;
@@ -1198,7 +1226,14 @@ var gp_params = {
 
 var evolve = new Worker('tron_evolve_worker.js');
 var start_time = new Date().getTime();
-evolve.postMessage(gp_params);
+
+
+//This line Below starts the clinet-side background evlolution
+//Parameters are adjusted from the gp_params above
+//Turn single_thread to FALSE to use multi-threaded support: faster but uses more CPU.
+
+
+//evolve.postMessage(gp_params);
 
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
@@ -1228,21 +1263,21 @@ function show_stats(data){
 
 function mutate_and_crossover(population, params){
   
-    var new_population = tournament_selection(params['tournament_size'], population);
-    new_population = crossover(params['crossover_probability'], new_population);
-    mutation(params['mutation_probability'], new_population, params['max_size']);
+    var new_population = tournament_selection(params.tournament_size, population);
+    new_population = crossover(params.crossover_probability, new_population);
+    mutation(params.mutation_probability, new_population, params.max_size);
     // Replace the population with the new population
     population = new_population;
-    evaluate_population_multi_thread(population, mutate_and_crossover, gp_params.generations)
+    evaluate_population_multi_thread(population, mutate_and_crossover, gp_params.generations);
 
 }
 
 
-var new_population = []
+var new_population = [];
 var THREADS_INITIALIZED = false;
 var workers = [];
 var workers_ready_status = [];
-var num_workers_ready = 0
+var num_workers_ready = 0;
 var THREADS = 5; //optimized for AMD hexacores?
 var generation = 0;
 var time_prev = 0;
@@ -1254,23 +1289,23 @@ var time_prev = 0;
 //@param end_generation: the last generation.
 function evaluate_population_multi_thread(population, callback, end_generation){
     num_workers_ready = 0;
-    new_population = []
+    new_population = [];
     //Initialize the workers if they don't exist.
     if(!THREADS_INITIALIZED){
       for (var i = 0; i < THREADS; i++){
-        var worker = new Worker('tron_evolve_worker.js')
-        workers.push(worker)
+        var worker = new Worker('tron_evolve_worker.js');
+        workers.push(worker);
         worker.finished = false;
         worker.index = i;
         workers_ready_status.push({i: false});
         
         worker.addEventListener('message',function(e){
           this.finished = true;
-          e.data.forEach(function(val){new_population.push(val)})
+          e.data.forEach(function(val){new_population.push(val)});
           if(check_ready()){
             if(generation < end_generation){
-              generation += 1
-              console.log(new_population.length)
+              generation += 1;
+              console.log(new_population.length);
               print_stats(generation, new_population);
               callback(new_population, gp_params);
               }else{
@@ -1278,11 +1313,11 @@ function evaluate_population_multi_thread(population, callback, end_generation){
                 val.terminate();
               });
               var end_time = new Date().getTime();
-              console.log(end_time - start_time)
-              console.log('end')
+              console.log(end_time - start_time);
+              console.log('end');
             }
           }
-      })
+        });
       }
       THREADS_INITIALIZED = true;
     }
@@ -1290,13 +1325,13 @@ function evaluate_population_multi_thread(population, callback, end_generation){
     var population_len = population.length;    
     for (var i = 0; i < THREADS; i++){
       workers[i].finished = false;
-      workers[i].postMessage(population.slice(population_len/THREADS*i, population_len/THREADS*(i+1)))
+      workers[i].postMessage(population.slice(population_len/THREADS*i, population_len/THREADS*(i+1)));
 
     }
   
     function check_ready(){ 
       for(var i=0; i<workers.length; i++){
-        worker = workers[i]
+        worker = workers[i];
         if (!worker.finished){
           return false;
         }
@@ -1312,21 +1347,21 @@ function evaluate_population_multi_thread(population, callback, end_generation){
 //@param params: Object with keys listed above.
 //Prints stats in the generations.
 function gp(params) {
-    console.log(params)
+    console.log(params);
     // Create population
-    var population = initialize_population(params['population_size'],
-        params['max_size']);
+    var population = initialize_population(params.population_size,
+        params.max_size);
     console.log('B initial eval');
     evaluate_fitness(population);
     console.log('A initial eval');
 
     // Generation loop
     var generation = 0;
-    while (generation < params['generations']) {
+    while (generation < params.generations) {
         // Selection
-        var new_population = tournament_selection(params['tournament_size'], population);
-        new_population = crossover(params['crossover_probability'], new_population);
-        mutation(params['mutation_probability'], new_population, params['max_size']);
+        var new_population = tournament_selection(params.tournament_size, population);
+        new_population = crossover(params.crossover_probability, new_population);
+        mutation(params.mutation_probability, new_population, params.max_size);
 
         // Evaluate the new population
         evaluate_fitness(new_population);
@@ -1351,12 +1386,12 @@ function initialize_population(population_size, max_size) {
         var max_depth = (i % max_size) + 1;
         var symbol = get_random_symbol(1, max_depth, symbols, full);
         var tree = [symbol];
-        if (max_depth > 0 && contains(symbols["functions"], symbol)) {
+        if (max_depth > 0 && contains(symbols.functions, symbol)) {
             grow(tree, 1, max_depth, full, symbols);
         }
         population.push({genome: tree, fitness: DEFAULT_FITNESS});
         console.log(i);
-        console.log(JSON.stringify(population[i]["genome"]));
+        console.log(JSON.stringify(population[i].genome));
     }
     return population;
 }
@@ -1377,7 +1412,7 @@ function evaluate_fitness(population) {
 //increments the winners' score by 1
 function evaluate_individuals(individuals) {
     //Set the function which is called after each interval
-    setup_tron(individuals[0]['genome'], individuals[1]['genome']);
+    setup_tron(individuals[0].genome, individuals[1].genome);
     //TODO this is only intermittently working
     //tron_game_id = setInterval(step, 1000 / FRAMES_PER_SECOND);
     var cnt = 0;
@@ -1386,15 +1421,15 @@ function evaluate_individuals(individuals) {
         step_f();
         cnt++;
     }
-    individuals[0]['fitness'] += players[0]["score"];
-    individuals[1]['fitness'] += players[1]["score"];
+    individuals[0].fitness += players[0].score;
+    individuals[1].fitness += players[1].score;
 }
 
 
 //Sets up a tron board with two AI players stradgy 0 and 1.
 function setup_tron(strategy_0, strategy_1) {
 //Game board. 0 is empty
-    board = []
+    board = [];
     for (var i = 0; i < ROWS; i++) {
         var board_square = [];
         for (var j = 0; j < COLS; j++) {
@@ -1452,7 +1487,7 @@ function tournament_selection(tournament_size, population) {
         // Sort the competitors by fitness
         competitors.sort(sort_individuals);
         // Push the best competitor to the new population
-        var winner = competitors[0]["genome"];
+        var winner = competitors[0].genome;
         winner = copy_tree(winner);
         new_population.push({genome: winner, fitness: DEFAULT_FITNESS});
     }
@@ -1462,10 +1497,10 @@ function tournament_selection(tournament_size, population) {
 //Helper function to sort two individuals
 //@param 2 indivduals(with fitness)
 function sort_individuals(individual_0, individual_1) {
-    if (individual_0["fitness"] < individual_1["fitness"]) {
+    if (individual_0.fitness < individual_1.fitness) {
         return 1;
     }
-    if (individual_0["fitness"] > individual_1["fitness"]) {
+    if (individual_0.fitness > individual_1.fitness) {
         return -1;
     }
     return 0;
@@ -1483,7 +1518,7 @@ function crossover(crossover_probability, population) {
         var children = [];
         for (var j = 0; j < CHILDREN; j++) {
             var idx = get_random_int(0, population.length);
-            var genome = copy_tree(population[idx]["genome"]);
+            var genome = copy_tree(population[idx].genome);
             var child = {
                 genome: genome,
                 fitness: DEFAULT_FITNESS
@@ -1493,9 +1528,9 @@ function crossover(crossover_probability, population) {
         if (get_random() < crossover_probability) {
             var xo_nodes = [];
             for (var j = 0; j < children.length; j++) {
-                var end_node_idx = get_number_of_nodes(children[j]["genome"], 0) - 1;
+                var end_node_idx = get_number_of_nodes(children[j].genome, 0) - 1;
                 var node_idx = get_random_int(0, end_node_idx);
-                xo_nodes.push(get_node_at_index(children[j]["genome"], node_idx));
+                xo_nodes.push(get_node_at_index(children[j].genome, node_idx));
             }
             var tmp_child_1_node = copy_tree(xo_nodes[1]);
             replace_subtree(xo_nodes[0], xo_nodes[1]);
@@ -1516,16 +1551,16 @@ function mutation(mutation_probability, new_population, max_size) {
     for (var i = 0; i < new_population.length; i++) {
         // Mutate individuals
         if (get_random() < mutation_probability) {
-            var end_node_idx = get_number_of_nodes(new_population[i]["genome"], 0) - 1;
+            var end_node_idx = get_number_of_nodes(new_population[i].genome, 0) - 1;
             var node_idx = get_random_int(0, end_node_idx);
-            var node_info = get_depth_from_index(new_population[i]["genome"], {idx_depth: 0, idx: 0}, node_idx, 0);
-            var max_subtree_depth = max_size - node_info['idx_depth'];
+            var node_info = get_depth_from_index(new_population[i].genome, {idx_depth: 0, idx: 0}, node_idx, 0);
+            var max_subtree_depth = max_size - node_info.idx_depth;
             var new_subtree = [get_random_symbol(max_subtree_depth, max_size, symbols)];
-            if (contains(symbols['functions'], new_subtree[0])) {
+            if (contains(symbols.functions, new_subtree[0])) {
                 var full = false;//get_random_boolean();
-                grow(new_subtree, node_info['idx_depth'], max_size, full, symbols);
+                grow(new_subtree, node_info.idx_depth, max_size, full, symbols);
             }
-            find_and_replace_subtree(new_population[i]["genome"], new_subtree, node_idx, -1);
+            find_and_replace_subtree(new_population[i].genome, new_subtree, node_idx, -1);
         }
     }
 }
@@ -1536,9 +1571,9 @@ function mutation(mutation_probability, new_population, max_size) {
 //@param population: the population to be printed
 function print_stats(generation, population) {
     population.sort(sort_individuals);
-    if(generation % 10 == 0){
-      show_stats({generation: generation, genome: population[0].genome})
+    if(generation % 10 === 0){
+      show_stats({generation: generation, genome: population[0].genome});
     }else{
-      show_stats({generation: generation})
+      show_stats({generation: generation});
     }
 }

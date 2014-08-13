@@ -16,8 +16,7 @@
     Player 2 controls: <span class='key'>W</span><span class='key'>A</span><span class='key'>S</span><span class='key'>D</span><br/>
 When a player reaches an already reached square (the trail of another player), that player loses.<br/>
 When multiple players collide head-on, they tie.
-The last player standing wins. </div>
-<button id='mute'>Mute</button>
+The last player standing wins.</div>
 <table>
   <tr>
     <td>
@@ -26,8 +25,9 @@ The last player standing wins. </div>
       </canvas>
     </td>
     <td>
+      <button id='pause'>Pause</button><button id='mute'>Mute</button><br>
       <span id='strategyChoice'>
-        Current Generation Completed: <span id='currentGen'>0</span> <br/> <!-- WARNING: total currently hardcoded -->
+        <!-- Current Generation Completed: <span id='currentGen'>0</span> <br/> --> <!-- WARNING: total currently hardcoded --> 
         AI1's Choice:
         <select id='AI1'></select><button id='viewStrategy1'>See Strategy</button><br/>
         <span class='AI2controls'>AI2's Choice:</span>
