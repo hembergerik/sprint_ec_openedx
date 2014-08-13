@@ -943,6 +943,8 @@ $(function(){
         console.log('two');
         players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
         playerSetup();
+        $('.AI1controls').remove();
+        $('.AI2controls').remove();
       },
       "AI vs AI": function(){
         $(this).dialog('close');
