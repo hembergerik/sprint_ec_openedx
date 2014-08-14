@@ -536,6 +536,7 @@ function reload(){
   //resets game_over and stats_reported
   game_over=false;
   stats_reported=false;
+  console.log(timer);
   if (typeof timer == 'undefined'){
     timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
   }
@@ -548,6 +549,7 @@ function reload(){
 function end_game() {
   BGM.pause();
   clearInterval(timer);
+  timer = undefined;
   Crash_effect.play();
     var winner = -1;
     var scoreUpdate=-1;
@@ -577,13 +579,17 @@ function end_game() {
       resizable: false,
       height:270,
       width:540,
-      modal: false,
+      modal: true,
       buttons: {
         "Play Again": function() {
           $(this).dialog('close');
-          reload();
+          ctx.clearRect(0, 0,ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+          ctx.font=BIKE_WIDTH+"px Calibri";
+          ctx.fillStyle='#3effff';
+          ctx.fillText("Click to play",Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH*2)),Math.floor((ROWS*BIKE_WIDTH/2)-(BIKE_WIDTH/2)));
+          //reload();
         },
-        "Start Over": function() {
+        "Change Mode": function() {
           $(this).dialog('close');
           location.reload();
         }
@@ -607,9 +613,6 @@ function end_game_f(){
     stats_reported = true;
 }
 
-/**
- * A step of the game clock, i.e. one round.
- */
 function step() {
     //Move the players
     // console.log(stats_reported);
@@ -674,7 +677,7 @@ function step_f(){
 function start(){
   BGM.play();
   //Set the function which is called after each interval
-  if (typeof timer != 'undefined'){
+  if (typeof timer == 'undefined'){
     timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
   }
   //erases the text.
@@ -743,7 +746,7 @@ window.addEventListener("keydown", function(e) {
 
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
-document.onkeyup = function read(event) {
+document.onkeydown = function read(event) {
     //The variable e is passed into read or a window event
     var e = event || window.event;
     //The event code
@@ -807,10 +810,12 @@ document.onkeyup = function read(event) {
       $('body').css('background-image', 'url("media/images/nyan_background.gif")');
       $('body').css('background-repeat', 'repeat');      
     }
+    //
     if (code === 80){
       if ($('#pause').text()=='Pause'){
         BGM.pause();
         clearInterval(timer);
+        timer = undefined
         $('#pause').text('Unpause')
       }else{
           BGM.play();
@@ -891,13 +896,17 @@ $(function(){
   });
   
   $('#AI1').on('change', function(){
-    console.log($('#AI1 option:selected').text())
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
-  })
+    $('#assignMessage').text($('#AI1 :selected').text() + ' assigned!');
+    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
+    
+  });
 
    $('#AI2').on('change', function(){
-    AI_PLAYER.strategy=STRATEGIES[$('#AI2').val()];
-  })
+    AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()];
+    $('#assignMessage').text($('#AI2 :selected').text() + ' assigned!');
+    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
+  });
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
@@ -911,9 +920,12 @@ $(function(){
   
   $('#pause').on('click', function(){
     if ($('#pause').text()=='Pause'){
-      BGM.pause();
-      clearInterval(timer);
-      $('#pause').text('Unpause')
+      if (typeof timer != 'undefined'){
+        BGM.pause();
+        clearInterval(timer);
+        timer=undefined;
+        $('#pause').text('Unpause')
+      }
     }else{
         BGM.play();
         if (typeof timer == 'undefined'){
@@ -945,7 +957,7 @@ $(function(){
     resizable: false,
     height: 240,
     width: 540,
-    modal: false,
+    modal: true,
     buttons: {
       "Human vs AI": function(){
         $(this).dialog('close');
@@ -1000,6 +1012,8 @@ $(function(){
     if (!started){
       start();
       started=true;
+    }else if (game_over){
+        reload()
     }
   });
 });
