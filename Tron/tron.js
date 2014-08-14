@@ -27,6 +27,7 @@ canvas.width = COLS * BIKE_WIDTH;
 canvas.height = ROWS * BIKE_HEIGHT;
 var started=false;
 
+//array of strategies used by the AI
 var STRATEGIES = [
 ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],
 ["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],
@@ -39,7 +40,7 @@ var STRATEGIES = [
 ["+",["IFLEQ",["+",["IFLEQ",["+",["0.3"],["0.3"]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["+","SENSE_A","0.3"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]],["IFLEQ",["IFLEQ",["IFLEQ","TURN_RIGHT","SENSE_R",["SENSE_R"],"0.6"],["-","SENSE_A","SENSE_L"],["SENSE_R"],["SENSE_L"]],["SENSE_R"],["SENSE_A"],["+",["TURN_LEFT"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["SENSE_L"],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]],["IFLEQ",["0.3"],["SENSE_R"],["IFLEQ",["SENSE_L"],["-","SENSE_L","SENSE_R"],["TURN_RIGHT"],["IFLEQ","SENSE_L","TURN_RIGHT","SENSE_A","0.1"]],["+",["+","SENSE_A","SENSE_R"],["IFLEQ","SENSE_L","0.1","SENSE_R","TURN_LEFT"]]]]
 ];
 
-
+//array of names for the AI's with certain strategies
 var AI_names = {'1' : 'Potato',
                 '2' : 'Doorknob',
                 '3': 'Trident &#945',
@@ -76,7 +77,7 @@ Crash_effect.src = 'media/Tron_Crash.mp3';
 
 var players;
 var NUM_PLAYERS;
-//Game board. 0 is empty
+//sets up game board. 0 is empty
 var board = [];
 for (var i = 0; i < ROWS; i++) {
   var board_square = [];
@@ -92,6 +93,8 @@ var PLAYER_DIRECTIONS = [
     [0, -1],//West 'UP'
     [-1, 0] //South 'LEFT'
 ];
+
+//initializes the 2 human and 2 ai players
 var HUMAN_PLAYER = {
     name: 'HUMAN PLAYER 1',
     COLOR: 'red',
@@ -173,64 +176,63 @@ function get_direction_index(direction) {
  * @param {Object} player Player that is evaluated
  * @returns {*}
  */
-    function evaluate(node, player) {
-        // Get the symbol of the node
-        var symbol;
-        if (typeof node === 'string') {
-            symbol = node;
-        } else {
-            symbol = node[0];
-        }
-        switch (symbol) {
-            case "IFLEQ":
-                // Conditional statement
-
-                // Check the condition to see which child to evaluate
-                if (evaluate(node[1], player) <= evaluate(node[2], player)) {
-                    return evaluate(node[3], player);
-                } else {
-                    return evaluate(node[4], player);
-                }
-                break;
-            case "SENSE_A":
-                // Sense the distance
-                return distance(0, player);
-            case "SENSE_L":
-                // Sense the distance
-                return distance(1, player);
-            case "SENSE_R":
-                // Sense the distance
-                return distance(-1, player);
-            case "TURN_LEFT":
-                // Turn left
-                left(player);
-                break;
-            case "TURN_RIGHT":
-                // Turn right
-                right(player);
-                break;
-            case "+":
-                return evaluate(node[1], player) + evaluate(node[2], player);
-            case "-":
-                return evaluate(node[1], player) - evaluate(node[2], player);
-            case "0.1":
-                return Number(symbol);
-            case "0.3":
-                return Number(symbol);
-            case "0.6":
-                return Number(symbol);
-            default:
-                // Unknown symbol
-                //throw "Unknown symbol:" + symbol;
-        }
-    }
+function evaluate(node, player) {
+  // Get the symbol of the node
+  var symbol;
+  if (typeof node === 'string') {
+    symbol = node;
+  } else {
+    symbol = node[0];
+  }
+  switch (symbol) {
+    case "IFLEQ":
+      // Conditional statement
+      // Check the condition to see which child to evaluate
+      if (evaluate(node[1], player) <= evaluate(node[2], player)) {
+        return evaluate(node[3], player);
+      } else {
+        return evaluate(node[4], player);
+      }
+      break;
+    case "SENSE_A":
+      // Sense the distance
+      return distance(0, player);
+    case "SENSE_L":
+      // Sense the distance
+      return distance(1, player);
+    case "SENSE_R":
+      // Sense the distance
+      return distance(-1, player);
+    case "TURN_LEFT":
+      // Turn left
+      left(player);
+      break;
+    case "TURN_RIGHT":
+      // Turn right
+      right(player);
+      break;
+    case "+":
+      return evaluate(node[1], player) + evaluate(node[2], player);
+    case "-":
+      return evaluate(node[1], player) - evaluate(node[2], player);
+    case "0.1":
+      return Number(symbol);
+    case "0.3":
+      return Number(symbol);
+    case "0.6":
+      return Number(symbol);
+    default:
+      // Unknown symbol
+      //throw "Unknown symbol:" + symbol;
+  }
+}
     
-    function distance(direction, player) {
-        var direction_idx = get_direction_index(player.direction);
-        var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
-        var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
-        return player.environment[new_direction] / ROWS;
-    }
+function distance(direction, player) {
+  var direction_idx = get_direction_index(player.direction);
+  var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
+  var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
+  return player.environment[new_direction] / ROWS;
+}
 
 /**
  * Return a boolean denoting if the distance to an obstacle in the
@@ -241,11 +243,11 @@ function get_direction_index(direction) {
  * @returns {boolean}
  */
 function is_obstacle_in_relative_direction(direction, player) {
-    // Threshold for how far ahead an obstacle is sensed
-    var threshold = 1.0 / ROWS;
-    // Distance to obstacle
-    var dist = distance(direction, player);
-    return dist < threshold;
+  // Threshold for how far ahead an obstacle is sensed
+  var threshold = 1.0 / ROWS;
+  // Distance to obstacle
+  var dist = distance(direction, player);
+  return dist < threshold;
 }
 
 /**
@@ -258,10 +260,10 @@ function is_obstacle_in_relative_direction(direction, player) {
  * @returns {number} distance to an obstacle in the direction
  */
 function distance(direction, player) {
-    var direction_idx = get_direction_index(player.direction);
-    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
-    var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
-    return player.environment[new_direction] / ROWS;
+  var direction_idx = get_direction_index(player.direction);
+  var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
+  var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
+  return player.environment[new_direction] / ROWS;
 }
 
 /**
@@ -272,9 +274,8 @@ function distance(direction, player) {
  * @return {number} new point
  */
 
-
 function get_new_point(p, d) {
-    return (p + d + ROWS) % ROWS;
+  return (p + d + ROWS) % ROWS;
 }
 
 /**
@@ -284,27 +285,26 @@ function get_new_point(p, d) {
  * @param{Object} player
  */
 function check_environment(player) {
-    // Clear the environment
-    player.environment = {};
-
-    // Check in the directions
-    for (var i = 0; i < PLAYER_DIRECTIONS.length; i++) {
-        // Get the coordinates of the adjacent cell
-        var x_p = get_new_point(player.x, PLAYER_DIRECTIONS[i][0]);
-        var y_p = get_new_point(player.y, PLAYER_DIRECTIONS[i][1]);
-        // Distance to obstacles
-        var distance = 0;
-        // Iterate over the cells for and stop for obstacles or when the length of the board is reached
-        while (board[x_p][y_p] === 0 && distance < ROWS) {
-            // Increase the distance
-            distance = distance + 1;
-            // Get the coordinates of the adjacent cell
-            x_p = get_new_point(x_p, parseInt(PLAYER_DIRECTIONS[i][0]));
-            y_p = get_new_point(y_p, parseInt(PLAYER_DIRECTIONS[i][1]));
-        }
-        // Set the distance to an obstacle in the direction
-        player.environment[PLAYER_DIRECTIONS[i]] = distance;
+  // Clear the environment
+  player.environment = {};
+  // Check in the directions
+  for (var i = 0; i < PLAYER_DIRECTIONS.length; i++) {
+    // Get the coordinates of the adjacent cell
+    var x_p = get_new_point(player.x, PLAYER_DIRECTIONS[i][0]);
+    var y_p = get_new_point(player.y, PLAYER_DIRECTIONS[i][1]);
+    // Distance to obstacles
+    var distance = 0;
+    // Iterate over the cells for and stop for obstacles or when the length of the board is reached
+    while (board[x_p][y_p] === 0 && distance < ROWS) {
+      // Increase the distance
+      distance = distance + 1;
+      // Get the coordinates of the adjacent cell
+      x_p = get_new_point(x_p, parseInt(PLAYER_DIRECTIONS[i][0]));
+      y_p = get_new_point(y_p, parseInt(PLAYER_DIRECTIONS[i][1]));
     }
+    // Set the distance to an obstacle in the direction
+    player.environment[PLAYER_DIRECTIONS[i]] = distance;
+  }
 }
 
 /**
@@ -312,9 +312,9 @@ function check_environment(player) {
  * @param{Object} player Player to change the state of
  */
 function left(player) {
-    var direction_idx = get_direction_index(player.direction);
-    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + 1) % PLAYER_DIRECTIONS.length;
-    player.direction = PLAYER_DIRECTIONS[new_direction_idx];
+  var direction_idx = get_direction_index(player.direction);
+  var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + 1) % PLAYER_DIRECTIONS.length;
+  player.direction = PLAYER_DIRECTIONS[new_direction_idx];
 }
 
 /**
@@ -322,9 +322,9 @@ function left(player) {
  * @param{Object} player Player to change the state of
  */
 function right(player) {
-    var direction_idx = get_direction_index(player.direction);
-    var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length - 1) % PLAYER_DIRECTIONS.length;
-    player.direction = PLAYER_DIRECTIONS[new_direction_idx];
+  var direction_idx = get_direction_index(player.direction);
+  var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length - 1) % PLAYER_DIRECTIONS.length;
+  player.direction = PLAYER_DIRECTIONS[new_direction_idx];
 }
 
 /**
@@ -332,10 +332,10 @@ function right(player) {
  * @param {Object} player player
  */
 function move_ai(player) {
-    // Check the environment for obstacles
-    check_environment(player);
-    // Evaluate the player strategy
-    evaluate(player.strategy, player);
+  // Check the environment for obstacles
+  check_environment(player);
+  // Evaluate the player strategy
+  evaluate(player.strategy, player);
 }
 
 /**
@@ -343,12 +343,12 @@ function move_ai(player) {
  * @param {Object} player player
  */
 function move_bike(player) {
-    if(!game_over){
-      // Get new x-coordinate
-      player.x = get_new_point(player.x, player.direction[0]);
-      // Get new y-coordinate
-      player.y = get_new_point(player.y, player.direction[1]);
-    }
+  if(!game_over){
+    // Get new x-coordinate
+    player.x = get_new_point(player.x, player.direction[0]);
+    // Get new y-coordinate
+    player.y = get_new_point(player.y, player.direction[1]);
+  }
 }
 
 /**
@@ -403,7 +403,13 @@ function draw(player) {
   }
 }
 
-  //Draws the image on the context at x,y with w,h and rotated to player_direction.
+/**
+ * Draws the image on the context
+ *
+ * @param {Image} image: image to be drawn
+ * @param {Array} player_direction: the direction the play is facing
+ * @param {number} x, y, w, h: the x position, y position, width, and height of the image
+ */
 
 function drawRotatedImage(image, context, player_direction, x, y, w, h){
   context.save();
@@ -414,20 +420,34 @@ function drawRotatedImage(image, context, player_direction, x, y, w, h){
   context.restore();
 }
 
+/**
+ * Draws a corner on the context
+ *
+ * @param {Image} image: image to be drawn
+ * @param {Array} prev_direction: the direction the player is facing before turning
+ * @param {Array} curr_direction: the direction the player is facing after turning
+ * @param {number} x, y, w, h: the x position, y position, width, and height of the image
+ */
 function drawCorner(image,context, prev_direction, curr_direction, x,y,w,h){
-    var dx = prev_direction[0] - curr_direction[0];
-    var dy = prev_direction[1] - curr_direction[1];
-    if(dx == 1 && dy == -1){
-      drawRotatedImage(image,context, [-1,0], x,y,w,h);
-    }else if(dx == -1 && dy == -1){
-      drawRotatedImage(image,context, [0,1], x,y,w,h);
-    }else if(dx == -1 && dy == 1){
-      drawRotatedImage(image,context, [1,0], x,y,w,h);
-    }else if(dx == 1 && dy == 1){
-      drawRotatedImage(image,context, [0,-1], x,y,w,h);
-    }
+  var dx = prev_direction[0] - curr_direction[0];
+  var dy = prev_direction[1] - curr_direction[1];
+  if(dx == 1 && dy == -1){
+    drawRotatedImage(image,context, [-1,0], x,y,w,h);
+  }else if(dx == -1 && dy == -1){
+    drawRotatedImage(image,context, [0,1], x,y,w,h);
+  }else if(dx == -1 && dy == 1){
+    drawRotatedImage(image,context, [1,0], x,y,w,h);
+  }else if(dx == 1 && dy == 1){
+    drawRotatedImage(image,context, [0,-1], x,y,w,h);
   }
-  
+}
+
+/**
+ * Gets how much an image needs to be rotated
+ *
+ * @param {Array} player_direction: the direction the player is facing
+ * @return {number} how much the image needs to be rotated to align with player_direction
+ */
 function getImageRotation(player_direction){
   //can't compare by the array directly. [1,0] == [1,0] becomes false.
   if (player_direction[0] == 1)
@@ -440,6 +460,12 @@ function getImageRotation(player_direction){
     return Math.PI/2;
 }
 
+/**
+ * Calculates the image ratio for the trails
+ *
+ * @param {Array} prev_direction: the direction the player is facing
+ * @return {Array} the image ratio for the trail
+ */
 function getLightTrailScale(player_direction){
   if(player_direction[0] === 0)
     return [1/2, 1];
@@ -448,11 +474,11 @@ function getLightTrailScale(player_direction){
 }
 
 function getLightTrail(posx, posy, player_direction, player_prev_direction){
-    var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT];
-    var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)];
-    var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT];
-    return [pos_1,pos_2,pos_3];
-  }
+  var pos_1 = [(posx + 1/2 - 1/2*player_prev_direction[0])*BIKE_WIDTH, (posy+1/2 - 1/2*player_prev_direction[1])*BIKE_HEIGHT];
+  var pos_2 = [(posx + 1/2 * player_prev_direction[0])*BIKE_WIDTH, ((posy+1/2 * player_prev_direction[1])*BIKE_HEIGHT)];
+  var pos_3 = [(posx + 1/2 + 1/2*player_direction[0])*BIKE_WIDTH, (posy+1/2+1/2*player_direction[1])*BIKE_HEIGHT];
+  return [pos_1,pos_2,pos_3];
+}
                 
 //Drawing the image, rotated, at x,y is off by +- 1 in both x,y
 //These numbers are to correct the offset. I don't know why they are what they are.
@@ -474,30 +500,30 @@ function getImageOffset(player_direction){
  * @param{Object} player
  */
 function update(player,players) {
-    if(!game_over){
-      //Move player
-      if (player.alive) {
-          move_bike(player);
+  if(!game_over){
+    //Move player
+    if (player.alive) {
+      move_bike(player);
+    }
+    //check for collision
+    if (board[player.x][player.y] !== 0) {
+      player.bike_trail.push(player.direction);
+      player.alive = false;
+      for(var i = 0; i < players.length; i++){
+        if ((players[i].x==player.x) && (players[i].y==player.y)){
+          players[i].alive = false;
+        }
       }
-      //check for collision
-      if (board[player.x][player.y] !== 0) {
-          player.bike_trail.push(player.direction);
-          player.alive = false;
-          for(var i = 0; i < players.length; i++){
-              if ((players[i].x==player.x) && (players[i].y==player.y)){
-                  players[i].alive = false;
-              }
-          }
-      } else {
-          // Add the direction to the bike trail
-          player.bike_trail.push(player.direction);
-          // Set the board value to the bike trail length
-          if(player.bike_trail.length>2){
-            board[player.x][player.y] = player.bike_trail.length;
-          }
+    } else {
+      // Add the direction to the bike trail
+      player.bike_trail.push(player.direction);
+      // Set the board value to the bike trail length
+      if(player.bike_trail.length>2){
+        board[player.x][player.y] = player.bike_trail.length;
       }
     }
   }
+}
 
 /*
  * Game Over. Registers the winner.
@@ -514,8 +540,7 @@ function reload(){
     board[i]=board_square;
   }
   //Clear the canvas.
-  ctx.clearRect(0, 0,
-      ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  ctx.clearRect(0, 0, ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
   //brings players back to life
   for (i = 0; i < NUM_PLAYERS; i++) {
     players[i].alive = true;
@@ -600,52 +625,51 @@ function end_game() {
 
 //f stands for fast.
 function end_game_f(){
-    var winner = -1;
-    var scoreUpdate=-1;
-    // Find the winner
-    for (var i = 0; i < NUM_PLAYERS; i++) {
-        if (players[i].alive === true) {
-            winner = players[i].name;
-            stats_reported = true;
-            players[i].score = 1;
-        }
+  var winner = -1;
+  // Find the winner
+  for (var i = 0; i < NUM_PLAYERS; i++) {
+    if (players[i].alive === true) {
+      winner = players[i].name;
+      stats_reported = true;
+      players[i].score = 1;
     }
-    stats_reported = true;
+  }
+  stats_reported = true;
 }
 
 function step() {
-    //Move the players
-    // console.log(stats_reported);
-    if (!stats_reported) {
-        for (var i = 0; i < NUM_PLAYERS; i++) {
-            if (players[i].ai) {
-                move_ai(players[i]);
-            }
-            // Update the player
-            update(players[i],players);
-            // Draw the player
-            draw(players[i]);
-        }
-    }
-    //Check if the players are alive
+  //Move the players
+  // console.log(stats_reported);
+  if (!stats_reported) {
     for (var i = 0; i < NUM_PLAYERS; i++) {
-        if (players[i].alive === false) {
-            game_over = true;
-        }
+      if (players[i].ai) {
+        move_ai(players[i]);
+      }
+      // Update the player
+      update(players[i],players);
+      // Draw the player
+      draw(players[i]);
     }
-    //Game over?
-    if (game_over) {
-        //TODO better way of only registering game once
-        if (!stats_reported) {
-            end_game();
-        }
-    }/*else{
-      var scores=$('.playerScore');
-      scores.each(function(){
-        var current=parseInt($(this).text(),10);
-        $(this).text(current+1);
-      })
-    }*/
+  }
+  //Check if the players are alive
+  for (var i = 0; i < NUM_PLAYERS; i++) {
+    if (players[i].alive === false) {
+      game_over = true;
+    }
+  }
+  //Game over?
+  if (game_over) {
+    //TODO better way of only registering game once
+    if (!stats_reported) {
+      end_game();
+    }
+  }/*else{
+    var scores=$('.playerScore');
+    scores.each(function(){
+      var current=parseInt($(this).text(),10);
+      $(this).text(current+1);
+    })
+  }*/
 }
 
 //f stands for fast.
@@ -681,8 +705,7 @@ function start(){
     timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
   }
   //erases the text.
-  ctx.clearRect(0, 0,
-    ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
+  ctx.clearRect(0, 0, ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
 }
 
 function playerSetup(){
@@ -747,95 +770,94 @@ window.addEventListener("keydown", function(e) {
 //TODO hardcoded to handle only HUMAN_PLAYER as the human player
 //Determine the actions when a key is pressed. 
 document.onkeydown = function read(event) {
-    //The variable e is passed into read or a window event
-    var e = event || window.event;
-    //The event code
-    var code = e.keyCode || e.which;
-    //Check the event code
-    var direction;
-    if (64 < code && code < 88) {
-        direction = HUMAN_PLAYER_2.direction;
-        switch (code) {
-            //A key
-            case 65:
-                //calls the corresponding key function.
-                left_key(HUMAN_PLAYER_2);
-                break;
-            //w key
-            case 87:
-                up_key(HUMAN_PLAYER_2);
-                break;
-            //d key
-            case 68:
-                right_key(HUMAN_PLAYER_2);
-                break;
-            //s key
-            case 83:
-                down_key(HUMAN_PLAYER_2);
-                break;
-        }
-    } else if (36 < code && code < 41) {
-        //Current direction of HUMAN_PLAYER
-        direction = HUMAN_PLAYER.direction;
-        console.log("current direction is: " + direction[0] + " " + direction[1]);
-        switch (code) {
-            //Left arrow    
-            case 37:
-                //calls the corresponding key function.
-                left_key(HUMAN_PLAYER);
-                break;
-            //up arrow
-            case 38:
-            
-                e.preventDefault();
-                up_key(HUMAN_PLAYER);
-                break;
-            //Right arrow
-            case 39:
-                right_key(HUMAN_PLAYER);
-                break;
-            //down arrow
-            case 40:
-                e.preventDefault();
-                down_key(HUMAN_PLAYER);
-                break;
-        }
+  //The variable e is passed into read or a window event
+  var e = event || window.event;
+  //The event code
+  var code = e.keyCode || e.which;
+  //Check the event code
+  var direction;
+  if (64 < code && code < 88) {
+    direction = HUMAN_PLAYER_2.direction;
+    switch (code) {
+      //A key
+      case 65:
+      //calls the corresponding key function.
+        left_key(HUMAN_PLAYER_2);
+        break;
+      //w key
+      case 87:
+        up_key(HUMAN_PLAYER_2);
+        break;
+      //d key
+      case 68:
+        right_key(HUMAN_PLAYER_2);
+        break;
+      //s key
+      case 83:
+        down_key(HUMAN_PLAYER_2);
+        break;
     }
-    //N key, nyan cat
-    if (code === 78){
-      BGM.src = 'media/Nyan_Cat.mp3';
-      red_trail.src = 'media/images/Nyan_Trail.png';
-      red_bike_img.src = 'media/images/Nyan_Cat.png';
-      red_corner.src = 'media/images/Nyan_Corner.png';
+  } else if (36 < code && code < 41) {
+    //Current direction of HUMAN_PLAYER
+    direction = HUMAN_PLAYER.direction;
+    console.log("current direction is: " + direction[0] + " " + direction[1]);
+    switch (code) {
+      //Left arrow    
+      case 37:
+        //calls the corresponding key function.
+        left_key(HUMAN_PLAYER);
+        break;
+      //up arrow
+      case 38:
+        e.preventDefault();
+        up_key(HUMAN_PLAYER);
+        break;
+      //Right arrow
+      case 39:
+        right_key(HUMAN_PLAYER);
+        break;
+      //down arrow
+      case 40:
+        e.preventDefault();
+        down_key(HUMAN_PLAYER);
+        break;
+    }
+  }
+  //N key, nyan cat
+  if (code === 78){
+    BGM.src = 'media/Nyan_Cat.mp3';
+    red_trail.src = 'media/images/Nyan_Trail.png';
+    red_bike_img.src = 'media/images/Nyan_Cat.png';
+    red_corner.src = 'media/images/Nyan_Corner.png';
+    BGM.play();
+    $('body').css('background-image', 'url("media/images/nyan_background.gif")');
+    $('body').css('background-repeat', 'repeat');      
+  }
+  //P key, pause
+  if (code === 80){
+    if ($('#pause').text()=='Pause'){
+      BGM.pause();
+      clearInterval(timer);
+      timer = undefined;
+      $('#pause').text('Resume')
+    }else{
       BGM.play();
-      $('body').css('background-image', 'url("media/images/nyan_background.gif")');
-      $('body').css('background-repeat', 'repeat');      
+      timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+      $('#pause').text('Pause')
     }
-    //P key, pause
-    if (code === 80){
-      if ($('#pause').text()=='Pause'){
-        BGM.pause();
-        clearInterval(timer);
-        timer = undefined;
-        $('#pause').text('Resume')
-      }else{
-          BGM.play();
-          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-          $('#pause').text('Pause')
+  }
+  //SPACE key, start the game.
+  if (code === 32){
+    if(!$(".ui-dialog").is(":visible")){
+      //dialog is not open, start game
+      if (!started){
+        start();
+        started=true;
+      }else if (game_over){
+        reload()
       }
     }
-    //SPACE key, start the game.
-    if (code === 32){
-      if(!$(".ui-dialog").is(":visible")){
-        //dialog is not open, start game
-        if (!started){
-            start();
-            started=true;
-          }else if (game_over){
-              reload()
-          }
-      }
-    }
+  }
 };
 
 //AJAX functions
@@ -878,7 +900,6 @@ function updateAI(AI){
 // - Can the buttons be larger (Should the side of the board be clickable?)
 // - (Can we minify and create a mobile version for the Tron)
 $(function(){
-  
 
   getRandomAI(addAI);
   //postAI(STRATEGIES[1])
@@ -891,14 +912,9 @@ $(function(){
     $('select').append($option);
   }
   
-  
   //updateAI(["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]])
   
-  
   //Array of players
-  
-  
-  
   
   STRATEGIES.forEach(function(val, index){
     var $option = $('<option>');
@@ -911,24 +927,23 @@ $(function(){
   $('#AI1').on('change', function(){
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
     $('#assignMessage').text($('#AI1 :selected').text() + ' assigned!');
-    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
-    
+    $('#assignMessage').fadeTo(600, 1.0, function(){$('#assignMessage').fadeTo(1000,0.0)});
   });
 
    $('#AI2').on('change', function(){
     AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()];
     $('#assignMessage').text($('#AI2 :selected').text() + ' assigned!');
-    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
+    $('#assignMessage').fadeTo(600, 1.0, function(){$('#assignMessage').fadeTo(1000,0.0)});
   });
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
-    alert(strategy);
+    prompt(strategy, JSON.stringify(strategy));
   });
   
   $('#viewStrategy2').on('click', function(){
     var strategy=STRATEGIES[$('#AI2').val()];
-    alert(strategy);
+    prompt(strategy, JSON.stringify(strategy));
   });
   
   $('#pause').on('click', function(){
@@ -940,11 +955,11 @@ $(function(){
         $('#pause').text('Resume')
       }
     }else{
-        BGM.play();
-        if (typeof timer == 'undefined'){
-          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
-        }
-        $('#pause').text('Pause')
+      BGM.play();
+      if (typeof timer == 'undefined'){
+        timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+      }
+      $('#pause').text('Pause')
     }
   })
   
@@ -1026,7 +1041,7 @@ $(function(){
       start();
       started=true;
     }else if (game_over){
-        reload();
+      reload();
     }
   });
 });
@@ -1043,15 +1058,15 @@ function contains(array, obj) {
 
 //Seeded Random number functions
 function get_random() {
-    return Math.seededRandom(0, 1);
+  return Math.seededRandom(0, 1);
 }
 
 function get_random_int(min, max) {
-    return Math.floor(Math.seededRandom(min, max));
+  return Math.floor(Math.seededRandom(min, max));
 }
 
 function get_random_boolean() {
-    return Math.seededRandom(0, 1) < 0.5;
+  return Math.seededRandom(0, 1) < 0.5;
 }
 
 // From http://indiegamr.com/generate-repeatable-random-numbers-in-js/
@@ -1277,7 +1292,6 @@ var start_time = new Date().getTime();
 
 
 //evolve.postMessage(gp_params);
-
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
     show_stats(e.data);
