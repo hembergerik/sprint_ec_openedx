@@ -16,7 +16,7 @@
     Player 2 controls: <span class='key'>W</span><span class='key'>A</span><span class='key'>S</span><span class='key'>D</span><br/>
 When a player reaches an already reached square (the trail of another player), that player loses.<br/>
 When multiple players collide head-on, they tie.
-The last player standing wins.<br> Press <span class='key'>P</span> to pause and Press <span class='key'>SPACE</span> to start the game.</div>
+The last player standing wins.<br> Press <span class='key'>P</span> to pause and press <span class='key'>SPACE</span> to start the game.</div>
 <table>
   <tr>
     <td>
@@ -29,13 +29,18 @@ The last player standing wins.<br> Press <span class='key'>P</span> to pause and
       <span id='strategyChoice'>
         <!-- Current Generation Completed: <span id='currentGen'>0</span> <br/> --> <!-- WARNING: total currently hardcoded --> 
         <span class='AI1controls'>AI1's Choice:</span>
-        <select class='AI1controls' id='AI1'></select><button class='AI1controls' id='viewStrategy1'>See Strategy</button><br/>
+        <select class='AI AI1controls' id='AI1'></select><button class='AI1controls' id='viewStrategy1'>See Strategy</button><br/>
         <span class='AI2controls'>AI2's Choice:</span>
-        <select class='AI2controls' id='AI2'></select><button class='AI2controls' id='viewStrategy2'>See Strategy</button><br/>
+        <select class='AI AI2controls' id='AI2'></select><button class='AI2controls' id='viewStrategy2'>See Strategy</button><br/>
         <div id='assignMessage'>bloop</div>
 
         
       </span><br/>
+      <span id = 'skinChoice'>
+        Bike 1 ("Red") Skin: <select id = 'red_bike_skin' class = 'skin'></select><br>
+        Bike 2 ("Blue") Skin: <select id = 'blue_bike_skin' class = 'skin'></select>
+        
+      </span><br>
       <span id='playerScores'></span>
     </td>
   </tr>

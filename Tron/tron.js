@@ -68,6 +68,46 @@ red_corner.src = 'media/images/Glow_Trail_Red_corner.png';
 var blue_corner = new Image();
 blue_corner.src = 'media/images/Glow_Trail_blue_corner.png';
 
+
+var skins = [] ;
+
+
+function skin_constructor(name, bikeurl, trailurl, cornerurl){
+  var skin =  {
+    name: name,
+    bike_img: bikeurl,
+    trail_img: trailurl,
+    corner_img: cornerurl
+  }
+  skins.push(skin);
+  return skin;
+}
+
+
+var red_bike_skin = skin_constructor('red bike', 'media/images/Tron_bike_red.png','media/images/Glow_Trail_Red_square.png','media/images/Glow_Trail_Red_corner.png');
+var blue_bike_skin = skin_constructor('blue bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png')
+var teal_bike_skin = skin_constructor('teal bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
+var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
+
+
+//@param red_or_blue: string, 'red' or 'blue'
+//@param skin: built by skin_constructor.
+function apply_skin(red_or_blue, skin){
+  if (red_or_blue == 'red'){
+    red_bike_img.src = skin.bike_img;
+    red_trail.src = skin.trail_img;
+    red_corner.src = skin.corner_img;
+  }else if(red_or_blue == 'blue'){
+    blue_bike_img.src = skin.bike_img;
+    blue_trail.src = skin.trail_img;
+    blue_corner.src = skin.corner_img;
+  }else{
+    throw 'error in apply skin: specify which bike to change skin';
+  }
+}
+
+
+
 //$('<audio>') behaves better than new Audio(); in the page.
 var BGM = $('<audio>')[0];
 BGM.src = 'media/Tron_Theme.mp3';
@@ -848,6 +888,7 @@ document.onkeydown = function read(event) {
   }
   //SPACE key, start the game.
   if (code === 32){
+    e.preventDefault();
     if(!$(".ui-dialog").is(":visible")){
       //dialog is not open, start game
       if (!started){
@@ -909,7 +950,7 @@ $(function(){
     var $option = $('<option>');
     $option.val(STRATEGIES.length - 1);
     $option.html('Server');
-    $('select').append($option);
+    $('select.AI').append($option);
   }
   
   //updateAI(["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]])
@@ -920,9 +961,20 @@ $(function(){
     var $option = $('<option>');
     $option.val(index)
     $option.html(AI_names[index + 1]);
-    $('select').append($option);
+    $('select.AI').append($option);
     //postAI(val)
   });
+  
+  
+  skins.forEach(function(skin, index){
+    var $option = $('<option>');
+    $option.val(index);
+    $option.html(skin.name);
+    $('select.skin').append($option);
+  })
+  
+  
+  
   
   $('#AI1').on('change', function(){
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
@@ -935,6 +987,16 @@ $(function(){
     $('#assignMessage').text($('#AI2 :selected').text() + ' assigned!');
     $('#assignMessage').fadeTo(600, 1.0, function(){$('#assignMessage').fadeTo(1000,0.0)});
   });
+  
+  $('#red_bike_skin').on('change', function(e){
+    apply_skin('red',skins[$(this).val()])
+  })
+  
+  $('#blue_bike_skin').on('change', function(e){
+    apply_skin('blue',skins[$(this).val()])
+  })
+  
+  
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
