@@ -117,7 +117,7 @@ var AI_PLAYER = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["-",["SENSE_A"],["IFLEQ",["IFLEQ",["+","SENSE_A","SENSE_A"],"0.3","0.3",["IFLEQ","0.3","SENSE_R","TURN_LEFT","TURN_RIGHT"]],["-",["TURN_LEFT"],["IFLEQ",["IFLEQ",["0.1"],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]] 
+    strategy: ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]] 
 };
 var AI_PLAYER_2 = {
     name: 'AI PLAYER 2',
@@ -130,7 +130,7 @@ var AI_PLAYER_2 = {
     bike_trail: [],
     ai: true,
     // Strategy for the AI
-    strategy: ["-","0.6",["IFLEQ",["+",["IFLEQ",["+","SENSE_A","SENSE_R"],"SENSE_L","TURN_LEFT",["-","0.6","SENSE_L"]],["IFLEQ","SENSE_R","SENSE_A","0.3","TURN_RIGHT"]],"SENSE_R",["+",["+","TURN_RIGHT","0.3"],["IFLEQ","SENSE_R","0.3","SENSE_R","SENSE_A"]],"SENSE_A"]] 
+    strategy: ["IFLEQ",["IFLEQ","0.3","TURN_LEFT","SENSE_R","SENSE_A"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]] 
 };
 
 var game_over = false;
@@ -535,8 +535,10 @@ function reload(){
 
   //resets game_over and stats_reported
   game_over=false;
-  stats_reported=false; 
-  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  stats_reported=false;
+  if (typeof timer == 'undefined'){
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  }
 /*  var scores=$('.playerScore');
       scores.each(function(){
         $(this).text(0);
@@ -645,34 +647,36 @@ function step() {
 
 //f stands for fast.
 function step_f(){
-      if (!stats_reported) {
-        for (var i = 0; i < NUM_PLAYERS; i++) {
-            if (players[i].ai) {
-                move_ai(players[i]);
-            }
-            // Update the player
-            update(players[i],players);
-        }
-    }
-    //Check if the players are alive
+  if (!stats_reported) {
     for (var i = 0; i < NUM_PLAYERS; i++) {
-        if (players[i].alive === false) {
-            game_over = true;
-        }
+      if (players[i].ai) {
+        move_ai(players[i]);
+      }
+      // Update the player
+      update(players[i],players);
     }
-    //Game over?
-    if (game_over) {
-        //TODO better way of only registering game once
-        if (!stats_reported) {
-            end_game_f();
-        }
+  }
+  //Check if the players are alive
+  for (var i = 0; i < NUM_PLAYERS; i++) {
+    if (players[i].alive === false) {
+      game_over = true;
     }
-
+  }
+  //Game over?
+  if (game_over) {
+    //TODO better way of only registering game once
+    if (!stats_reported) {
+      end_game_f();
+    }
+  }
 }
+
 function start(){
   BGM.play();
   //Set the function which is called after each interval
-  timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  if (typeof timer != 'undefined'){
+    timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+  }
   //erases the text.
   ctx.clearRect(0, 0,
     ROWS*BIKE_WIDTH, COLS*BIKE_HEIGHT);
@@ -684,7 +688,7 @@ function playerSetup(){
     p.x=Math.floor(Math.random()*COLS);
     p.y=Math.floor(Math.random()*ROWS);
     p.direction=PLAYER_DIRECTIONS[Math.floor(Math.random()*4)];
-        var name = p.name;
+    var name = p.name;
     var color=p.COLOR;
     var label=$('<div class="playerLabel">');
     var pName=$('<span class="playerName">');
@@ -803,6 +807,17 @@ document.onkeyup = function read(event) {
       $('body').css('background-image', 'url("media/images/nyan_background.gif")');
       $('body').css('background-repeat', 'repeat');      
     }
+    if (code === 80){
+      if ($('#pause').text()=='Pause'){
+        BGM.pause();
+        clearInterval(timer);
+        $('#pause').text('Unpause')
+      }else{
+          BGM.play();
+          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+          $('#pause').text('Pause')
+      }
+    }
 };
 
 //AJAX functions
@@ -875,12 +890,14 @@ $(function(){
     //postAI(val)
   });
   
-  $('#assignAI').click(function(e){
+  $('#AI1').on('change', function(){
+    console.log($('#AI1 option:selected').text())
     AI_PLAYER.strategy=STRATEGIES[$('#AI1').val()];
-    AI_PLAYER_2.strategy=STRATEGIES[$('#AI2').val()];
-    $('#assignMessage').text($('#AI1 :selected').text()+' and '+ $('#AI2 :selected').text()+' assigned!');
-    $('#assignMessage').fadeTo(400, 1.0, function(){$('#assignMessage').fadeTo(400,0.0)});
-  });
+  })
+
+   $('#AI2').on('change', function(){
+    AI_PLAYER.strategy=STRATEGIES[$('#AI2').val()];
+  })
   
   $('#viewStrategy1').on('click', function(){
     var strategy=STRATEGIES[$('#AI1').val()];
@@ -899,7 +916,9 @@ $(function(){
       $('#pause').text('Unpause')
     }else{
         BGM.play();
-        timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+        if (typeof timer == 'undefined'){
+          timer=setInterval(step, 1000 / FRAMES_PER_SECOND);
+        }
         $('#pause').text('Pause')
     }
   })
@@ -941,6 +960,9 @@ $(function(){
         console.log('two');
         players = [HUMAN_PLAYER, HUMAN_PLAYER_2];
         playerSetup();
+        $('.AI1controls').remove();
+        $('.AI2controls').remove();
+        $('#strategyChoice').remove();
       },
       "AI vs AI": function(){
         $(this).dialog('close');
