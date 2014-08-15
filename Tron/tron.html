@@ -15,7 +15,7 @@
   <div id='directions'> <div id = 'logo'></div> Player 1 controls: <span class='key'>&uarr;</span><span class='key'>&larr;</span><span class='key'>&darr;</span><span class='key'>&rarr;</span><br/>
     Player 2 controls: <span class='key'>W</span><span class='key'>A</span><span class='key'>S</span><span class='key'>D</span><br/>
 When a player reaches an already reached square (the trail of another player), that player loses.<br/>
-When multiple players collide head-on, they tie.
+When multiple players collide head-on, they draw.
 The last player standing wins.<br> Press <span class='key'>P</span> to pause and press <span class='key'>SPACE</span> to start the game.</div>
 <table>
   <tr>
@@ -25,7 +25,9 @@ The last player standing wins.<br> Press <span class='key'>P</span> to pause and
       </canvas>
     </td>
     <td>
-      <button id='pause'>Pause</button><button id='mute'>Mute</button><br>
+      <div id="buttonsDiv">
+        <button class='buttons' id='pause'>Pause</button><button class='buttons' id='mute'>Mute</button><button class='buttons' id='about'>About</button></button><br>
+      </div>
       <span id='strategyChoice'>
         <!-- Current Generation Completed: <span id='currentGen'>0</span> <br/> --> <!-- WARNING: total currently hardcoded --> 
         <span class='AI1controls'>AI1's Choice:</span>
@@ -58,6 +60,9 @@ The last player standing wins.<br> Press <span class='key'>P</span> to pause and
   </div>
   <div id='gameChoice'>
     <span id='gameChoiceMessage'></span>
+  </div>
+  <div id='aboutDialog'>
+    <span id='aboutMessage'></span>
   </div>
 </body>
 </html>

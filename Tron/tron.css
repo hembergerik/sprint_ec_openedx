@@ -90,6 +90,10 @@ canvas {
   /*background-image:url('media/images/dialogBackground.png');*/
 }
 
+#aboutDialog{
+  text-align:center;
+}
+
 #directions{
   font-family:Helvetica;
   text-align:center;
@@ -115,7 +119,7 @@ canvas {
   text-align:center;
 }
 
-#mute{
+.buttons{
   margin-left: 10px;
   width: 70px;
   height: 50px;
@@ -144,12 +148,6 @@ button{
   border-color:#3effff;
   border-radius:5px;
   color:#3effff;
-}
-
-#pause{
-  margin-left: 100px;
-  width: 70px;
-  height: 50px;
 }
 
 button:hover{

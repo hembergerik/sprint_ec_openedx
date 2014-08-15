@@ -4,7 +4,7 @@
 //TODO seems to be able to go diagonally. Use fixed look up tables instead of trigonometry?
 //TODO Verify that check environment for the AI player works
 "use strict";
-var GAME_PROPORTION_OF_PAGE = 0.6;
+var GAME_PROPORTION_OF_PAGE = 0.9;
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
@@ -48,9 +48,9 @@ var AI_names = {'1' : 'Potato',
                 '5': 'Trident &#946',
                 '6': 'Serpent',
                 '7': 'Skyline',
-                '8': 'Lost',
+                '8': 'FailBot',
                 '9': 'RageBot',
-                '10': 'Server' };
+                '10': 'Still Evolving' };
 
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
@@ -84,12 +84,16 @@ function skin_constructor(name, bikeurl, trailurl, cornerurl){
 }
 
 
-var red_bike_skin = skin_constructor('red bike', 'media/images/Tron_bike_red.png','media/images/Glow_Trail_Red_square.png','media/images/Glow_Trail_Red_corner.png');
-var blue_bike_skin = skin_constructor('blue bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png');
-var teal_bike_skin = skin_constructor('teal bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
-var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
-var bubble_tank_skin = skin_constructor('bubble tank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
-var carbonate_skin = skin_constructor('carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png')
+var red_bike_skin = skin_constructor('Red Bike', 'media/images/Tron_bike_red.png','media/images/Glow_Trail_Red_square.png','media/images/Glow_Trail_Red_corner.png');
+var blue_bike_skin = skin_constructor('Blue Bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png');
+var teal_bike_skin = skin_constructor('Teal Bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
+//var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
+var bubble_tank_skin = skin_constructor('Bubble Tank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
+var carbonate_skin = skin_constructor('Carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png')
+var potato_skin = skin_constructor('potato', 'media/images/potatoBike.png', 'media/images/baconTrail.png', 'media/images/baconCorner.png')
+var circuit_skin = skin_constructor('Circuit', 'media/images/Circuit_bike.png', 'media/images/Circuit_Trail.png', 'media/images/Circuit_corner.png')
+var pacman_skin=skin_constructor('Pacman', 'media/images/pacBike.png', 'media/images/pacTrail.png', 'media/images/pacTrail.png')
+var snake_skin=skin_constructor('Snake', 'media/images/snakeBike.png', 'media/images/snakeTrail.png', 'media/images/snakeCorner.png')
 
 
 //@param red_or_blue: string, 'red' or 'blue'
@@ -1015,10 +1019,10 @@ $(function(){
   $('#pause').on('click', function(){
     if ($('#pause').text()=='Pause'){
       if (typeof timer != 'undefined'){
-        BGM.pause();
+      BGM.pause();
         clearInterval(timer);
         timer=undefined;
-        $('#pause').text('Resume')
+        $('#pause').text('Resume');
       }
     }else{
       BGM.play();
@@ -1037,6 +1041,22 @@ $(function(){
       BGM.muted=false;
       Crash_effect.muted=false;
     }
+  });
+  
+  $('#about').on('click', function(){
+    $('#aboutMessage').html('<b>Tron</b><br/>with AIs created by evolutionary algorithms<br/>developed by Sen Chang, Erik Hemberg, Crystal Pan, and Ray Hua Wu<br/>Tron is the property of the Walt Disney Company<br/>Pacman is the property of Namco<br/>BubbleTanks is the property of Heroes Interactive<br/>Pop-Tarts are the property of Kellogg\'s<br/>Pop-Tarts give you rainbows');
+    $('#aboutDialog').dialog({
+      dialogClass: "no-close",
+      resizable: false,
+      height: 240,
+      width: 540,
+      modal: true,
+      buttons: {
+        "OK": function(){
+          $(this).dialog('close');
+        }
+      }
+    });
   });
   
   if(smaller>MOBILE_CUTOFF){
