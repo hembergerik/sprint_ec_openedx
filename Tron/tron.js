@@ -4,7 +4,7 @@
 //TODO seems to be able to go diagonally. Use fixed look up tables instead of trigonometry?
 //TODO Verify that check environment for the AI player works
 "use strict";
-var GAME_PROPORTION_OF_PAGE = 0.9;
+var GAME_PROPORTION_OF_PAGE = 0.8;
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
@@ -50,7 +50,7 @@ var AI_names = {'1' : 'Potato',
                 '7': 'Skyline',
                 '8': 'FailBot',
                 '9': 'RageBot',
-                '10': 'Still Evolving' };
+                '10': 'Evolve!' };
 
 // Use Image constructor. $('<image>') will not work.
 var red_bike_img = new Image();
@@ -88,11 +88,11 @@ var red_bike_skin = skin_constructor('Red Bike', 'media/images/Tron_bike_red.png
 var blue_bike_skin = skin_constructor('Blue Bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png');
 var teal_bike_skin = skin_constructor('Teal Bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
 //var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
-var bubble_tank_skin = skin_constructor('Bubble Tank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
+var bubble_tank_skin = skin_constructor('BubbleTank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
 var carbonate_skin = skin_constructor('Carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png')
-var potato_skin = skin_constructor('potato', 'media/images/potatoBike.png', 'media/images/baconTrail.png', 'media/images/baconCorner.png')
+var potato_skin = skin_constructor('Potato', 'media/images/potatoBike.png', 'media/images/baconTrail.png', 'media/images/baconCorner.png')
 var circuit_skin = skin_constructor('Circuit', 'media/images/Circuit_bike.png', 'media/images/Circuit_Trail.png', 'media/images/Circuit_corner.png')
-var pacman_skin=skin_constructor('Pacman', 'media/images/pacBike.png', 'media/images/pacTrail.png', 'media/images/pacTrail.png')
+var pacman_skin=skin_constructor('Pac-Man', 'media/images/pacBike.png', 'media/images/pacTrail.png', 'media/images/pacTrail.png')
 var snake_skin=skin_constructor('Snake', 'media/images/snakeBike.png', 'media/images/snakeTrail.png', 'media/images/snakeCorner.png')
 
 
@@ -877,7 +877,7 @@ document.onkeydown = function read(event) {
     red_corner.src = 'media/images/Nyan_Corner.png';
     BGM.play();
     $('body').css('background-image', 'url("media/images/nyan_background.gif")');
-    $('body').css('background-repeat', 'repeat');      
+    $('body').css('background-size', '100% auto');      
   }
   //P key, pause
   if (code === 80){
@@ -955,7 +955,7 @@ $(function(){
     STRATEGIES.push(data);
     var $option = $('<option>');
     $option.val(STRATEGIES.length - 1);
-    $option.html('Server');
+    $option.html('Evolve!');
     $('select.AI').append($option);
   }
   
@@ -1044,11 +1044,11 @@ $(function(){
   });
   
   $('#about').on('click', function(){
-    $('#aboutMessage').html('<b>Tron</b><br/>with AIs created by evolutionary algorithms<br/>developed by Sen Chang, Erik Hemberg, Crystal Pan, and Ray Hua Wu<br/>Tron is the property of the Walt Disney Company<br/>Pacman is the property of Namco<br/>BubbleTanks is the property of Heroes Interactive<br/>Pop-Tarts are the property of Kellogg\'s<br/>Pop-Tarts give you rainbows');
+    $('#aboutMessage').html('<b>Tron</b><br/>with AIs created by evolutionary algorithms<br/>developed by Sen Chang, Erik Hemberg, Crystal Pan, and Ray Hua Wu<br/><i><br/>Tron is the property of the Walt Disney Company.<br/>Pac-Man is the property of Namco.<br/>BubbleTanks is the property of Heroes Interactive.<br/>Pop-Tarts are the property of Kellogg\'s.<br/>Pop-Tarts give you rainbows.<br/>Potato.</i>');
     $('#aboutDialog').dialog({
       dialogClass: "no-close",
       resizable: false,
-      height: 240,
+      height: 280,
       width: 540,
       modal: true,
       buttons: {

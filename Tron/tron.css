@@ -125,6 +125,10 @@ canvas {
   height: 50px;
 }
 
+#buttonsDiv{
+  text-align:center;
+}
+
 .key{
   border-width:1px;
   border-color:#ddd;
