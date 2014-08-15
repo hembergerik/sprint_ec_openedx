@@ -4,7 +4,7 @@
 //TODO seems to be able to go diagonally. Use fixed look up tables instead of trigonometry?
 //TODO Verify that check environment for the AI player works
 "use strict";
-var GAME_PROPORTION_OF_PAGE = 0.68;
+var GAME_PROPORTION_OF_PAGE = 0.6;
 //Frames per second
 var FRAMES_PER_SECOND = 6;
 //Board is square. Board size is ROWS*BIKE_WIDTH
@@ -85,9 +85,11 @@ function skin_constructor(name, bikeurl, trailurl, cornerurl){
 
 
 var red_bike_skin = skin_constructor('red bike', 'media/images/Tron_bike_red.png','media/images/Glow_Trail_Red_square.png','media/images/Glow_Trail_Red_corner.png');
-var blue_bike_skin = skin_constructor('blue bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png')
+var blue_bike_skin = skin_constructor('blue bike', 'media/images/Tron_bike_blue.png','media/images/Glow_Trail_blue_square.png',  'media/images/Glow_Trail_blue_corner.png');
 var teal_bike_skin = skin_constructor('teal bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
 var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
+var bubble_tank_skin = skin_constructor('bubble tank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
+var carbonate_skin = skin_constructor('carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png')
 
 
 //@param red_or_blue: string, 'red' or 'blue'
@@ -153,7 +155,7 @@ var HUMAN_PLAYER_2 = {
 };
 var AI_PLAYER = {
     name: 'AI PLAYER 1',
-    COLOR: 'blue',
+    COLOR: 'red',
     alive: true,
     ID: 1,
     bike_trail: [],
@@ -166,7 +168,7 @@ var AI_PLAYER_2 = {
     x: Math.floor(ROWS / 4),
     y: Math.floor(ROWS / 2),
     direction: [-1, 0],
-    COLOR: 'red',
+    COLOR: 'blue',
     alive: true,
     ID: 1,
     bike_trail: [],
@@ -1054,6 +1056,7 @@ $(function(){
       "Human vs AI": function(){
         $(this).dialog('close');
         players = [HUMAN_PLAYER, AI_PLAYER];
+        AI_PLAYER.COLOR = 'blue';
         playerSetup();
         $('#leftButton2').remove();
         $('#rightButton2').remove();

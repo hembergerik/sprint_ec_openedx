@@ -15,75 +15,74 @@ var PLAYER_DIRECTIONS = [
 ];
 
 
-    var tron_params = {
+var tron_params = {
 //Frames per second
-        FRAMES_PER_SECOND: 6,
+    FRAMES_PER_SECOND: 6,
 //Board is square. Board size is ROWS*BIKE_WIDTH
-        ROWS: 20,
+    ROWS: 20,
 //Bike is square
-        BIKE_WIDTH: 4,
-        DRAW_BOARD: false,
-        tron_game_id: undefined,
+    BIKE_WIDTH: 4,
+    DRAW_BOARD: false,
+    tron_game_id: undefined,
 //Canvas to draw on
 //Directions player can move in [x, y] coordinates
-        board: undefined,
-        players: undefined,
-        NUM_PLAYERS: undefined,
-        game_over: undefined,
-        stats_reported: undefined
+    board: undefined,
+    players: undefined,
+    NUM_PLAYERS: undefined,
+    game_over: undefined,
+    stats_reported: undefined
+};
 
-    };
-    tron_params['COL'] = tron_params['ROWS'];
-    tron_params['BIKE_HEIGHT'] = tron_params['BIKE_WIDTH;'];
+tron_params['COL'] = tron_params['ROWS'];
+tron_params['BIKE_HEIGHT'] = tron_params['BIKE_WIDTH;'];
 // Set canvas size to match the Tron board rows and bike width
 //Context on canvas
 
-    var stats = [];
+var stats = [];
 
-    function setup_tron(strategy_0, strategy_1) {
+function setup_tron(strategy_0, strategy_1) {
 //Game board. 0 is empty
-        tron_params['board'] = [];
-        for (var i = 0; i < tron_params['ROWS']; i++) {
-            var board_square = [];
-            for (var j = 0; j < tron_params['COL']; j++) {
-                board_square.push(0);
-            }
-            tron_params['board'].push(board_square);
+    tron_params['board'] = [];
+    for (var i = 0; i < tron_params['ROWS']; i++) {
+        var board_square = [];
+        for (var j = 0; j < tron_params['COL']; j++) {
+            board_square.push(0);
         }
-        var AI_PLAYER_1 = {
-            //Position on board
-            x: 1,
-            y: Math.floor(tron_params['ROWS'] / 2),
-            //Direction on board [x,y]
-            direction: [0, 1],
-            COLOR: 'red',
-            alive: true,
-            ID: 0,
-            bike_trail: [],
-            ai: true,
-            score: 0,
-            strategy: strategy_0
-        };
-        var AI_PLAYER_2 = {
-            x: Math.floor(tron_params['ROWS'] / 2),
-            y: Math.floor(tron_params['ROWS'] / 2),
-            direction: [0, 1],
-            COLOR: 'blue',
-            alive: true,
-            ID: 1,
-            bike_trail: [],
-            ai: true,
-            score: 0,
-            // Strategy for the AI
-            strategy: strategy_1
-        };
-//Array of players
-        tron_params['players'] = [AI_PLAYER_1, AI_PLAYER_2];
-        tron_params['NUM_PLAYERS'] = tron_params['players'].length;
-
-        tron_params['game_over'] = false;
-        tron_params['stats_reported'] = false;
+        tron_params['board'].push(board_square);
     }
+    var AI_PLAYER_1 = {
+        //Position on board
+        x: 1,
+        y: Math.floor(tron_params['ROWS'] / 2),
+        //Direction on board [x,y]
+        direction: [0, 1],
+        COLOR: 'red',
+        alive: true,
+        ID: 0,
+        bike_trail: [],
+        ai: true,
+        score: 0,
+        strategy: strategy_0
+    };
+    var AI_PLAYER_2 = {
+        x: Math.floor(tron_params['ROWS'] / 2),
+        y: Math.floor(tron_params['ROWS'] / 2),
+        direction: [0, 1],
+        COLOR: 'blue',
+        alive: true,
+        ID: 1,
+        bike_trail: [],
+        ai: true,
+        score: 0,
+        // Strategy for the AI
+        strategy: strategy_1
+    };
+//Array of players
+    tron_params['players'] = [AI_PLAYER_1, AI_PLAYER_2];
+    tron_params['NUM_PLAYERS'] = tron_params['players'].length;
+    tron_params['game_over'] = false;
+    tron_params['stats_reported'] = false;
+}
 
     /**
      * Return the index of the direction in the PLAYER_DIRECTIONS array
