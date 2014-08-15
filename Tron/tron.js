@@ -974,6 +974,8 @@ $(function(){
   })
   
   
+  //Puts the default skin of the blue bike to be blue
+  $('select.skin')[1].selectedIndex = 1;
   
   
   $('#AI1').on('change', function(){
