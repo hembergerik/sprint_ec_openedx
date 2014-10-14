@@ -4,6 +4,7 @@
 //TODO seems to be able to go diagonally. Use fixed look up tables instead of trigonometry?
 //TODO Verify that check environment for the AI player works
 "use strict";
+var BACKEND_URL = "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/";
 var GAME_PROPORTION_OF_PAGE = 0.8;
 //Frames per second
 var FRAMES_PER_SECOND = 6;
@@ -78,7 +79,7 @@ function skin_constructor(name, bikeurl, trailurl, cornerurl){
     bike_img: bikeurl,
     trail_img: trailurl,
     corner_img: cornerurl
-  }
+  };
   skins.push(skin);
   return skin;
 }
@@ -89,11 +90,11 @@ var blue_bike_skin = skin_constructor('Blue Bike', 'media/images/Tron_bike_blue.
 var teal_bike_skin = skin_constructor('Teal Bike', 'media/images/Tron_bike_Teal.png', 'media/images/Glow_Trail_Teal.png', 'media/images/Glow_Trail_Teal_corner.png');
 //var nyan_cat_skin = skin_constructor('nyan cat','media/images/Nyan_Cat.png', 'media/images/Nyan_Trail.png', 'media/images/Nyan_Corner.png');
 var bubble_tank_skin = skin_constructor('BubbleTank', 'media/images/Bubble_Tanks.png', 'media/images/Bubble_Trail.png', 'media/images/Bubble_Corner.png');
-var carbonate_skin = skin_constructor('Carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png')
-var potato_skin = skin_constructor('Potato', 'media/images/potatoBike.png', 'media/images/baconTrail.png', 'media/images/baconCorner.png')
-var circuit_skin = skin_constructor('Circuit', 'media/images/Circuit_bike.png', 'media/images/Circuit_Trail.png', 'media/images/Circuit_corner.png')
-var pacman_skin=skin_constructor('Pac-Man', 'media/images/pacBike.png', 'media/images/pacTrail.png', 'media/images/pacTrail.png')
-var snake_skin=skin_constructor('Snake', 'media/images/snakeBike.png', 'media/images/snakeTrail.png', 'media/images/snakeCorner.png')
+var carbonate_skin = skin_constructor('Carbonate', 'media/images/Carbonate.png', 'media/images/Carbonate_trail.png', 'media/images/Carbonate_corner.png');
+var potato_skin = skin_constructor('Potato', 'media/images/potatoBike.png', 'media/images/baconTrail.png', 'media/images/baconCorner.png');
+var circuit_skin = skin_constructor('Circuit', 'media/images/Circuit_bike.png', 'media/images/Circuit_Trail.png', 'media/images/Circuit_corner.png');
+var pacman_skin=skin_constructor('Pac-Man', 'media/images/pacBike.png', 'media/images/pacTrail.png', 'media/images/pacTrail.png');
+var snake_skin=skin_constructor('Snake', 'media/images/snakeBike.png', 'media/images/snakeTrail.png', 'media/images/snakeCorner.png');
 
 
 //@param red_or_blue: string, 'red' or 'blue'
@@ -272,29 +273,6 @@ function evaluate(node, player) {
       //throw "Unknown symbol:" + symbol;
   }
 }
-    
-function distance(direction, player) {
-  var direction_idx = get_direction_index(player.direction);
-  var new_direction_idx = (direction_idx + PLAYER_DIRECTIONS.length + direction) % PLAYER_DIRECTIONS.length;
-  var new_direction = PLAYER_DIRECTIONS[new_direction_idx];
-  return player.environment[new_direction] / ROWS;
-}
-
-/**
- * Return a boolean denoting if the distance to an obstacle in the
- * environment in the relative direction is one cell ahead.
- *
- * @param {number} direction
- * @param {Object} player
- * @returns {boolean}
- */
-function is_obstacle_in_relative_direction(direction, player) {
-  // Threshold for how far ahead an obstacle is sensed
-  var threshold = 1.0 / ROWS;
-  // Distance to obstacle
-  var dist = distance(direction, player);
-  return dist < threshold;
-}
 
 /**
  * Return a float [0, 1] that is the distance in the
@@ -418,18 +396,7 @@ function draw(player) {
   }else{
     prev_direction = player.bike_trail[0];
   }
-  var lightTrailPath = getLightTrail(pre_pos_x, pre_pos_y, player.direction, prev_direction);
-  var prev_trailScale = getLightTrailScale(prev_direction);
-  var curr_trailScale = getLightTrailScale(player.direction);
-  var rotation = getImageRotation(player.direction);
-  /*ctx.beginPath(); 
-  ctx.lineWidth="10";
-  ctx.strokeStyle=player.COLOR; 
-  ctx.moveTo(lightTrailPath[0][0], lightTrailPath[0][1]);
-  ctx.lineTo(lightTrailPath[1][0], lightTrailPath[1][1]);
-  ctx.lineTo(lightTrailPath[2][0], lightTrailPath[2][1]);
-  ctx.stroke(); */
-  if(player.bike_trail.length>3){  
+  if(player.bike_trail.length>3){
     if (player.COLOR === 'red'){
       if(prev_direction[0] == player.direction[0] && prev_direction[1] == player.direction[1]){
         drawRotatedImage(red_trail, ctx,player.direction, pre_pos_x*BIKE_WIDTH, pre_pos_y*BIKE_HEIGHT, BIKE_WIDTH, BIKE_HEIGHT);
@@ -906,14 +873,14 @@ document.onkeydown = function read(event) {
     }
   }
 };
-
+ 
 //AJAX functions
 //function to get a random AI
 //@param callback: called when the server responds, currently passed with the parsed strategy. 
 //SUBJECT TO CHANGE
 function getRandomAI(callback){
   $.ajax({
-  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/get_ai_opponent.py",
+  url: BACKEND_URL + "get_ai_opponent.py"
 })
   .done(function(data) {
     console.log(data);
@@ -926,7 +893,7 @@ function getRandomAI(callback){
 //SUBJECT TO CHANGE
 function postAI(AI){
   $.ajax({
-  url: "http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
+  url: BACKEND_URL + "register_results.py",
   data: {operation: 'add_AI', data: JSON.stringify(AI)}
   })
   .done(function(data){
@@ -937,7 +904,7 @@ function postAI(AI){
 
 function updateAI(AI){
   $.ajax({
-    url:"http://128.52.173.90/Tron/sprint_ec_openedx/EC/python/tron_adversarial_dist/register_results.py",
+    url: BACKEND_URL + "register_results.py",
     data:{operation:'update_AI', data: JSON.stringify(AI)}
   })
   .done(function(data){
@@ -965,7 +932,7 @@ $(function(){
   
   STRATEGIES.forEach(function(val, index){
     var $option = $('<option>');
-    $option.val(index)
+    $option.val(index);
     $option.html(AI_names[index + 1]);
     $('select.AI').append($option);
     //postAI(val)
@@ -977,7 +944,7 @@ $(function(){
     $option.val(index);
     $option.html(skin.name);
     $('select.skin').append($option);
-  })
+  });
   
   
   //Puts the default skin of the blue bike to be blue
@@ -996,13 +963,13 @@ $(function(){
     $('#assignMessage').fadeTo(600, 1.0, function(){$('#assignMessage').fadeTo(1000,0.0)});
   });
   
-  $('#red_bike_skin').on('change', function(e){
+  $('#red_bike_skin').on('change', function(){
     apply_skin('red',skins[$(this).val()])
-  })
+  });
   
-  $('#blue_bike_skin').on('change', function(e){
+  $('#blue_bike_skin').on('change', function(){
     apply_skin('blue',skins[$(this).val()])
-  })
+  });
   
   
   
@@ -1031,7 +998,7 @@ $(function(){
       }
       $('#pause').text('Pause')
     }
-  })
+  });
   
   $('#mute').on('click', function(){
     if(BGM.muted===false){
@@ -1107,19 +1074,15 @@ $(function(){
   //can also use buttons to control player
 
   $('#leftButton').on('click', function(){
-    var direction = HUMAN_PLAYER.direction;
       left(HUMAN_PLAYER);
   });
   $('#rightButton').on('click', function(){
-    var direction = HUMAN_PLAYER.direction;
       right(HUMAN_PLAYER);
   });
   $('#leftButton2').on('click',function(){
-    var direction = HUMAN_PLAYER_2.direction;
       left(HUMAN_PLAYER_2);
   });
   $('#rightButton2').on('click',function(){
-    var direction = HUMAN_PLAYER_2.direction;
       right(HUMAN_PLAYER_2);
   });
 
@@ -1373,12 +1336,12 @@ var evolve = new Worker('tron_evolve_worker.js');
 var start_time = new Date().getTime();
 
 
-//This line Below starts the clinet-side background evlolution
+//This line Below starts the client-side background evolution
 //Parameters are adjusted from the gp_params above
 //Turn single_thread to FALSE to use multi-threaded support: faster but uses more CPU.
 
-
-//evolve.postMessage(gp_params);
+//Start worker thread
+evolve.postMessage(gp_params);
 evolve.addEventListener('message', function(e) {
   if(gp_params.single_thread){
     show_stats(e.data);
@@ -1387,8 +1350,6 @@ evolve.addEventListener('message', function(e) {
     generation = e.data.generation;
   }
 }, false);
-
-
 
 //Delivers the data onto the screen
 //@param data: object, contains a generation and a optional genome.
@@ -1402,8 +1363,6 @@ function show_stats(data){
     $('select').append($option);
   }
 }
-
-
 
 function mutate_and_crossover(population, params){
   var new_population = tournament_selection(params.tournament_size, population);
@@ -1419,9 +1378,8 @@ var THREADS_INITIALIZED = false;
 var workers = [];
 var workers_ready_status = [];
 var num_workers_ready = 0;
-var THREADS = 5; //optimized for AMD hexacores?
+var THREADS = 3;
 var generation = 0;
-var time_prev = 0;
 
 //multithreaded evaluate population code.
 //@param population: the population to evaluate.
@@ -1639,7 +1597,7 @@ function sort_individuals(individual_0, individual_1) {
 }
 
 //performs crossover on the given population
-//@param probablity: the chances of pairs of childrens of going through a crossover
+//@param probability: the chances of pairs of children of going through a crossover
 //@param population: the changing population
 //TODO: More documentation needed
 function crossover(crossover_probability, population) {

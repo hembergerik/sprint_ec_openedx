@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
 
 import cgi
@@ -270,12 +269,9 @@ class Tron_GA_v3(object):
             print json.dumps(self.population[i]['genome'])
             i += 1
         return self.population
-        
-        
-        
+
     #TOOD: READ POPULATION FROM DB
-
-
+        
     def search_loop(self, new_individuals):
         """
         Return the best individual from the evolutionary search
@@ -510,28 +506,28 @@ class Tron_GA_v3(object):
 
 
 #enables debugging by web.
-print "Content-Type: text/plain;charset=utf-8"
-print 
-print "Hello World!"
+# print "Content-Type: text/plain;charset=utf-8"
+# print 
+# print "Hello World!"
 
 
-t=Tron_GA_v3(1000,4,5,250,0.6,0.6,tron_evaluate_AIs)
-#t.run()
-#t.initialize_population()
-db = database.Database('tron.db')
-#db.replace_population(t.population)
-print 'initial potato', db.get_population()
+# t=Tron_GA_v3(1000,4,5,250,0.6,0.6,tron_evaluate_AIs)
+# #t.run()
+# #t.initialize_population()
+# db = database.Database('tron.db')
+# #db.replace_population(t.population)
+# print 'initial potato', db.get_population()
 
-def run_tron_coev():
-    db = database.Database('tron.db')
-    t.run_from_population(db.get_population())
-    print 'fitness', t.population[0]['fitness']
-    db.replace_population(t.population)
+# def run_tron_coev():
+#     db = database.Database('tron.db')
+#     t.run_from_population(db.get_population())
+#     print 'fitness', t.population[0]['fitness']
+#     db.replace_population(t.population)
     
-    #recursive set-timeout loops again woooooo
-    timer = threading.Timer(20, run_tron_coev)
-    timer.start()
-    #print 'potatoes', i, t.population
+#     #recursive set-timeout loops again woooooo
+#     timer = threading.Timer(20, run_tron_coev)
+#     timer.start()
+#     #print 'potatoes', i, t.population
     
-run_tron_coev()
+# run_tron_coev()
 
