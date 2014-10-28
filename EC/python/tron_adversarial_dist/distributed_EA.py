@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+import argparse
+import time
+import socket
+import copy
 import random
 import sqlite3
 import re
@@ -15,6 +19,7 @@ import os
 import tron_coev_v3 as tron_coev_ga
 import logging
 import sys
+import multiprocessing
  
 
 __author__ = 'erikhemberg'
@@ -22,6 +27,15 @@ __author__ = 'erikhemberg'
 # TODO: Make separate database serer so Islands can connect to it
 
 # Server from http://mafayyaz.wordpress.com/2013/02/08/writing-simple-http-server-in-python-with-rest-and-json/
+
+FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+def add_file_logger(logger, formatter, log_name):
+    log_file_name = log_name
+    file_logger = logging.FileHandler(filename=log_file_name, mode='w')
+    file_logger.setLevel(logging.INFO)
+    file_logger.setFormatter(formatter)
+    logger.addHandler(file_logger)
+
 
 def setup_logging():
     """Return logger.
@@ -34,19 +48,16 @@ def setup_logging():
     logger_name = os.path.basename(sys.argv[0])
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(FORMAT)
+        
 
     stream_logger = logging.StreamHandler()
     stream_logger.setLevel(logging.INFO)
     stream_logger.setFormatter(formatter)
     logger.addHandler(stream_logger)
 
-    log_file_name = os.path.splitext(logger_name)[0] + '.log'
-    file_logger = logging.FileHandler(filename=log_file_name, mode='w')
-    file_logger.setLevel(logging.INFO)
-    file_logger.setFormatter(formatter)
-    logger.addHandler(file_logger)
+    log_name = os.path.splitext(logger_name)[0] + '.log'
+    add_file_logger(logger, formatter, log_name)
 
     return logger
 
@@ -84,6 +95,8 @@ class EAIsland(object):
         self.ea_params = self.parameters['EA_params']
         self.ea = tron_coev_ga.Tron_GA_v3(**self.ea_params)
 
+        root_logger.info('Done setting up %s' % str(self.parameters))
+
     def receive(self, individuals):
         db = EADatabase(self.db_name)
         for individual in individuals:
@@ -116,12 +129,12 @@ class EAIsland(object):
     def receive_solutions(self):
         exporter = self.get_neighbor() 
         url = "http://%s:%d/%s" %\
-            (exporter['hostname'], exporter['port'], exporter['send_file_name'])        
+            (exporter['hostname'], exporter['port'], exporter['send_file_name'])
         try:
             response = urllib2.urlopen(url=url)
             data = response.read()
         except urllib2.URLError as err:
-            root_logger.error("Error", err)
+            root_logger.error("Error for %s" % url)
             raise urllib2.URLError(err)
         json_data = json.loads(data)
         # TODO keep from overwriting newer solutions with older collected
@@ -149,6 +162,7 @@ class EAIsland(object):
     def run(self):
         # Do not POST solutions out, let clients GET solutions. No need for 
         # any dynamics, just write to files. 
+        root_logger.info('Start run for %d restarts' % (EAIsland.MAX_RESTARTS))
         cnt = 0
         while cnt < EAIsland.MAX_RESTARTS:
             cnt += 1
@@ -305,32 +319,57 @@ class EADatabase():
             self.connection.commit()
 
 
-class LocalData(object):
-    records = {}
- 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
- 
-     def do_GET(self):
-         if re.search('/*', self.path):
-             recordID = self.path.split('/')[-1]
-             if os.path.exists(recordID):
-                 self.send_response(200)
-                 self.send_header('Content-Type', 'application/json')
-                 self.end_headers()
-                 with open(recordID, 'r') as in_file:
-                     self.wfile.write(in_file.read())
 
-                 root_logger.info('Sent %s' % recordID)
+    # TODO make a neighbor coordinator server, or
+ 
+    def do_POST(self):
+         if None != re.search('/*', self.path):
+             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+             if ctype == 'application/json':
+                 length = int(self.headers.getheader('content-length'))
+                 data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+                 recordID = self.path.split('/')[-1]
+                 # TODO nice way of accessing db
+                 db = EADatabase('EA_islands.db')
+                 # TODO sanity check the values
+                 db.store_neighbor(data['hostname'], data['port'],
+                                   data['send_file_name'])
+                 db.close()
+                 root_logger.info("record %s is added successfully" % recordID)
              else:
-                 self.send_response(400, 'Bad Request: record does not exist')
-                 self.send_header('Content-Type', 'application/json')
-                 self.end_headers()
+                 data = {}
+
+             self.send_response(200)
+             self.end_headers()
          else:
              self.send_response(403)
              self.send_header('Content-Type', 'application/json')
              self.end_headers()
 
          return
+
+    def do_GET(self):
+        if re.search('/*', self.path):
+            recordID = self.path.split('/')[-1]
+            if os.path.exists(recordID):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                with open(recordID, 'r') as in_file:
+                    self.wfile.write(in_file.read())
+                
+                root_logger.info('Sent %s' % recordID)
+            else:
+                self.send_response(400, 'Bad Request: record does not exist')
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+        else:
+            self.send_response(403)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            
+        return
  
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
@@ -362,6 +401,11 @@ class SimpleHttpServer():
         self.server.shutdown()
         self.waitForThread()
  
+
+def run_node(node):
+    root_logger.info('Begin run_node')
+    node.run()
+    root_logger.info('End run_node')
 
 def test_database():
 
@@ -422,16 +466,14 @@ def test_EAIsland(parameters):
     EAI.httpd.server.shutdown()
 
 def test_EA(parameters):
+    root_logger.info('Begin test_EA')
     EAI = EAIsland(parameters)
+    
     EAI.run()
+    time.sleep(10)
+    root_logger.info('End test_EA')
         
-def main():
-    pass
-
-if __name__ == '__main__':
-    random.seed(1)
-    main()
-
+def test_multiple_local_islands():
     parameters = {
         'send_frequency': 2,
         'send_amplitude': 2,
@@ -457,6 +499,93 @@ if __name__ == '__main__':
         },
     }
 
+    node_0_parameters = copy.deepcopy(parameters)
+    node_0_parameters['send_file_name'] = 'send_files_0.json'
+    node_0_parameters['database_table'] = 'individuals_0'
+
+    node_1_parameters = copy.deepcopy(parameters)
+    node_1_parameters['send_file_name'] = 'send_files_1.json'
+    node_1_parameters['database_table'] = 'individuals_1'
+    node_1_parameters['port'] = 8181
+
+    pool = multiprocessing.Pool(processes=2)
+    nodes = (node_0_parameters, node_1_parameters)
+    node_objs = [EAIsland(node) for node in nodes]
+    pool.map_async(run_node, node_objs)
+    time.sleep(5)
+    root_logger.info('Done test_multiple_local_islands')
+
+def main(parameters):
+    pass
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Distributed Evolutionary Algorithm")
+    parser.add_argument('--parameter_file', type=str,
+                        help='Parameters in JSON format')
+    parser.add_argument('--local_test', action='store_true', help='Test local setup')
+    parser.add_argument('--log_file', type=str, help='Log file name')
+    args = parser.parse_args()
+
+    # Read configuration TODO change configuration file format to JSON
+    # so comments can be added more easily
+    parameters = None
+    if args.parameter_file:
+        with open(args.parameter_file, 'r') as infile:
+            contents = infile.read()
+            parameters = json.loads(contents)
+            root_logger.info('Configuration: %s' % (parameters))    
+
+    if args.log_file:
+        root_logger.handlers.remove(root_logger.handlers[-1])
+        add_file_logger(root_logger, logging.Formatter(FORMAT), args.log_file)
+        root_logger.info('Changing file log')
+
+    if args.local_test:
+        parameters['local_test'] = True
+
+    return parameters
+
+if __name__ == '__main__':
+    random.seed(1)
+    parameters = parse_arguments()
+    # TODO Hack for passing functions
+    if parameters:
+        parameters['sending_selection'] = EAIsland.random_selection
+        parameters['EA_params']['fitness_function'] = tron_coev_ga.tron_evaluate_AIs
+    if 'local_test' in parameters:
+        test_EA(parameters)
+        sys.exit(0)
+        
+    main(parameters)
+#    sys.exit(0)
+
+    #TODO default name
+    #TODO auto name
+    parameters = {
+        'send_frequency': 2,
+        'send_amplitude': 2,
+        'sending_selection': 'EAIsland.random_selection',
+        'database_ip': '127.0.0.1',
+        'database_name': 'EA_islands.db',
+        'database_table': 'individuals_1',
+        'database_neighbours_table': 'neighbours',
+        'port': 8080,
+        'hostname': 'localhost',
+        'send_file_name': 'send_files.json',
+        'receive_frequency': 2,
+        'seed': 0,
+        'EA_params': {
+            'population_size': 4,
+            'max_size': 3, 
+            'generations': 2,
+            'elite_size': 1,
+            'crossover_probability': 0.9,
+            'mutation_probability': 0.1,
+            'fitness_function': 'tron_coev_ga.tron_evaluate_AIs',
+        },
+    }
+
     #test_database()
     #test_EAIsland(parameters)
-    test_EA(parameters)
+    #test_EA(parameters)
+#    test_multiple_local_islands()
