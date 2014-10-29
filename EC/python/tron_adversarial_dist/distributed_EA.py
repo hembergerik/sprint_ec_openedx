@@ -35,7 +35,7 @@ FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 def add_file_logger(logger, formatter, log_name):
     log_file_name = log_name
     file_logger = logging.FileHandler(filename=log_file_name, mode='w')
-    file_logger.setLevel(logging.INFO)
+    file_logger.setLevel(logging.DEBUG)
     file_logger.setFormatter(formatter)
     logger.addHandler(file_logger)
 
@@ -119,6 +119,7 @@ class EAIsland(object):
         return self.get_individuals_to_send()[0]
 
     def send_solutions(self):
+        root_logger.debug('Begin send_solutions')
         individuals = self.get_individuals_to_send()
         solutions = {'solutions': []}
         for individual in individuals:
@@ -129,11 +130,13 @@ class EAIsland(object):
         root_logger.info('Wrote to %s' % (self.send_file_name))
 
     def receive_solutions(self):
+        root_logger.debug('Begin recieve_solutions')
         exporter = self.get_neighbor()
         url = "http://%s:%d/%s" % \
               (exporter['hostname'], exporter['port'],
                exporter['send_file_name'])
         try:
+            root_logger.debug('Get solutions from:%s' % (url))
             response = urllib2.urlopen(url=url)
             data = response.read()
         except urllib2.URLError as err:
@@ -173,10 +176,7 @@ class EAIsland(object):
             root_logger.info("Restart: %d" % cnt)
 
             if cnt % self.parameters['send_frequency'] == 0:
-                try:
-                    self.send_solutions()
-                except:
-                    root_logger.error('Error')
+                self.send_solutions()
             if cnt % self.parameters['receive_frequency'] == 0:
                 try:
                     self.receive_solutions()
