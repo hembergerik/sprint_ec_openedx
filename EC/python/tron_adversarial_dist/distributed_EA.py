@@ -384,9 +384,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             root_logger.debug('Almost end do_POST')
             self.end_headers()
-        except Error as e:
+        except:
             root_logger.error("POST ERROR")
-            root_logger.error(str(e))
+
         root_logger.debug('End do_POST')
 
     def do_GET(self):
