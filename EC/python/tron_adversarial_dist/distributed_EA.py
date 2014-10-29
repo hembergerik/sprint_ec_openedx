@@ -173,7 +173,10 @@ class EAIsland(object):
             root_logger.info("Restart: %d" % cnt)
 
             if cnt % self.parameters['send_frequency'] == 0:
-                self.send_solutions()
+                try:
+                    self.send_solutions()
+                except:
+                    root_logger.error('Error')
             if cnt % self.parameters['receive_frequency'] == 0:
                 try:
                     self.receive_solutions()
