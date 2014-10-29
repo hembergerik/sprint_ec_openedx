@@ -366,11 +366,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                       data['send_file_name'])
                     db.close()
                     root_logger.info("success adding data: %s" % data)
-
                     self.send_response(200)
                 else:
                     self.send_response(404)
                     self.send_header('Content-Type', 'application/json')
+
+                root_logger.debug('Closer to end do_POST')
             else:
                 self.send_response(404)
                 self.send_header('Content-Type', 'application/json')
@@ -378,7 +379,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.send_header('Content-Type', 'application/json')
-        
+
+        root_logger.debug('Almost end do_POST')
         self.end_headers()
         root_logger.debug('End do_POST')
 
