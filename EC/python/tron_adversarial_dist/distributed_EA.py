@@ -384,7 +384,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             root_logger.debug('Almost end do_POST')
             self.end_headers()
-        except:
+        except Exception, err:
+            root_logger.error(sys.exc_info()[0])
             root_logger.error("POST ERROR")
 
         root_logger.debug('End do_POST')
