@@ -50,7 +50,7 @@ def setup_logging():
     """
     logger_name = os.path.basename(sys.argv[0])
     logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter(FORMAT)
 
     stream_logger = logging.StreamHandler()
