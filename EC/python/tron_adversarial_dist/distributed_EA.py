@@ -346,42 +346,46 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         root_logger.debug('Begin do_POST')
-        if None != re.search('/*', self.path):
-            ctype, pdict = cgi.parse_header(
-                self.headers.getheader('content-type'))
-            if ctype == 'application/json':
-                root_logger.debug('POST json at path: %s' % (self.path))
-                length = int(self.headers.getheader('content-length'))
-                data = urlparse.parse_qs(self.rfile.read(length),
-                                         keep_blank_values=1)
-                record_id = self.path.split('/')[-1]
-                # TODO why do I only add the key? (works for curl). Try a python adding
-                data = json.loads(data.keys()[0])
-                root_logger.info('Adding %s' %
-                                 (str(data)))
-                # TODO nice way of accessing db
-                if check_negihbor_values(data) is not None:
-                    db = EADatabase('EA_islands.db')
-                    db.store_neighbor(data['hostname'], data['port'],
-                                      data['send_file_name'])
-                    db.close()
-                    root_logger.info("success adding data: %s" % data)
-                    self.send_response(200)
+        try:
+            if None != re.search('/*', self.path):
+                ctype, pdict = cgi.parse_header(
+                    self.headers.getheader('content-type'))
+                if ctype == 'application/json':
+                    root_logger.debug('POST json at path: %s' % (self.path))
+                    length = int(self.headers.getheader('content-length'))
+                    data = urlparse.parse_qs(self.rfile.read(length),
+                                             keep_blank_values=1)
+                    record_id = self.path.split('/')[-1]
+                    # TODO why do I only add the key? (works for curl). Try a python adding
+                    data = json.loads(data.keys()[0])
+                    root_logger.info('Adding %s' %
+                                     (str(data)))
+                    # TODO nice way of accessing db
+                    if check_negihbor_values(data) is not None:
+                        db = EADatabase('EA_islands.db')
+                        db.store_neighbor(data['hostname'], data['port'],
+                                          data['send_file_name'])
+                        db.close()
+                        root_logger.info("success adding data: %s" % data)
+                        self.send_response(200)
+                    else:
+                        self.send_response(404)
+                        self.send_header('Content-Type', 'application/json')
+
+                    root_logger.debug('Closer to end do_POST')
                 else:
                     self.send_response(404)
                     self.send_header('Content-Type', 'application/json')
 
-                root_logger.debug('Closer to end do_POST')
             else:
                 self.send_response(404)
                 self.send_header('Content-Type', 'application/json')
 
-        else:
-            self.send_response(404)
-            self.send_header('Content-Type', 'application/json')
-
-        root_logger.debug('Almost end do_POST')
-        self.end_headers()
+            root_logger.debug('Almost end do_POST')
+            self.end_headers()
+        except Error as e:
+            root_logger.error("POST ERROR")
+            root_logger.error(str(e))
         root_logger.debug('End do_POST')
 
     def do_GET(self):
