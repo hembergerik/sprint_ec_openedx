@@ -379,10 +379,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
         
         self.end_headers()
+        root_logger.debug('End do_POST')
 
     def do_GET(self):
+        root_logger.debug('Begin do_GET at path:' % self.path)
         if re.search('/*', self.path):
             record_id = self.path.split('/')[-1]
+            root_logger.debug('record_id:%s' % record_id)
             if os.path.exists(record_id):
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -399,6 +402,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
+        root_logger.debug('End do_GET')
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
