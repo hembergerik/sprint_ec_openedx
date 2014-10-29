@@ -4,7 +4,7 @@
 
 parameter_file=$1
 log_file=$2
-neighbor_file=$3
+neighbor_files_suffix="neighbor.json"
 
 # Find key-value in json file without parsing
 # TODO use a more correct parser (or a different file fromat than json)
@@ -17,4 +17,6 @@ python distributed_EA.py --parameter_file ${parameter_file} --local_test --log_f
 pid=$!
 echo ${pid} >> pid.log
 sleep 2
-curl -X POST -H "Accept: application/json" -H 'Content-Type: application/json' -d "$( cat ${neighbor_file} )" http://${hostname}:${port}
+for file in $( find . -name ${neighbor_files_suffix} ); do
+    curl -X POST -H "Accept: application/json" -H 'Content-Type: application/json' -d "$( cat ${file} )" http://${hostname}:${port}
+done
