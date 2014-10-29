@@ -91,7 +91,7 @@ class EAIsland(object):
         root_logger.info("Servin HTTP on %s" % str(self.httpd))
         self.httpd.start()
         # TODO get the threading working
-        self.httpd.wait_for_thread()
+        #self.httpd.wait_for_thread()
 
         # Setup EA
         self.ea_params = self.parameters['EA_params']
@@ -362,17 +362,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                       data['send_file_name'])
                     db.close()
                     root_logger.info("success adding data: %s" % data)
+
+                    self.send_response(200)
+                else:
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'application/json')
             else:
-                data = {}
+                self.send_response(404)
+                self.send_header('Content-Type', 'application/json')
 
-            self.send_response(200)
-            self.end_headers()
         else:
-            self.send_response(403)
+            self.send_response(404)
             self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-
-        return
+        
+        self.end_headers()
 
     def do_GET(self):
         if re.search('/*', self.path):
@@ -390,11 +393,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
         else:
-            self.send_response(403)
+            self.send_response(404)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-
-        return
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):

@@ -13,7 +13,7 @@ for parameter_file in $( find $1 -name "node*parameters.${JSON_SFFX}" ); do
     log_file=$( basename ${parameter_file} ${JSON_SFFX} )log
 
     # TODO remove quanta ssh alias
-    #scp -i ~/erik.pem ${launch_data_folder}.tgz; ${RMT_USR}@${hostname}:${DEA_DIR}/.;
-    #sshq ${hostname} 'cd ${DEA_DIR}; rm -rf ${launch_data_folder}; tar -xf ${launch_data_folder}.tgz; bash remote_distributed_EA.sh ${parameter_file} ${log_file}';
+    scp -i ~/erik.pem ${launch_data_folder}.tgz ${RMT_USR}@${hostname}:.;
+    ssh -oStrictHostKeyChecking=no -oCheckHostIP=no -i ~/erik.pem -l ubuntu ${hostname} 'bash -s' < execute_DEA.sh ${DEA_DIR} ${launch_data_folder} ${parameter_file} ${log_file};
 done
 
