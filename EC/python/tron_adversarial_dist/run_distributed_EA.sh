@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-python distributed_EA.py &
+python distributed_EA.py --parameter_file node_0_parameters.json --local_test &
 pid=$!
 echo ${pid}
 echo ${pid} > pid.log
