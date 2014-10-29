@@ -350,7 +350,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             ctype, pdict = cgi.parse_header(
                 self.headers.getheader('content-type'))
             if ctype == 'application/json':
-                root_logger.debug('POST json at path:' % (self.path))
+                root_logger.debug('POST json at path: %s' % (self.path))
                 length = int(self.headers.getheader('content-length'))
                 data = urlparse.parse_qs(self.rfile.read(length),
                                          keep_blank_values=1)
