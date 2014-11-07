@@ -91,7 +91,7 @@ class EAIsland(object):
         root_logger.info("Servin HTTP on %s" % str(self.httpd))
         self.httpd.start()
         # TODO get the threading working
-        #self.httpd.wait_for_thread()
+        self.httpd.wait_for_thread()
 
         # Setup EA
         self.ea_params = self.parameters['EA_params']
