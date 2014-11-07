@@ -524,8 +524,7 @@ def test_ea(parameters):
     eai = EAIsland(parameters)
 
     eai.run()
-    time.sleep(10)
-    # TODO shutdown nicely
+    time.sleep(5)
     eai.httpd.server.shutdown()
     root_logger.info('End test_EA')
 
