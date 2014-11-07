@@ -401,6 +401,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 try:
                     root_logger.debug('sending:%s' % record_id)
                     self.send_response(200)
+                    root_logger.debug('sent 200 to:%s' % record_id)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     with open(record_id, 'r') as in_file:
@@ -409,9 +410,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     root_logger.info('Sent %s' % record_id)
                 except IOError as err:
                     root_logger.error(err)
-                except Exception, err:
-                    root_logger.error(sys.exc_info()[0])
-                    root_logger.error("GET ERROR")
             else:
                 root_logger.debug('No record:%s' % record_id)
                 self.send_response(400, 'Bad Request: record does not exist')
