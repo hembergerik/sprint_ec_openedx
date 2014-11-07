@@ -398,14 +398,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             record_id = self.path.split('/')[-1]
             root_logger.debug('record_id:%s' % record_id)
             if os.path.exists(record_id):
-                root_logger.debug('sending:%s' % record_id)
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                with open(record_id, 'r') as in_file:
-                    self.wfile.write(in_file.read())
+                try:
+                    root_logger.debug('sending:%s' % record_id)
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    with open(record_id, 'r') as in_file:
+                        self.wfile.write(in_file.read())
 
-                root_logger.info('Sent %s' % record_id)
+                    root_logger.info('Sent %s' % record_id)
+                except IOError as err:
+                    root_logger.error(err)
+                except Exception, err:
+                    root_logger.error(sys.exc_info()[0])
+                    root_logger.error("GET ERROR")
             else:
                 root_logger.debug('No record:%s' % record_id)
                 self.send_response(400, 'Bad Request: record does not exist')
