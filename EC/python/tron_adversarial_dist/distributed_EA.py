@@ -393,7 +393,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         root_logger.debug('End do_POST')
 
     def do_GET(self):
-        root_logger.debug('Begin do_GET at path:' % self.path)
+        root_logger.debug('Begin do_GET at path:' % str(self.path))
         if re.search('/*', self.path):
             record_id = self.path.split('/')[-1]
             root_logger.debug('record_id:%s' % record_id)
