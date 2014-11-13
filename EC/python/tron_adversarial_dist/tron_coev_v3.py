@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 
 
-import cgi
-import cgitb
-import database
 import random
 import json
-import tron_v3
 import copy
 import math
-import database
-import threading
+
+import tron_v3
+
 
 def tron_evaluate_AIs(AI_1, AI_2):
     tron_game = tron_v3.Tron(20, AI_1['genome'], AI_2['genome'])
@@ -40,7 +37,7 @@ def get_symbols():
     functions = []
 
     for key in arity.keys():
-        if (arity[key] == 0):
+        if arity[key] == 0:
             terminals.append(key)
         else:
             functions.append(key)

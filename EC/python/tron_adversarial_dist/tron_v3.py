@@ -5,7 +5,6 @@
 #This is non-graphcial and AI only.
 
 
-import math
 import random
 
 
@@ -23,24 +22,26 @@ class Tron(object):
             for j in range(rows):
                 row.append(0)
             self.board.append(row)
-        self.player1 = Player(random.randint(0, rows),random.randint(0, rows),AI_1, self.board)
-        self.player2 = Player(random.randint(0, rows),random.randint(0, rows),AI_2, self.board)
+        self.player1 = Player(random.randint(0, rows),random.randint(0, rows),
+                              AI_1, self.board)
+        self.player2 = Player(random.randint(0, rows),random.randint(0, rows),
+                              AI_2, self.board)
 
 
     def step(self):
         self.player1.move()
         self.player2.move()
-        self.checkGameOver()
+        self.is_game_over()
             
             
-    def checkGameOver(self):
+    def is_game_over(self):
         if self.player1.alive and self.player2.alive:
             return False
         else:
             return True
     
     def run(self):
-        while(not self.checkGameOver()):
+        while(not self.is_game_over()):
             self.step()
         if self.player1.alive:
             return 0
@@ -65,15 +66,17 @@ class Player(object):
     #changes the player's direction to the right
     def right(self):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
-        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) - 1) % len(self.PLAYER_DIRECTIONS);
-        self.direction = self.PLAYER_DIRECTIONS[new_direction_idx];
+        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) - 1) %\
+                            len(self.PLAYER_DIRECTIONS)
+        self.direction = self.PLAYER_DIRECTIONS[new_direction_idx]
         
         
     #changes the player's direction to the left
     def left(self):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
-        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) + 1) % len(self.PLAYER_DIRECTIONS);
-        self.direction = self.PLAYER_DIRECTIONS[new_direction_idx];
+        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) + 1) %\
+                            len(self.PLAYER_DIRECTIONS)
+        self.direction = self.PLAYER_DIRECTIONS[new_direction_idx]
     
     
     #finds the distacne to obstacle in target direction
@@ -81,12 +84,14 @@ class Player(object):
     #returns a float representing the percentage.
     def distance(self, direction):
         direction_idx = self.PLAYER_DIRECTIONS.index(self.direction)
-        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) + direction) % len(self.PLAYER_DIRECTIONS);
-        new_direction = self.PLAYER_DIRECTIONS[new_direction_idx];
+        new_direction_idx = (direction_idx + len(self.PLAYER_DIRECTIONS) +
+                             direction) % len(self.PLAYER_DIRECTIONS)
+        new_direction = self.PLAYER_DIRECTIONS[new_direction_idx]
         current_x = (self.x + new_direction[0]) % len(self.board)
         current_y = (self.y + new_direction[1]) % len(self.board)
         distance = 0
-        while(self.board[current_x][current_y] == 0 and distance < len(self.board)-1):
+        while(self.board[current_x][current_y] == 0 and
+                          distance < len(self.board)-1):
             current_x += new_direction[0]
             current_y += new_direction[1]
             current_x %= len(self.board)
@@ -160,10 +165,11 @@ class Player(object):
             #raise an error
             
 #Testing code.
-            
-t = Tron(20, ["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]], ["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]])
-#t = Tron(20, ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]], ['0.3'])
-t.run()
+
+if __name__ == '__main__':
+    t = Tron(20, ["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]], ["IFLEQ",["IFLEQ",["TURN_LEFT"],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]],["+","0.3","0.3"],["IFLEQ","SENSE_R","TURN_RIGHT","TURN_RIGHT","0.6"],["+","0.1","SENSE_A"]])
+    #t = Tron(20, ["-",["-",["0.3"],["IFLEQ",["IFLEQ","0.3","SENSE_L","0.6","TURN_RIGHT"],["-","0.3","SENSE_L"],["-","0.3","0.1"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]],["IFLEQ",["-",["+","0.3","0.1"],["IFLEQ","0.1","0.3","SENSE_R","TURN_RIGHT"]],["-","0.3","SENSE_L"],["+","0.1","TURN_RIGHT"],["IFLEQ","SENSE_A","SENSE_L","TURN_LEFT","0.1"]]], ['0.3'])
+    t.run()
             
             
             
